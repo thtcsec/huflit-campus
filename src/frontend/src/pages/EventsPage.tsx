@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Container, Grid, FormControl, InputLabel, Select, MenuItem, TextField } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import { PageHeader, SearchBar, EmptyState, EventGridSkeleton } from '@/components/common';
 import { EventGrid } from '@/components/events';
 import { eventsApi } from '@/api';
@@ -8,6 +9,7 @@ import type { EventListItem, EventCategory, EventStatus } from '@/types';
 import { EventCategory as EventCategoryEnum, EventStatus as EventStatusEnum } from '@/types';
 
 const EventsPage: React.FC = () => {
+  const { t } = useTranslation();
   const [events, setEvents] = useState<EventListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -43,21 +45,25 @@ const EventsPage: React.FC = () => {
   return (
     <Container maxWidth="lg">
       <PageHeader
-        title="Events"
-        subtitle="Discover and join events happening on campus"
-        breadcrumbs={[{ label: 'Home', path: '/' }, { label: 'Events' }]}
+        title={t('events.title')}
+        subtitle={t('events.subtitle')}
+        breadcrumbs={[{ label: t('common.home'), path: '/' }, { label: t('events.title') }]}
       />
 
       <Box sx={{ mb: 4 }}>
         <Grid container spacing={2} alignItems="center">
           <Grid item xs={12} md={4}>
-            <SearchBar value={search} onChange={setSearch} placeholder="Search events..." />
+            <SearchBar value={search} onChange={setSearch} placeholder={t('events.searchPlaceholder')} />
           </Grid>
           <Grid item xs={12} sm={4} md={2}>
             <FormControl fullWidth>
-              <InputLabel>Category</InputLabel>
-              <Select value={category} onChange={(e) => setCategory(e.target.value as EventCategory)} label="Category">
-                <MenuItem value="">All</MenuItem>
+              <InputLabel>{t('events.category')}</InputLabel>
+              <Select
+                value={category}
+                onChange={(e) => setCategory(e.target.value as EventCategory)}
+                label={t('events.category')}
+              >
+                <MenuItem value="">{t('common.all')}</MenuItem>
                 {Object.values(EventCategoryEnum).map((cat) => (
                   <MenuItem key={cat} value={cat}>
                     {cat}
@@ -68,9 +74,13 @@ const EventsPage: React.FC = () => {
           </Grid>
           <Grid item xs={12} sm={4} md={2}>
             <FormControl fullWidth>
-              <InputLabel>Status</InputLabel>
-              <Select value={status} onChange={(e) => setStatus(e.target.value as EventStatus)} label="Status">
-                <MenuItem value="">All</MenuItem>
+              <InputLabel>{t('events.status')}</InputLabel>
+              <Select
+                value={status}
+                onChange={(e) => setStatus(e.target.value as EventStatus)}
+                label={t('events.status')}
+              >
+                <MenuItem value="">{t('common.all')}</MenuItem>
                 {Object.values(EventStatusEnum).map((stat) => (
                   <MenuItem key={stat} value={stat}>
                     {stat}
@@ -80,7 +90,12 @@ const EventsPage: React.FC = () => {
             </FormControl>
           </Grid>
           <Grid item xs={12} sm={4} md={2}>
-            <TextField fullWidth label="Faculty" value={faculty} onChange={(e) => setFaculty(e.target.value)} />
+            <TextField
+              fullWidth
+              label={t('events.faculty')}
+              value={faculty}
+              onChange={(e) => setFaculty(e.target.value)}
+            />
           </Grid>
         </Grid>
       </Box>
@@ -91,9 +106,17 @@ const EventsPage: React.FC = () => {
         <EventGrid events={events} onUpdate={loadEvents} />
       ) : (
         <EmptyState
-          title="No events found"
-          description="Try adjusting your filters or search query"
-          action={{ label: 'Clear Filters', onClick: () => { setSearch(''); setCategory(''); setStatus(''); setFaculty(''); } }}
+          title={t('events.emptyTitle')}
+          description={t('events.emptyDescription')}
+          action={{
+            label: t('common.clearFilters'),
+            onClick: () => {
+              setSearch('');
+              setCategory('');
+              setStatus('');
+              setFaculty('');
+            },
+          }}
         />
       )}
     </Container>

@@ -13,11 +13,13 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
+import { useTranslation } from 'react-i18next';
 import { eventsApi } from '@/api';
 import { PageHeader } from '@/components/common';
 import { EventCategory, CreateEventRequest } from '@/types';
 
 const CreateEventPage: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
   const [loading, setLoading] = useState(false);
@@ -67,8 +69,12 @@ const CreateEventPage: React.FC = () => {
   return (
     <Container maxWidth="lg">
       <PageHeader
-        title="Create Event"
-        breadcrumbs={[{ label: 'Home', path: '/' }, { label: 'Events', path: '/events' }, { label: 'Create Event' }]}
+        title={t('createEvent.title')}
+        breadcrumbs={[
+          { label: t('common.home'), path: '/' },
+          { label: t('events.title'), path: '/events' },
+          { label: t('createEvent.title') },
+        ]}
       />
 
       <Paper sx={{ p: 4 }}>

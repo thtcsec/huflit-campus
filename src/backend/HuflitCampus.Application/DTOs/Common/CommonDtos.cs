@@ -51,6 +51,7 @@ public class AnnouncementDto
 
 public class HomeFeedDto
 {
+    public List<DTOs.Events.EventListItemDto> Featured { get; set; } = [];
     public List<DTOs.Events.EventListItemDto> Today { get; set; } = [];
     public List<DTOs.Events.EventListItemDto> Trending { get; set; } = [];
     public List<DTOs.Events.EventListItemDto> Upcoming { get; set; } = [];

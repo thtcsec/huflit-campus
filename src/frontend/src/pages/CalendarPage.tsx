@@ -1,17 +1,20 @@
 import React from 'react';
 import { Container, Typography } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import { PageHeader } from '@/components/common';
 
 const CalendarPage: React.FC = () => {
+  const { t } = useTranslation();
+
   return (
     <Container maxWidth="lg">
       <PageHeader
-        title="Calendar"
-        subtitle="View all events in calendar format"
-        breadcrumbs={[{ label: 'Home', path: '/' }, { label: 'Calendar' }]}
+        title={t('calendar.title')}
+        subtitle={t('calendar.subtitle')}
+        breadcrumbs={[{ label: t('common.home'), path: '/' }, { label: t('calendar.title') }]}
       />
       <Typography variant="body1" color="text.secondary">
-        Calendar view implementation in progress.
+        {t('calendar.comingSoon')}
       </Typography>
     </Container>
   );

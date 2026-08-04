@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button, CircularProgress } from '@mui/material';
 import { CheckCircle } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 import { registrationsApi } from '@/api';
 import { useSnackbar } from 'notistack';
 import { useAuth } from '@/hooks';
@@ -14,6 +15,7 @@ interface RegisterButtonProps {
 }
 
 const RegisterButton: React.FC<RegisterButtonProps> = ({ eventId, isRegistered, remainingSeats, onUpdate }) => {
+  const { t } = useTranslation();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
@@ -28,10 +30,10 @@ const RegisterButton: React.FC<RegisterButtonProps> = ({ eventId, isRegistered, 
     setLoading(true);
     try {
       await registrationsApi.registerEvent(eventId);
-      enqueueSnackbar('Successfully registered for event', { variant: 'success' });
+      enqueueSnackbar(t('events.registerSuccess'), { variant: 'success' });
       onUpdate();
     } catch (error: any) {
-      enqueueSnackbar(error.response?.data?.message || 'Registration failed', { variant: 'error' });
+      enqueueSnackbar(error.response?.data?.message || t('events.registerFailed'), { variant: 'error' });
     } finally {
       setLoading(false);
     }
@@ -41,10 +43,10 @@ const RegisterButton: React.FC<RegisterButtonProps> = ({ eventId, isRegistered, 
     setLoading(true);
     try {
       await registrationsApi.cancelRegistration(eventId);
-      enqueueSnackbar('Registration cancelled', { variant: 'info' });
+      enqueueSnackbar(t('events.cancelSuccess'), { variant: 'info' });
       onUpdate();
     } catch (error: any) {
-      enqueueSnackbar(error.response?.data?.message || 'Failed to cancel', { variant: 'error' });
+      enqueueSnackbar(error.response?.data?.message || t('events.cancelFailed'), { variant: 'error' });
     } finally {
       setLoading(false);
     }
@@ -59,7 +61,7 @@ const RegisterButton: React.FC<RegisterButtonProps> = ({ eventId, isRegistered, 
         onClick={handleCancel}
         disabled={loading}
       >
-        {loading ? <CircularProgress size={24} /> : 'Registered'}
+        {loading ? <CircularProgress size={24} /> : t('events.registered')}
       </Button>
     );
   }
@@ -71,7 +73,7 @@ const RegisterButton: React.FC<RegisterButtonProps> = ({ eventId, isRegistered, 
       onClick={handleRegister}
       disabled={loading || remainingSeats <= 0}
     >
-      {loading ? <CircularProgress size={24} /> : remainingSeats <= 0 ? 'Sold Out' : 'Register Now'}
+      {loading ? <CircularProgress size={24} /> : remainingSeats <= 0 ? t('events.soldOut') : t('events.registerNow')}
     </Button>
   );
 };

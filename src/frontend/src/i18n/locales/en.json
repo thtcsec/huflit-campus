@@ -23,7 +23,12 @@
     "daysAgo": "{{count}}d ago",
     "markAllRead": "Mark all as read",
     "noData": "No data",
-    "errorGeneric": "Something went wrong. Please try again."
+    "errorGeneric": "Something went wrong. Please try again.",
+    "viewAll": "View all",
+    "all": "All",
+    "clearFilters": "Clear filters",
+    "goHome": "Go home",
+    "loadingShort": "Loading…"
   },
   "nav": {
     "home": "Home",
@@ -39,7 +44,9 @@
     "dashboard": "Dashboard",
     "expandSidebar": "Expand sidebar",
     "collapseSidebar": "Collapse sidebar",
-    "openMenu": "Open menu"
+    "openMenu": "Open menu",
+    "viewProfile": "View profile",
+    "adminDashboard": "Admin dashboard"
   },
   "auth": {
     "brandTitle": "HUFLIT",
@@ -69,7 +76,9 @@
     "enterOtp": "Enter the OTP code",
     "loginFailed": "Microsoft sign-in failed",
     "otpFailed": "Failed to send OTP",
-    "invalidOtp": "Invalid OTP"
+    "invalidOtp": "Invalid OTP",
+    "logoutTitle": "Sign out",
+    "logoutConfirm": "Are you sure you want to sign out of HUFLIT Campus?"
   },
   "notifications": {
     "title": "Notifications",
@@ -82,19 +91,136 @@
     "allMarkedRead": "All notifications marked as read",
     "loadError": "Could not load notifications"
   },
+  "home": {
+    "welcome": "Welcome to HUFLIT Campus",
+    "tagline": "Discover and join amazing events happening on campus",
+    "explore": "Explore events",
+    "happeningToday": "Happening today",
+    "trending": "Trending events",
+    "upcoming": "Upcoming events",
+    "recommended": "Recommended for you",
+    "spotlight": "Spotlight event",
+    "viewDetails": "View details",
+    "noSpotlightExplore": "Explore campus events"
+  },
   "events": {
     "title": "Events",
-    "explore": "Explore Events",
-    "today": "Today's Events",
+    "subtitle": "Discover and join events happening on campus",
+    "explore": "Explore events",
+    "today": "Today's events",
     "trending": "Trending",
     "upcoming": "Upcoming",
-    "recent": "Recently Added",
+    "recent": "Recently added",
     "recommended": "Recommended",
     "register": "Register",
     "save": "Save",
     "share": "Share",
     "capacity": "Capacity",
-    "remaining": "Remaining seats"
+    "remaining": "Remaining seats",
+    "searchPlaceholder": "Search events…",
+    "category": "Category",
+    "status": "Status",
+    "faculty": "Faculty",
+    "emptyTitle": "No events found",
+    "emptyDescription": "Try adjusting your filters or search query",
+    "featured": "Featured",
+    "almostFull": "Almost full",
+    "registered": "Registered",
+    "registerNow": "Register now",
+    "soldOut": "Sold out",
+    "unregister": "Cancel registration",
+    "registerSuccess": "Successfully registered for event",
+    "registerFailed": "Registration failed",
+    "cancelSuccess": "Registration cancelled",
+    "cancelFailed": "Failed to cancel",
+    "saveForLater": "Save for later",
+    "unsave": "Unsave",
+    "details": "Event details",
+    "start": "Start",
+    "end": "End",
+    "location": "Location",
+    "organizer": "Organizer",
+    "about": "About this event",
+    "notFound": "Event not found",
+    "notFoundDesc": "The event you are looking for does not exist",
+    "seats": "{{count}} / {{capacity}} registered",
+    "description": "Description",
+    "agenda": "Agenda",
+    "speakers": "Speakers",
+    "registration": "Registration",
+    "timeUntil": "Time until event",
+    "registrationDeadline": "Registration deadline",
+    "requirements": "Requirements",
+    "saved": "Event saved",
+    "unsaved": "Event removed from saved",
+    "updateFailed": "Failed to update",
+    "startsInDaysHours": "Starts in {{days}}d {{hours}}h",
+    "startsInHoursMins": "Starts in {{hours}}h {{minutes}}m",
+    "startsInMins": "Starts in {{minutes}}m",
+    "ongoing": "Ongoing",
+    "ended": "Ended"
+  },
+  "saved": {
+    "title": "Saved events",
+    "subtitle": "Events you've bookmarked for later",
+    "emptyTitle": "No saved events",
+    "emptyDescription": "You haven't saved any events yet. Browse events and save the ones you're interested in."
+  },
+  "registrations": {
+    "title": "My registrations",
+    "subtitle": "Events you've registered for",
+    "emptyTitle": "No registrations",
+    "emptyDescription": "You haven't registered for any events yet. Explore upcoming events and register now!",
+    "registeredAt": "Registered: {{date}}",
+    "ticket": "Ticket: {{code}}",
+    "waitlist": "Waitlist position: {{position}}",
+    "eventFallback": "Event"
+  },
+  "calendar": {
+    "title": "Calendar",
+    "subtitle": "View all events in calendar format",
+    "comingSoon": "Calendar view is coming soon."
+  },
+  "profile": {
+    "title": "Profile",
+    "subtitle": "Manage your account and preferences",
+    "memberSince": "Member since {{date}}",
+    "personalInfo": "Personal information",
+    "email": "Email",
+    "studentId": "Student ID",
+    "faculty": "Faculty",
+    "major": "Major",
+    "phone": "Phone",
+    "accountDetails": "Account details",
+    "authProvider": "Auth provider",
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Inactive",
+    "fcmToken": "FCM token",
+    "connected": "Connected",
+    "notConnected": "Not connected",
+    "notUpdated": "Not updated",
+    "registeredCount": "Registered activities",
+    "participatedCount": "Participated activities",
+    "upcomingCount": "Upcoming activities",
+    "myActivities": "My activities",
+    "searchActivities": "Search activities…",
+    "noActivities": "No activities found",
+    "viewAllRegistrations": "View all registrations",
+    "adminId": "ID"
+  },
+  "admin": {
+    "title": "Admin dashboard",
+    "subtitle": "System overview and analytics",
+    "totalUsers": "Total users",
+    "totalEvents": "Total events",
+    "totalRegistrations": "Total registrations",
+    "pendingApproval": "Pending approval",
+    "comingSoon": "More analytics coming soon."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The page you're looking for doesn't exist or has been moved."
   },
   "footer": {
     "about": "Campus Event Management System",
@@ -109,8 +235,47 @@
     "followUs": "Follow us",
     "copyright": "© {{year}} Faculty of Information Technology, HUFLIT — Ho Chi Minh City University of Foreign Languages – Information Technology."
   },
-  "home": {
-    "welcome": "Welcome to HUFLIT Campus",
-    "tagline": "Discover and join amazing events happening on campus"
+  "manage": {
+    "title": "Manage events",
+    "create": "Create event",
+    "emptyTitle": "No events found",
+    "emptyDescription": "Create your first event to get started",
+    "viewDetails": "View details",
+    "confirmTitle": "Confirm action",
+    "confirmMessage": "Are you sure you want to {{action}} this event?",
+    "loadingEvent": "Loading event…"
+  },
+  "createEvent": {
+    "title": "Create event",
+    "editTitle": "Edit event",
+    "eventTitle": "Event title",
+    "description": "Description",
+    "category": "Category",
+    "locationName": "Location name",
+    "address": "Address",
+    "startAt": "Start time",
+    "endAt": "End time",
+    "capacity": "Capacity",
+    "faculty": "Faculty",
+    "bannerUrl": "Banner URL",
+    "submit": "Create event",
+    "update": "Update event"
+  },
+  "organizerQr": {
+    "title": "Event QR code generator",
+    "selectEvent": "Select event",
+    "hint": "Generate a QR code for attendees to check in at your event",
+    "event": "Event",
+    "generate": "Generate QR code",
+    "regenerate": "Regenerate QR code"
+  },
+  "attendance": {
+    "title": "Attendance scanner",
+    "scanTitle": "Scan QR code for check-in",
+    "hint": "Enter the QR code data below to check in attendees",
+    "qrData": "QR code data",
+    "helper": "Paste the QR code JSON data here",
+    "checkIn": "Check in",
+    "processing": "Processing…"
   }
 }

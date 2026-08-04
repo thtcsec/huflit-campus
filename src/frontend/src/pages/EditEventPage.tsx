@@ -13,11 +13,13 @@ import {
 } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
+import { useTranslation } from 'react-i18next';
 import { eventsApi } from '@/api';
 import { PageHeader } from '@/components/common';
 import { EventCategory, CreateEventRequest, EventDetail } from '@/types';
 
 const EditEventPage: React.FC = () => {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
@@ -107,7 +109,7 @@ const EditEventPage: React.FC = () => {
   if (loadingEvent) {
     return (
       <Container maxWidth="lg">
-        <Typography>Loading event...</Typography>
+        <Typography>{t('manage.loadingEvent')}</Typography>
       </Container>
     );
   }
@@ -115,12 +117,12 @@ const EditEventPage: React.FC = () => {
   return (
     <Container maxWidth="lg">
       <PageHeader
-        title="Edit Event"
+        title={t('createEvent.editTitle')}
         breadcrumbs={[
-          { label: 'Home', path: '/' },
-          { label: 'Events', path: '/events' },
-          { label: 'Manage', path: '/events/manage' },
-          { label: 'Edit Event' },
+          { label: t('common.home'), path: '/' },
+          { label: t('events.title'), path: '/events' },
+          { label: t('manage.title'), path: '/events/manage' },
+          { label: t('createEvent.editTitle') },
         ]}
       />
 

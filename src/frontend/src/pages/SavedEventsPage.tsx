@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Container } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import { PageHeader, EmptyState, EventGridSkeleton } from '@/components/common';
 import { EventGrid } from '@/components/events';
 import { savedEventsApi } from '@/api';
@@ -7,6 +8,7 @@ import type { EventListItem } from '@/types';
 import { useNavigate } from 'react-router-dom';
 
 const SavedEventsPage: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [events, setEvents] = useState<EventListItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -30,9 +32,9 @@ const SavedEventsPage: React.FC = () => {
   return (
     <Container maxWidth="lg">
       <PageHeader
-        title="Saved Events"
-        subtitle="Events you've bookmarked for later"
-        breadcrumbs={[{ label: 'Home', path: '/' }, { label: 'Saved Events' }]}
+        title={t('saved.title')}
+        subtitle={t('saved.subtitle')}
+        breadcrumbs={[{ label: t('common.home'), path: '/' }, { label: t('saved.title') }]}
       />
 
       {loading ? (
@@ -41,9 +43,9 @@ const SavedEventsPage: React.FC = () => {
         <EventGrid events={events} onUpdate={loadSavedEvents} />
       ) : (
         <EmptyState
-          title="No saved events"
-          description="You haven't saved any events yet. Browse events and save the ones you're interested in."
-          action={{ label: 'Browse Events', onClick: () => navigate('/events') }}
+          title={t('saved.emptyTitle')}
+          description={t('saved.emptyDescription')}
+          action={{ label: t('common.browseEvents'), onClick: () => navigate('/events') }}
         />
       )}
     </Container>

@@ -23,7 +23,12 @@
     "daysAgo": "{{count}} ngày trước",
     "markAllRead": "Đánh dấu tất cả đã đọc",
     "noData": "Không có dữ liệu",
-    "errorGeneric": "Đã xảy ra lỗi. Vui lòng thử lại."
+    "errorGeneric": "Đã xảy ra lỗi. Vui lòng thử lại.",
+    "viewAll": "Xem tất cả",
+    "all": "Tất cả",
+    "clearFilters": "Xóa bộ lọc",
+    "goHome": "Về trang chủ",
+    "loadingShort": "Đang tải…"
   },
   "nav": {
     "home": "Trang chủ",
@@ -39,7 +44,9 @@
     "dashboard": "Bảng điều khiển",
     "expandSidebar": "Mở rộng thanh bên",
     "collapseSidebar": "Thu gọn thanh bên",
-    "openMenu": "Mở menu"
+    "openMenu": "Mở menu",
+    "viewProfile": "Xem hồ sơ",
+    "adminDashboard": "Bảng điều khiển"
   },
   "auth": {
     "brandTitle": "HUFLIT",
@@ -69,7 +76,9 @@
     "enterOtp": "Nhập mã OTP",
     "loginFailed": "Đăng nhập Microsoft thất bại",
     "otpFailed": "Không gửi được OTP",
-    "invalidOtp": "OTP không hợp lệ"
+    "invalidOtp": "OTP không hợp lệ",
+    "logoutTitle": "Đăng xuất",
+    "logoutConfirm": "Bạn có chắc muốn đăng xuất khỏi HUFLIT Campus?"
   },
   "notifications": {
     "title": "Thông báo",
@@ -82,8 +91,21 @@
     "allMarkedRead": "Đã đánh dấu tất cả đã đọc",
     "loadError": "Không tải được thông báo"
   },
+  "home": {
+    "welcome": "Chào mừng đến HUFLIT Campus",
+    "tagline": "Khám phá và tham gia các sự kiện hấp dẫn trên campus",
+    "explore": "Khám phá sự kiện",
+    "happeningToday": "Diễn ra hôm nay",
+    "trending": "Sự kiện nổi bật",
+    "upcoming": "Sự kiện sắp tới",
+    "recommended": "Gợi ý cho bạn",
+    "spotlight": "Sự kiện nổi bật",
+    "viewDetails": "Xem chi tiết",
+    "noSpotlightExplore": "Khám phá sự kiện campus"
+  },
   "events": {
     "title": "Sự kiện",
+    "subtitle": "Khám phá và tham gia sự kiện trên campus",
     "explore": "Khám phá sự kiện",
     "today": "Sự kiện hôm nay",
     "trending": "Đang thịnh hành",
@@ -94,7 +116,111 @@
     "save": "Lưu",
     "share": "Chia sẻ",
     "capacity": "Sức chứa",
-    "remaining": "Còn lại"
+    "remaining": "Còn lại",
+    "searchPlaceholder": "Tìm sự kiện…",
+    "category": "Danh mục",
+    "status": "Trạng thái",
+    "faculty": "Khoa",
+    "emptyTitle": "Không tìm thấy sự kiện",
+    "emptyDescription": "Thử điều chỉnh bộ lọc hoặc từ khóa tìm kiếm",
+    "featured": "Nổi bật",
+    "almostFull": "Sắp hết chỗ",
+    "registered": "Đã đăng ký",
+    "registerNow": "Đăng ký ngay",
+    "soldOut": "Hết chỗ",
+    "unregister": "Hủy đăng ký",
+    "registerSuccess": "Đăng ký sự kiện thành công",
+    "registerFailed": "Đăng ký thất bại",
+    "cancelSuccess": "Đã hủy đăng ký",
+    "cancelFailed": "Không hủy được đăng ký",
+    "saveForLater": "Lưu để xem sau",
+    "unsave": "Bỏ lưu",
+    "details": "Chi tiết sự kiện",
+    "start": "Bắt đầu",
+    "end": "Kết thúc",
+    "location": "Địa điểm",
+    "organizer": "Ban tổ chức",
+    "about": "Giới thiệu sự kiện",
+    "notFound": "Không tìm thấy sự kiện",
+    "notFoundDesc": "Sự kiện bạn tìm không tồn tại",
+    "seats": "{{count}} / {{capacity}} đã đăng ký",
+    "description": "Mô tả",
+    "agenda": "Chương trình",
+    "speakers": "Diễn giả",
+    "registration": "Đăng ký",
+    "timeUntil": "Thời gian còn lại",
+    "registrationDeadline": "Hạn đăng ký",
+    "requirements": "Yêu cầu",
+    "saved": "Đã lưu sự kiện",
+    "unsaved": "Đã bỏ lưu sự kiện",
+    "updateFailed": "Cập nhật thất bại",
+    "startsInDaysHours": "Bắt đầu sau {{days}} ngày {{hours}} giờ",
+    "startsInHoursMins": "Bắt đầu sau {{hours}} giờ {{minutes}} phút",
+    "startsInMins": "Bắt đầu sau {{minutes}} phút",
+    "ongoing": "Đang diễn ra",
+    "ended": "Đã kết thúc"
+  },
+  "saved": {
+    "title": "Sự kiện đã lưu",
+    "subtitle": "Các sự kiện bạn đã đánh dấu để xem sau",
+    "emptyTitle": "Chưa có sự kiện đã lưu",
+    "emptyDescription": "Bạn chưa lưu sự kiện nào. Duyệt sự kiện và lưu những sự kiện bạn quan tâm."
+  },
+  "registrations": {
+    "title": "Đăng ký của tôi",
+    "subtitle": "Các sự kiện bạn đã đăng ký",
+    "emptyTitle": "Chưa có đăng ký",
+    "emptyDescription": "Bạn chưa đăng ký sự kiện nào. Khám phá sự kiện sắp tới và đăng ký ngay!",
+    "registeredAt": "Đăng ký: {{date}}",
+    "ticket": "Vé: {{code}}",
+    "waitlist": "Vị trí chờ: {{position}}",
+    "eventFallback": "Sự kiện"
+  },
+  "calendar": {
+    "title": "Lịch",
+    "subtitle": "Xem tất cả sự kiện dạng lịch",
+    "comingSoon": "Chế độ xem lịch sẽ sớm ra mắt."
+  },
+  "profile": {
+    "title": "Hồ sơ",
+    "subtitle": "Quản lý tài khoản và tùy chọn",
+    "memberSince": "Thành viên từ {{date}}",
+    "personalInfo": "Thông tin cá nhân",
+    "email": "Email",
+    "studentId": "Mã sinh viên",
+    "faculty": "Khoa",
+    "major": "Ngành",
+    "phone": "Số điện thoại",
+    "accountDetails": "Chi tiết tài khoản",
+    "authProvider": "Nhà cung cấp đăng nhập",
+    "status": "Trạng thái",
+    "active": "Hoạt động",
+    "inactive": "Không hoạt động",
+    "fcmToken": "Token FCM",
+    "connected": "Đã kết nối",
+    "notConnected": "Chưa kết nối",
+    "notUpdated": "Chưa cập nhật",
+    "registeredCount": "Hoạt động đã đăng ký",
+    "participatedCount": "Hoạt động đã tham gia",
+    "upcomingCount": "Hoạt động sắp tới",
+    "myActivities": "Hoạt động của tôi",
+    "searchActivities": "Tìm hoạt động…",
+    "noActivities": "Không tìm thấy hoạt động",
+    "viewAllRegistrations": "Xem tất cả đăng ký",
+    "adminId": "Mã"
+  },
+  "admin": {
+    "title": "Bảng điều khiển",
+    "subtitle": "Tổng quan hệ thống và phân tích",
+    "totalUsers": "Tổng người dùng",
+    "totalEvents": "Tổng sự kiện",
+    "totalRegistrations": "Tổng đăng ký",
+    "pendingApproval": "Chờ duyệt",
+    "comingSoon": "Thêm phân tích sẽ sớm có."
+  },
+  "notFound": {
+    "title": "Không tìm thấy trang",
+    "description": "Trang bạn tìm không tồn tại hoặc đã được di chuyển."
   },
   "footer": {
     "about": "Hệ thống quản lý sự kiện sinh viên",
@@ -109,8 +235,47 @@
     "followUs": "Theo dõi chúng tôi",
     "copyright": "© {{year}} Khoa Công nghệ Thông tin, HUFLIT — Trường Đại học Ngoại ngữ – Tin học TP. Hồ Chí Minh."
   },
-  "home": {
-    "welcome": "Chào mừng đến HUFLIT Campus",
-    "tagline": "Khám phá và tham gia các sự kiện hấp dẫn trên campus"
+  "manage": {
+    "title": "Quản lý sự kiện",
+    "create": "Tạo sự kiện",
+    "emptyTitle": "Không có sự kiện",
+    "emptyDescription": "Tạo sự kiện đầu tiên để bắt đầu",
+    "viewDetails": "Xem chi tiết",
+    "confirmTitle": "Xác nhận",
+    "confirmMessage": "Bạn có chắc muốn {{action}} sự kiện này?",
+    "loadingEvent": "Đang tải sự kiện…"
+  },
+  "createEvent": {
+    "title": "Tạo sự kiện",
+    "editTitle": "Sửa sự kiện",
+    "eventTitle": "Tên sự kiện",
+    "description": "Mô tả",
+    "category": "Danh mục",
+    "locationName": "Tên địa điểm",
+    "address": "Địa chỉ",
+    "startAt": "Thời gian bắt đầu",
+    "endAt": "Thời gian kết thúc",
+    "capacity": "Sức chứa",
+    "faculty": "Khoa",
+    "bannerUrl": "URL ảnh banner",
+    "submit": "Tạo sự kiện",
+    "update": "Cập nhật sự kiện"
+  },
+  "organizerQr": {
+    "title": "Tạo mã QR sự kiện",
+    "selectEvent": "Chọn sự kiện",
+    "hint": "Tạo mã QR để người tham dự điểm danh",
+    "event": "Sự kiện",
+    "generate": "Tạo mã QR",
+    "regenerate": "Tạo lại mã QR"
+  },
+  "attendance": {
+    "title": "Quét điểm danh",
+    "scanTitle": "Quét mã QR để điểm danh",
+    "hint": "Nhập dữ liệu mã QR bên dưới để điểm danh",
+    "qrData": "Dữ liệu mã QR",
+    "helper": "Dán JSON mã QR vào đây",
+    "checkIn": "Điểm danh",
+    "processing": "Đang xử lý…"
   }
 }

@@ -23,7 +23,12 @@
     "daysAgo": "{{count}}日前",
     "markAllRead": "すべて既読にする",
     "noData": "データがありません",
-    "errorGeneric": "エラーが発生しました。もう一度お試しください。"
+    "errorGeneric": "エラーが発生しました。もう一度お試しください。",
+    "viewAll": "すべて見る",
+    "all": "すべて",
+    "clearFilters": "フィルターをクリア",
+    "goHome": "ホームへ",
+    "loadingShort": "読み込み中…"
   },
   "nav": {
     "home": "ホーム",
@@ -39,7 +44,9 @@
     "dashboard": "ダッシュボード",
     "expandSidebar": "サイドバーを展開",
     "collapseSidebar": "サイドバーを折りたたむ",
-    "openMenu": "メニューを開く"
+    "openMenu": "メニューを開く",
+    "viewProfile": "プロフィールを見る",
+    "adminDashboard": "管理ダッシュボード"
   },
   "auth": {
     "brandTitle": "HUFLIT",
@@ -69,7 +76,9 @@
     "enterOtp": "OTPコードを入力してください",
     "loginFailed": "Microsoft ログインに失敗しました",
     "otpFailed": "OTPの送信に失敗しました",
-    "invalidOtp": "OTPが無効です"
+    "invalidOtp": "OTPが無効です",
+    "logoutTitle": "ログアウト",
+    "logoutConfirm": "HUFLIT Campus からログアウトしますか？"
   },
   "notifications": {
     "title": "通知",
@@ -82,8 +91,21 @@
     "allMarkedRead": "すべて既読にしました",
     "loadError": "通知を読み込めませんでした"
   },
+  "home": {
+    "welcome": "HUFLIT Campus へようこそ",
+    "tagline": "キャンパスの素敵なイベントを見つけて参加しましょう",
+    "explore": "イベントを探す",
+    "happeningToday": "本日開催",
+    "trending": "人気のイベント",
+    "upcoming": "今後のイベント",
+    "recommended": "あなたへのおすすめ",
+    "spotlight": "注目イベント",
+    "viewDetails": "詳細を見る",
+    "noSpotlightExplore": "キャンパスイベントを探す"
+  },
   "events": {
     "title": "イベント",
+    "subtitle": "キャンパスのイベントを見つけて参加",
     "explore": "イベントを探す",
     "today": "本日のイベント",
     "trending": "人気",
@@ -94,7 +116,111 @@
     "save": "保存",
     "share": "共有",
     "capacity": "定員",
-    "remaining": "残り席"
+    "remaining": "残り席",
+    "searchPlaceholder": "イベントを検索…",
+    "category": "カテゴリ",
+    "status": "ステータス",
+    "faculty": "学部",
+    "emptyTitle": "イベントが見つかりません",
+    "emptyDescription": "フィルターや検索条件を調整してみてください",
+    "featured": "注目",
+    "almostFull": "残りわずか",
+    "registered": "申込済み",
+    "registerNow": "今すぐ申し込む",
+    "soldOut": "満席",
+    "unregister": "申し込みをキャンセル",
+    "registerSuccess": "イベントに申し込みました",
+    "registerFailed": "申し込みに失敗しました",
+    "cancelSuccess": "申し込みをキャンセルしました",
+    "cancelFailed": "キャンセルに失敗しました",
+    "saveForLater": "後で保存",
+    "unsave": "保存を解除",
+    "details": "イベント詳細",
+    "start": "開始",
+    "end": "終了",
+    "location": "場所",
+    "organizer": "主催者",
+    "about": "このイベントについて",
+    "notFound": "イベントが見つかりません",
+    "notFoundDesc": "お探しのイベントは存在しません",
+    "seats": "{{count}} / {{capacity}} 申込済み",
+    "description": "説明",
+    "agenda": "アジェンダ",
+    "speakers": "スピーカー",
+    "registration": "申し込み",
+    "timeUntil": "開始まで",
+    "registrationDeadline": "申込締切",
+    "requirements": "参加条件",
+    "saved": "イベントを保存しました",
+    "unsaved": "保存を解除しました",
+    "updateFailed": "更新に失敗しました",
+    "startsInDaysHours": "{{days}}日{{hours}}時間後に開始",
+    "startsInHoursMins": "{{hours}}時間{{minutes}}分後に開始",
+    "startsInMins": "{{minutes}}分後に開始",
+    "ongoing": "開催中",
+    "ended": "終了"
+  },
+  "saved": {
+    "title": "保存済みイベント",
+    "subtitle": "後で見るためにブックマークしたイベント",
+    "emptyTitle": "保存済みイベントはありません",
+    "emptyDescription": "まだイベントを保存していません。イベントを見て興味のあるものを保存しましょう。"
+  },
+  "registrations": {
+    "title": "申し込み一覧",
+    "subtitle": "申し込んだイベント",
+    "emptyTitle": "申し込みはありません",
+    "emptyDescription": "まだイベントに申し込んでいません。今後のイベントを見て今すぐ申し込みましょう！",
+    "registeredAt": "申込日: {{date}}",
+    "ticket": "チケット: {{code}}",
+    "waitlist": "キャンセル待ち順位: {{position}}",
+    "eventFallback": "イベント"
+  },
+  "calendar": {
+    "title": "カレンダー",
+    "subtitle": "すべてのイベントをカレンダーで表示",
+    "comingSoon": "カレンダー表示は近日公開予定です。"
+  },
+  "profile": {
+    "title": "プロフィール",
+    "subtitle": "アカウントと設定を管理",
+    "memberSince": "{{date}} からメンバー",
+    "personalInfo": "個人情報",
+    "email": "メール",
+    "studentId": "学籍番号",
+    "faculty": "学部",
+    "major": "専攻",
+    "phone": "電話",
+    "accountDetails": "アカウント詳細",
+    "authProvider": "認証プロバイダ",
+    "status": "ステータス",
+    "active": "有効",
+    "inactive": "無効",
+    "fcmToken": "FCMトークン",
+    "connected": "接続済み",
+    "notConnected": "未接続",
+    "notUpdated": "未設定",
+    "registeredCount": "申込済み",
+    "participatedCount": "参加済み",
+    "upcomingCount": "今後の予定",
+    "myActivities": "マイアクティビティ",
+    "searchActivities": "アクティビティを検索…",
+    "noActivities": "アクティビティがありません",
+    "viewAllRegistrations": "申し込み一覧を見る",
+    "adminId": "ID"
+  },
+  "admin": {
+    "title": "管理ダッシュボード",
+    "subtitle": "システム概要と分析",
+    "totalUsers": "ユーザー数",
+    "totalEvents": "イベント数",
+    "totalRegistrations": "申し込み数",
+    "pendingApproval": "承認待ち",
+    "comingSoon": "さらに詳しい分析は近日公開予定です。"
+  },
+  "notFound": {
+    "title": "ページが見つかりません",
+    "description": "お探しのページは存在しないか、移動されました。"
   },
   "footer": {
     "about": "キャンパスイベント管理システム",
@@ -109,8 +235,47 @@
     "followUs": "フォローする",
     "copyright": "© {{year}} HUFLIT 情報技術学部 — ホーチミン市外国語・情報大学。"
   },
-  "home": {
-    "welcome": "HUFLIT Campus へようこそ",
-    "tagline": "キャンパスの素敵なイベントを見つけて参加しましょう"
+  "manage": {
+    "title": "イベント管理",
+    "create": "イベント作成",
+    "emptyTitle": "イベントがありません",
+    "emptyDescription": "最初のイベントを作成しましょう",
+    "viewDetails": "詳細を見る",
+    "confirmTitle": "操作の確認",
+    "confirmMessage": "このイベントを{{action}}しますか？",
+    "loadingEvent": "イベントを読み込み中…"
+  },
+  "createEvent": {
+    "title": "イベント作成",
+    "editTitle": "イベント編集",
+    "eventTitle": "イベント名",
+    "description": "説明",
+    "category": "カテゴリ",
+    "locationName": "会場名",
+    "address": "住所",
+    "startAt": "開始日時",
+    "endAt": "終了日時",
+    "capacity": "定員",
+    "faculty": "学部",
+    "bannerUrl": "バナーURL",
+    "submit": "イベントを作成",
+    "update": "イベントを更新"
+  },
+  "organizerQr": {
+    "title": "イベントQRコード生成",
+    "selectEvent": "イベントを選択",
+    "hint": "出席チェックイン用のQRコードを生成します",
+    "event": "イベント",
+    "generate": "QRを生成",
+    "regenerate": "QRを再生成"
+  },
+  "attendance": {
+    "title": "出席スキャナー",
+    "scanTitle": "チェックイン用QRをスキャン",
+    "hint": "下記にQRコードデータを入力してチェックイン",
+    "qrData": "QRコードデータ",
+    "helper": "ここにQRのJSONを貼り付けてください",
+    "checkIn": "チェックイン",
+    "processing": "処理中…"
   }
 }

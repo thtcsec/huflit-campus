@@ -1,5 +1,6 @@
 import React from 'react';
 import { Box, LinearProgress, Typography } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 
 interface CapacityBarProps {
   current: number;
@@ -7,6 +8,7 @@ interface CapacityBarProps {
 }
 
 const CapacityBar: React.FC<CapacityBarProps> = ({ current, max }) => {
+  const { t } = useTranslation();
   const percentage = (current / max) * 100;
   const color = percentage >= 90 ? 'error' : percentage >= 70 ? 'warning' : 'success';
 
@@ -14,7 +16,7 @@ const CapacityBar: React.FC<CapacityBarProps> = ({ current, max }) => {
     <Box sx={{ width: '100%' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
         <Typography variant="body2" color="text.secondary">
-          Capacity
+          {t('events.capacity')}
         </Typography>
         <Typography variant="body2" fontWeight={600}>
           {current} / {max}

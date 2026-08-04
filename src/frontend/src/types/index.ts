@@ -303,6 +303,7 @@ export interface Announcement {
 }
 
 export interface HomeFeed {
+  featured: EventListItem[];
   today: EventListItem[];
   trending: EventListItem[];
   upcoming: EventListItem[];

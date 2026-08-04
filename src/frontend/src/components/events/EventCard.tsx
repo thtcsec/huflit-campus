@@ -1,12 +1,21 @@
-import React from 'react';
-import { Card, CardMedia, CardContent, CardActions, Typography, Box, Chip, IconButton } from '@mui/material';
+import React, { useMemo, useState } from 'react';
+import {
+  Card,
+  CardMedia,
+  CardContent,
+  CardActions,
+  Typography,
+  Box,
+  Chip,
+  IconButton,
+} from '@mui/material';
 import { AccessTime, LocationOn, People, BookmarkBorder, Bookmark } from '@mui/icons-material';
-import { EventListItem } from '@/types';
-import { formatDate } from '@/utils';
+import { useTranslation } from 'react-i18next';
+import { EventListItem, EventStatus } from '@/types';
+import { formatDate, getTimeUntil } from '@/utils';
 import { useNavigate } from 'react-router-dom';
 import { CategoryChip } from '@/components/common';
 import { savedEventsApi } from '@/api';
-import { useState } from 'react';
 import { useSnackbar } from 'notistack';
 
 interface EventCardProps {
@@ -15,6 +24,7 @@ interface EventCardProps {
 }
 
 const EventCard: React.FC<EventCardProps> = ({ event, onUpdate }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
   const [isSaved, setIsSaved] = useState(event.isSaved);
@@ -27,15 +37,15 @@ const EventCard: React.FC<EventCardProps> = ({ event, onUpdate }) => {
       if (isSaved) {
         await savedEventsApi.unsaveEvent(event.id);
         setIsSaved(false);
-        enqueueSnackbar('Event removed from saved', { variant: 'info' });
+        enqueueSnackbar(t('events.unsaved'), { variant: 'info' });
       } else {
         await savedEventsApi.saveEvent(event.id);
         setIsSaved(true);
-        enqueueSnackbar('Event saved', { variant: 'success' });
+        enqueueSnackbar(t('events.saved'), { variant: 'success' });
       }
       onUpdate?.();
-    } catch (error) {
-      enqueueSnackbar('Failed to update', { variant: 'error' });
+    } catch {
+      enqueueSnackbar(t('events.updateFailed'), { variant: 'error' });
     } finally {
       setLoading(false);
     }
@@ -43,6 +53,39 @@ const EventCard: React.FC<EventCardProps> = ({ event, onUpdate }) => {
 
   const capacityPercent = (event.registrationCount / event.capacity) * 100;
   const isAlmostFull = capacityPercent >= 80;
+
+  const scheduleBadge = useMemo(() => {
+    const start = new Date(event.startAt).getTime();
+    const end = new Date(event.endAt).getTime();
+    const now = Date.now();
+
+    if (
+      event.status === EventStatus.Completed ||
+      event.status === EventStatus.Cancelled ||
+      end < now
+    ) {
+      return { label: t('events.ended'), color: 'default' as const };
+    }
+
+    if (start <= now && end >= now) {
+      return { label: t('events.ongoing'), color: 'success' as const };
+    }
+
+    if (start > now) {
+      const { days, hours, minutes } = getTimeUntil(event.startAt);
+      let label: string;
+      if (days > 0) {
+        label = t('events.startsInDaysHours', { days, hours });
+      } else if (hours > 0) {
+        label = t('events.startsInHoursMins', { hours, minutes });
+      } else {
+        label = t('events.startsInMins', { minutes: Math.max(minutes, 1) });
+      }
+      return { label, color: 'warning' as const };
+    }
+
+    return null;
+  }, [event.endAt, event.startAt, event.status, t]);
 
   return (
     <Card
@@ -67,7 +110,26 @@ const EventCard: React.FC<EventCardProps> = ({ event, onUpdate }) => {
           alt={event.title}
           sx={{ objectFit: 'cover' }}
         />
-        <Box sx={{ position: 'absolute', top: 12, left: 12 }}>
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 12,
+            left: 12,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 0.75,
+            alignItems: 'flex-start',
+            maxWidth: '70%',
+          }}
+        >
+          {scheduleBadge && (
+            <Chip
+              label={scheduleBadge.label}
+              size="small"
+              color={scheduleBadge.color}
+              sx={{ fontWeight: 700, bgcolor: scheduleBadge.color === 'warning' ? '#F5C518' : undefined, color: scheduleBadge.color === 'warning' ? '#1a0a0c' : undefined }}
+            />
+          )}
           <CategoryChip category={event.category} />
         </Box>
         <IconButton
@@ -80,10 +142,10 @@ const EventCard: React.FC<EventCardProps> = ({ event, onUpdate }) => {
         </IconButton>
         {event.isFeatured && (
           <Chip
-            label="Featured"
+            label={t('events.featured')}
             size="small"
             color="primary"
-            sx={{ position: 'absolute', top: 12, right: 12 }}
+            sx={{ position: 'absolute', bottom: 12, right: 12 }}
           />
         )}
       </Box>
@@ -113,14 +175,14 @@ const EventCard: React.FC<EventCardProps> = ({ event, onUpdate }) => {
             {event.registrationCount} / {event.capacity}
           </Typography>
           {isAlmostFull && (
-            <Chip label="Almost Full" size="small" color="warning" sx={{ ml: 1 }} />
+            <Chip label={t('events.almostFull')} size="small" color="warning" sx={{ ml: 1 }} />
           )}
         </Box>
       </CardContent>
 
       {event.isRegistered && (
         <CardActions sx={{ pt: 0 }}>
-          <Chip label="Registered" size="small" color="success" sx={{ ml: 1 }} />
+          <Chip label={t('events.registered')} size="small" color="success" sx={{ ml: 1 }} />
         </CardActions>
       )}
     </Card>

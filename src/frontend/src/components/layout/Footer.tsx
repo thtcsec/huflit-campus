@@ -69,11 +69,8 @@ const Footer: React.FC = () => {
             <Typography fontWeight={600} variant="body2" sx={{ mb: 0.75 }}>
               {t('footer.facultyOffice')}
             </Typography>
-            <Typography variant="body2" sx={{ color: '#cbd5e1', mb: 0.5 }}>
-              828 Sư Vạn Hạnh, Phường 12, Quận 10, TP. Hồ Chí Minh
-            </Typography>
             <Typography variant="body2" sx={{ color: '#cbd5e1', mb: 1.5 }}>
-              69/68 Đặng Thùy Trâm, Bình Thạnh, TP. Hồ Chí Minh
+              Lầu 2, Khu B, 828 Sư Vạn Hạnh, Phường 13, Quận 10, TP. Hồ Chí Minh
             </Typography>
             <MuiLink
               href="mailto:fit@huflit.edu.vn"
@@ -82,7 +79,7 @@ const Footer: React.FC = () => {
               fit@huflit.edu.vn
             </MuiLink>
             <Typography variant="body2" sx={{ color: '#cbd5e1' }}>
-              Tel: (028) 3863 2052
+              Tel: 08 3862 1859
             </Typography>
           </Box>
 

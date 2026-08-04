@@ -13,12 +13,14 @@ import {
 } from '@mui/material';
 import { QrCode2, Refresh } from '@mui/icons-material';
 import { useSnackbar } from 'notistack';
+import { useTranslation } from 'react-i18next';
 import QRCode from 'react-qr-code';
 import { attendanceApi, eventsApi } from '@/api';
 import { PageHeader } from '@/components/common';
 import { EventListItem, QrPayload } from '@/types';
 
 const OrganizerQrPage: React.FC = () => {
+  const { t } = useTranslation();
   const { enqueueSnackbar } = useSnackbar();
   const [events, setEvents] = useState<EventListItem[]>([]);
   const [selectedEventId, setSelectedEventId] = useState('');
@@ -83,16 +85,16 @@ const OrganizerQrPage: React.FC = () => {
   return (
     <Container maxWidth="md">
       <PageHeader
-        title="Event QR Code Generator"
-        breadcrumbs={[{ label: 'Home', path: '/' }, { label: 'Organizer QR' }]}
+        title={t('organizerQr.title')}
+        breadcrumbs={[{ label: t('common.home'), path: '/' }, { label: t('nav.eventQr') }]}
       />
 
       <Paper sx={{ p: 4 }}>
         <Typography variant="h6" gutterBottom>
-          Select Event
+          {t('organizerQr.selectEvent')}
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-          Generate a QR code for attendees to check in at your event
+          {t('organizerQr.hint')}
         </Typography>
 
         <Grid container spacing={3}>
@@ -100,7 +102,7 @@ const OrganizerQrPage: React.FC = () => {
             <TextField
               fullWidth
               select
-              label="Event"
+              label={t('organizerQr.event')}
               value={selectedEventId}
               onChange={(e) => setSelectedEventId(e.target.value)}
             >
@@ -121,7 +123,7 @@ const OrganizerQrPage: React.FC = () => {
               onClick={generateQr}
               disabled={loading || !selectedEventId}
             >
-              {qrData ? 'Regenerate QR Code' : 'Generate QR Code'}
+              {qrData ? t('organizerQr.regenerate') : t('organizerQr.generate')}
             </Button>
           </Grid>
         </Grid>

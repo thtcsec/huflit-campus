@@ -23,7 +23,12 @@
     "daysAgo": "{{count}} 天前",
     "markAllRead": "全部标为已读",
     "noData": "暂无数据",
-    "errorGeneric": "出现错误，请重试。"
+    "errorGeneric": "出现错误，请重试。",
+    "viewAll": "查看全部",
+    "all": "全部",
+    "clearFilters": "清除筛选",
+    "goHome": "返回首页",
+    "loadingShort": "加载中…"
   },
   "nav": {
     "home": "首页",
@@ -39,7 +44,9 @@
     "dashboard": "仪表盘",
     "expandSidebar": "展开侧边栏",
     "collapseSidebar": "收起侧边栏",
-    "openMenu": "打开菜单"
+    "openMenu": "打开菜单",
+    "viewProfile": "查看资料",
+    "adminDashboard": "管理仪表盘"
   },
   "auth": {
     "brandTitle": "HUFLIT",
@@ -69,7 +76,9 @@
     "enterOtp": "请输入 OTP",
     "loginFailed": "Microsoft 登录失败",
     "otpFailed": "OTP 发送失败",
-    "invalidOtp": "OTP 无效"
+    "invalidOtp": "OTP 无效",
+    "logoutTitle": "退出登录",
+    "logoutConfirm": "确定要退出 HUFLIT Campus 吗？"
   },
   "notifications": {
     "title": "通知",
@@ -82,8 +91,21 @@
     "allMarkedRead": "已全部标为已读",
     "loadError": "无法加载通知"
   },
+  "home": {
+    "welcome": "欢迎来到 HUFLIT Campus",
+    "tagline": "发现并参加校园精彩活动",
+    "explore": "探索活动",
+    "happeningToday": "今日进行",
+    "trending": "热门活动",
+    "upcoming": "即将举行",
+    "recommended": "为你推荐",
+    "spotlight": "精选活动",
+    "viewDetails": "查看详情",
+    "noSpotlightExplore": "探索校园活动"
+  },
   "events": {
     "title": "活动",
+    "subtitle": "发现并参加校园活动",
     "explore": "探索活动",
     "today": "今日活动",
     "trending": "热门",
@@ -94,7 +116,111 @@
     "save": "收藏",
     "share": "分享",
     "capacity": "容量",
-    "remaining": "剩余名额"
+    "remaining": "剩余名额",
+    "searchPlaceholder": "搜索活动…",
+    "category": "分类",
+    "status": "状态",
+    "faculty": "学院",
+    "emptyTitle": "未找到活动",
+    "emptyDescription": "请尝试调整筛选条件或搜索关键词",
+    "featured": "精选",
+    "almostFull": "即将满员",
+    "registered": "已报名",
+    "registerNow": "立即报名",
+    "soldOut": "已满",
+    "unregister": "取消报名",
+    "registerSuccess": "报名成功",
+    "registerFailed": "报名失败",
+    "cancelSuccess": "已取消报名",
+    "cancelFailed": "取消失败",
+    "saveForLater": "稍后收藏",
+    "unsave": "取消收藏",
+    "details": "活动详情",
+    "start": "开始",
+    "end": "结束",
+    "location": "地点",
+    "organizer": "主办方",
+    "about": "活动介绍",
+    "notFound": "未找到活动",
+    "notFoundDesc": "您查找的活动不存在",
+    "seats": "{{count}} / {{capacity}} 已报名",
+    "description": "描述",
+    "agenda": "议程",
+    "speakers": "演讲嘉宾",
+    "registration": "报名",
+    "timeUntil": "距离活动开始",
+    "registrationDeadline": "报名截止",
+    "requirements": "要求",
+    "saved": "已收藏活动",
+    "unsaved": "已取消收藏",
+    "updateFailed": "更新失败",
+    "startsInDaysHours": "{{days}}天{{hours}}小时后开始",
+    "startsInHoursMins": "{{hours}}小时{{minutes}}分钟后开始",
+    "startsInMins": "{{minutes}}分钟后开始",
+    "ongoing": "进行中",
+    "ended": "已结束"
+  },
+  "saved": {
+    "title": "已收藏活动",
+    "subtitle": "您收藏以便稍后查看的活动",
+    "emptyTitle": "暂无收藏",
+    "emptyDescription": "您还没有收藏任何活动。浏览活动并收藏感兴趣的内容。"
+  },
+  "registrations": {
+    "title": "我的报名",
+    "subtitle": "您已报名的活动",
+    "emptyTitle": "暂无报名",
+    "emptyDescription": "您还没有报名任何活动。探索即将举行的活动并立即报名！",
+    "registeredAt": "报名时间：{{date}}",
+    "ticket": "票号：{{code}}",
+    "waitlist": "候补位置：{{position}}",
+    "eventFallback": "活动"
+  },
+  "calendar": {
+    "title": "日历",
+    "subtitle": "以日历形式查看所有活动",
+    "comingSoon": "日历视图即将上线。"
+  },
+  "profile": {
+    "title": "个人资料",
+    "subtitle": "管理账户与偏好设置",
+    "memberSince": "注册于 {{date}}",
+    "personalInfo": "个人信息",
+    "email": "邮箱",
+    "studentId": "学号",
+    "faculty": "学院",
+    "major": "专业",
+    "phone": "电话",
+    "accountDetails": "账户详情",
+    "authProvider": "登录方式",
+    "status": "状态",
+    "active": "有效",
+    "inactive": "停用",
+    "fcmToken": "FCM 令牌",
+    "connected": "已连接",
+    "notConnected": "未连接",
+    "notUpdated": "未更新",
+    "registeredCount": "已报名活动",
+    "participatedCount": "已参加活动",
+    "upcomingCount": "即将参加",
+    "myActivities": "我的活动",
+    "searchActivities": "搜索活动…",
+    "noActivities": "暂无活动",
+    "viewAllRegistrations": "查看全部报名",
+    "adminId": "编号"
+  },
+  "admin": {
+    "title": "管理仪表盘",
+    "subtitle": "系统概览与分析",
+    "totalUsers": "用户总数",
+    "totalEvents": "活动总数",
+    "totalRegistrations": "报名总数",
+    "pendingApproval": "待审批",
+    "comingSoon": "更多分析即将推出。"
+  },
+  "notFound": {
+    "title": "页面未找到",
+    "description": "您访问的页面不存在或已被移动。"
   },
   "footer": {
     "about": "校园活动管理系统",
@@ -109,8 +235,47 @@
     "followUs": "关注我们",
     "copyright": "© {{year}} HUFLIT 信息技术学院 — 胡志明市外语–信息技术大学。"
   },
-  "home": {
-    "welcome": "欢迎来到 HUFLIT Campus",
-    "tagline": "发现并参加校园精彩活动"
+  "manage": {
+    "title": "管理活动",
+    "create": "创建活动",
+    "emptyTitle": "暂无活动",
+    "emptyDescription": "创建您的第一个活动开始吧",
+    "viewDetails": "查看详情",
+    "confirmTitle": "确认操作",
+    "confirmMessage": "确定要对此活动执行「{{action}}」吗？",
+    "loadingEvent": "正在加载活动…"
+  },
+  "createEvent": {
+    "title": "创建活动",
+    "editTitle": "编辑活动",
+    "eventTitle": "活动标题",
+    "description": "描述",
+    "category": "分类",
+    "locationName": "地点名称",
+    "address": "地址",
+    "startAt": "开始时间",
+    "endAt": "结束时间",
+    "capacity": "容量",
+    "faculty": "学院",
+    "bannerUrl": "横幅图片 URL",
+    "submit": "创建活动",
+    "update": "更新活动"
+  },
+  "organizerQr": {
+    "title": "活动二维码生成",
+    "selectEvent": "选择活动",
+    "hint": "生成供参与者签到的二维码",
+    "event": "活动",
+    "generate": "生成二维码",
+    "regenerate": "重新生成二维码"
+  },
+  "attendance": {
+    "title": "签到扫码",
+    "scanTitle": "扫描二维码签到",
+    "hint": "在下方输入二维码数据以签到",
+    "qrData": "二维码数据",
+    "helper": "在此粘贴二维码 JSON",
+    "checkIn": "签到",
+    "processing": "处理中…"
   }
 }

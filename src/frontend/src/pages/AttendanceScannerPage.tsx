@@ -12,11 +12,13 @@ import {
 } from '@mui/material';
 import { QrCodeScanner, CheckCircle } from '@mui/icons-material';
 import { useSnackbar } from 'notistack';
+import { useTranslation } from 'react-i18next';
 import { attendanceApi } from '@/api';
 import { PageHeader } from '@/components/common';
 import { Attendance } from '@/types';
 
 const AttendanceScannerPage: React.FC = () => {
+  const { t } = useTranslation();
   const { enqueueSnackbar } = useSnackbar();
   const [qrData, setQrData] = useState('');
   const [loading, setLoading] = useState(false);
@@ -64,18 +66,18 @@ const AttendanceScannerPage: React.FC = () => {
   return (
     <Container maxWidth="md">
       <PageHeader
-        title="Attendance Scanner"
-        breadcrumbs={[{ label: 'Home', path: '/' }, { label: 'Attendance Scanner' }]}
+        title={t('attendance.title')}
+        breadcrumbs={[{ label: t('common.home'), path: '/' }, { label: t('attendance.title') }]}
       />
 
       <Paper sx={{ p: 4 }}>
         <Box sx={{ textAlign: 'center', mb: 4 }}>
           <QrCodeScanner sx={{ fontSize: 64, color: 'primary.main', mb: 2 }} />
           <Typography variant="h5" fontWeight={600} gutterBottom>
-            Scan QR Code for Check-in
+            {t('attendance.scanTitle')}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Enter the QR code data below to check in attendees
+            {t('attendance.hint')}
           </Typography>
         </Box>
 
@@ -84,12 +86,12 @@ const AttendanceScannerPage: React.FC = () => {
             fullWidth
             multiline
             rows={4}
-            label="QR Code Data"
+            label={t('attendance.qrData')}
             placeholder='{"eventId":"...","token":"..."}'
             value={qrData}
             onChange={(e) => setQrData(e.target.value)}
             onKeyPress={handleKeyPress}
-            helperText="Paste the QR code JSON data here"
+            helperText={t('attendance.helper')}
           />
         </Box>
 
@@ -101,7 +103,7 @@ const AttendanceScannerPage: React.FC = () => {
           onClick={handleScan}
           disabled={loading || !qrData.trim()}
         >
-          {loading ? 'Processing...' : 'Check In'}
+          {loading ? t('attendance.processing') : t('attendance.checkIn')}
         </Button>
 
         {lastAttendance && (

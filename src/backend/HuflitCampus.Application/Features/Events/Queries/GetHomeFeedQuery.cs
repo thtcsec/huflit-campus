@@ -63,6 +63,7 @@ public class GetHomeFeedQueryHandler : IRequestHandler<GetHomeFeedQuery, Result<
 
         return Result.Success(new HomeFeedDto
         {
+            Featured = _mapper.Map<List<EventListItemDto>>(featured.Take(take)),
             Today = _mapper.Map<List<EventListItemDto>>(todayEvents.Take(take)),
             Trending = _mapper.Map<List<EventListItemDto>>(trending),
             Upcoming = _mapper.Map<List<EventListItemDto>>(

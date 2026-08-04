@@ -1,15 +1,18 @@
 import React from 'react';
-import { Container, Box, Typography, Card, CardContent, Grid, Paper } from '@mui/material';
+import { Container, Typography, Card, CardContent, Grid, Paper } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import { PageHeader } from '@/components/common';
 import { motion } from 'framer-motion';
 
 const AdminDashboardPage: React.FC = () => {
+  const { t } = useTranslation();
+
   return (
     <Container maxWidth="lg">
       <PageHeader
-        title="Admin Dashboard"
-        subtitle="System overview and analytics"
-        breadcrumbs={[{ label: 'Home', path: '/' }, { label: 'Dashboard' }]}
+        title={t('admin.title')}
+        subtitle={t('admin.subtitle')}
+        breadcrumbs={[{ label: t('common.home'), path: '/' }, { label: t('nav.dashboard') }]}
       />
 
       <Grid container spacing={3}>
@@ -20,7 +23,7 @@ const AdminDashboardPage: React.FC = () => {
                 0
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Total Users
+                {t('admin.totalUsers')}
               </Typography>
             </CardContent>
           </Card>
@@ -32,7 +35,7 @@ const AdminDashboardPage: React.FC = () => {
                 0
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Total Events
+                {t('admin.totalEvents')}
               </Typography>
             </CardContent>
           </Card>
@@ -44,7 +47,7 @@ const AdminDashboardPage: React.FC = () => {
                 0
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Total Registrations
+                {t('admin.totalRegistrations')}
               </Typography>
             </CardContent>
           </Card>
@@ -56,7 +59,7 @@ const AdminDashboardPage: React.FC = () => {
                 0
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Pending Approval
+                {t('admin.pendingApproval')}
               </Typography>
             </CardContent>
           </Card>
@@ -64,11 +67,8 @@ const AdminDashboardPage: React.FC = () => {
       </Grid>
 
       <Paper sx={{ p: 3, mt: 4 }}>
-        <Typography variant="h6" fontWeight={600} gutterBottom>
-          Analytics
-        </Typography>
         <Typography variant="body2" color="text.secondary">
-          Dashboard analytics implementation in progress. Connect to backend APIs for real-time data.
+          {t('admin.comingSoon')}
         </Typography>
       </Paper>
     </Container>

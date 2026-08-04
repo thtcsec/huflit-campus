@@ -160,7 +160,7 @@ const SideNav: React.FC<SideNavProps> = ({ open, collapsed, onClose, onToggleCol
   };
 
   const drawer = (
-    <Box sx={{ pt: 10, height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{ pt: isMobile ? 10 : 1, height: '100%', display: 'flex', flexDirection: 'column' }}>
       <List sx={{ flex: 1, px: 0 }}>{menuItems.map(renderItem)}</List>
 
       {user &&
@@ -217,6 +217,8 @@ const SideNav: React.FC<SideNavProps> = ({ open, collapsed, onClose, onToggleCol
           width,
           boxSizing: 'border-box',
           overflowX: 'hidden',
+          top: 64,
+          height: 'calc(100% - 64px)',
           transition: theme.transitions.create('width', {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.enteringScreen,

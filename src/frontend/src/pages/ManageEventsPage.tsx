@@ -18,6 +18,7 @@ import {
 import { Add, MoreVert, Edit, Delete, Send, CheckCircle, Cancel, Publish } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
+import { useTranslation } from 'react-i18next';
 import { eventsApi } from '@/api';
 import { PageHeader, StatusChip, CategoryChip, ConfirmDialog, EmptyState } from '@/components/common';
 import { EventListItem, EventStatus, EventSearchRequest, UserRole } from '@/types';
@@ -25,6 +26,7 @@ import { formatDate } from '@/utils';
 import { useAuth } from '@/hooks';
 
 const ManageEventsPage: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
   const { user } = useAuth();
@@ -168,11 +170,11 @@ const ManageEventsPage: React.FC = () => {
   return (
     <Container maxWidth="lg">
       <PageHeader
-        title="Manage Events"
-        breadcrumbs={[{ label: 'Home', path: '/' }, { label: 'Manage Events' }]}
+        title={t('manage.title')}
+        breadcrumbs={[{ label: t('common.home'), path: '/' }, { label: t('manage.title') }]}
         action={
           <Button variant="contained" startIcon={<Add />} onClick={() => navigate('/events/create')}>
-            Create Event
+            {t('manage.create')}
           </Button>
         }
       />
@@ -186,12 +188,12 @@ const ManageEventsPage: React.FC = () => {
       </Box>
 
       {loading ? (
-        <Typography>Loading...</Typography>
+        <Typography>{t('common.loadingShort')}</Typography>
       ) : events.length === 0 ? (
         <EmptyState
-          title="No events found"
-          description="Create your first event to get started"
-          action={{ label: 'Create Event', onClick: () => navigate('/events/create') }}
+          title={t('manage.emptyTitle')}
+          description={t('manage.emptyDescription')}
+          action={{ label: t('manage.create'), onClick: () => navigate('/events/create') }}
         />
       ) : (
         <Grid container spacing={3}>
@@ -218,12 +220,12 @@ const ManageEventsPage: React.FC = () => {
                     {formatDate(event.startAt, 'long')}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    {event.registrationCount} / {event.capacity} registered
+                    {t('events.seats', { count: event.registrationCount, capacity: event.capacity })}
                   </Typography>
                 </CardContent>
                 <CardActions sx={{ justifyContent: 'space-between' }}>
                   <Button size="small" onClick={() => navigate(`/events/${event.id}`)}>
-                    View Details
+                    {t('manage.viewDetails')}
                   </Button>
                   <IconButton size="small" onClick={(e) => handleMenuOpen(e, event)}>
                     <MoreVert />
@@ -260,8 +262,8 @@ const ManageEventsPage: React.FC = () => {
 
       <ConfirmDialog
         open={confirmDialog.open}
-        title="Confirm Action"
-        message={`Are you sure you want to ${confirmDialog.action.replace('-', ' ')} this event?`}
+        title={t('manage.confirmTitle')}
+        message={t('manage.confirmMessage', { action: confirmDialog.action.replace('-', ' ') })}
         onConfirm={() => handleAction(confirmDialog.action, confirmDialog.eventId)}
         onCancel={() => setConfirmDialog({ open: false, action: '', eventId: '' })}
       />

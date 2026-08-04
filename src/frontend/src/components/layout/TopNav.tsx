@@ -4,7 +4,6 @@ import {
   AppBar,
   Toolbar,
   IconButton,
-  Typography,
   Badge,
   Avatar,
   Menu,
@@ -12,17 +11,24 @@ import {
   Tooltip,
   useMediaQuery,
   useTheme,
+  Typography,
+  Divider,
+  ListItemIcon,
 } from '@mui/material';
 import {
   Notifications as NotificationsIcon,
   AccountCircle,
   Menu as MenuIcon,
   MenuOpen,
+  PersonOutline,
+  DashboardOutlined,
+  LogoutOutlined,
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { useAuth, useNotifications } from '@/hooks';
 import { useNavigate } from 'react-router-dom';
-import { LanguageSwitcher } from '@/components/common';
+import { ConfirmDialog, LanguageSwitcher } from '@/components/common';
+import { UserRole } from '@/types';
 import ThemeToggle from './ThemeToggle';
 
 interface TopNavProps {
@@ -38,6 +44,7 @@ const TopNav: React.FC<TopNavProps> = ({ onMenuClick, sidebarCollapsed = false }
   const { unreadCount } = useNotifications();
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [logoutOpen, setLogoutOpen] = React.useState(false);
 
   const menuTooltip = isMobile
     ? t('nav.openMenu')
@@ -45,11 +52,26 @@ const TopNav: React.FC<TopNavProps> = ({ onMenuClick, sidebarCollapsed = false }
       ? t('nav.expandSidebar')
       : t('nav.collapseSidebar');
 
+  const canAdmin =
+    !!user &&
+    [UserRole.Administrator, UserRole.FacultyManager].includes(user.role);
+
+  const closeMenu = () => setAnchorEl(null);
+
   return (
-    <AppBar position="fixed" color="inherit" elevation={0} sx={{ borderBottom: 1, borderColor: 'divider' }}>
-      <Toolbar>
+    <AppBar
+      position="fixed"
+      color="inherit"
+      elevation={0}
+      sx={{
+        borderBottom: 1,
+        borderColor: 'divider',
+        zIndex: (z) => z.zIndex.drawer + 1,
+      }}
+    >
+      <Toolbar sx={{ gap: 0.5 }}>
         <Tooltip title={menuTooltip}>
-          <IconButton edge="start" color="inherit" onClick={onMenuClick} aria-label={menuTooltip} sx={{ mr: 1 }}>
+          <IconButton edge="start" color="inherit" onClick={onMenuClick} aria-label={menuTooltip}>
             {isMobile || sidebarCollapsed ? <MenuIcon /> : <MenuOpen />}
           </IconButton>
         </Tooltip>
@@ -58,27 +80,26 @@ const TopNav: React.FC<TopNavProps> = ({ onMenuClick, sidebarCollapsed = false }
           component="img"
           src="/fit-huflit.png"
           alt="HUFLIT"
-          sx={{ height: 40, mr: 1.5, cursor: 'pointer' }}
+          sx={{
+            height: 44,
+            maxWidth: { xs: 220, sm: 280 },
+            width: 'auto',
+            objectFit: 'contain',
+            cursor: 'pointer',
+            display: 'block',
+          }}
           onClick={() => navigate('/')}
         />
 
-        <Typography
-          variant="h6"
-          component="div"
-          sx={{ flexGrow: 1, fontWeight: 700, cursor: 'pointer' }}
-          onClick={() => navigate('/')}
-        >
-          {t('common.appName')}
-        </Typography>
+        <Box sx={{ flexGrow: 1 }} />
 
-        <LanguageSwitcher compact />
+        <LanguageSwitcher />
         <ThemeToggle />
 
         <Tooltip title={t('nav.notifications')}>
           <IconButton
             color="inherit"
             onClick={() => navigate('/notifications')}
-            sx={{ ml: 0.5 }}
             aria-label={t('nav.notifications')}
           >
             <Badge badgeContent={unreadCount} color="error">
@@ -91,7 +112,6 @@ const TopNav: React.FC<TopNavProps> = ({ onMenuClick, sidebarCollapsed = false }
           edge="end"
           color="inherit"
           onClick={(e) => setAnchorEl(e.currentTarget)}
-          sx={{ ml: 0.5 }}
           aria-label={t('common.profile')}
         >
           {user?.avatarUrl ? (
@@ -101,25 +121,77 @@ const TopNav: React.FC<TopNavProps> = ({ onMenuClick, sidebarCollapsed = false }
           )}
         </IconButton>
 
-        <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={() => setAnchorEl(null)}>
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={closeMenu}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+          PaperProps={{ sx: { minWidth: 240, mt: 1 } }}
+        >
+          {user && (
+            <Box sx={{ px: 2, py: 1.5 }}>
+              <Typography variant="subtitle2" fontWeight={700} noWrap>
+                {user.fullName}
+              </Typography>
+              <Typography variant="caption" color="text.secondary" noWrap display="block">
+                {user.email}
+              </Typography>
+            </Box>
+          )}
+          <Divider />
+          {canAdmin && (
+            <MenuItem
+              onClick={() => {
+                navigate('/admin');
+                closeMenu();
+              }}
+            >
+              <ListItemIcon>
+                <DashboardOutlined fontSize="small" />
+              </ListItemIcon>
+              {t('nav.adminDashboard')}
+            </MenuItem>
+          )}
           <MenuItem
             onClick={() => {
               navigate('/profile');
-              setAnchorEl(null);
+              closeMenu();
             }}
           >
-            {t('common.profile')}
+            <ListItemIcon>
+              <PersonOutline fontSize="small" />
+            </ListItemIcon>
+            {t('nav.viewProfile')}
           </MenuItem>
+          <Divider />
           <MenuItem
-            onClick={async () => {
-              await logout();
-              navigate('/login');
-              setAnchorEl(null);
+            onClick={() => {
+              closeMenu();
+              setLogoutOpen(true);
             }}
           >
+            <ListItemIcon>
+              <LogoutOutlined fontSize="small" />
+            </ListItemIcon>
             {t('common.logout')}
           </MenuItem>
         </Menu>
+
+        <ConfirmDialog
+          open={logoutOpen}
+          title={t('auth.logoutTitle')}
+          message={t('auth.logoutConfirm')}
+          confirmText={t('common.logout')}
+          cancelText={t('common.cancel')}
+          severity="warning"
+          onCancel={() => setLogoutOpen(false)}
+          onConfirm={async () => {
+            setLogoutOpen(false);
+            await logout();
+            navigate('/login');
+          }}
+        />
       </Toolbar>
     </AppBar>
   );

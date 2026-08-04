@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Box, Typography, Grid, Chip, Paper, Avatar, Divider, Button } from '@mui/material';
+import { Container, Box, Typography, Grid, Chip, Paper, Avatar, Divider } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
-import { AccessTime, LocationOn, People, Person } from '@mui/icons-material';
+import { AccessTime, LocationOn, Person } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 import { eventsApi } from '@/api';
 import { PageHeader, CategoryChip, StatusChip, Countdown, ShareButton, EmptyState } from '@/components/common';
 import { CapacityBar, RegisterButton, SaveEventButton } from '@/components/events';
-import { formatDate, formatDateTime } from '@/utils';
+import { formatDateTime } from '@/utils';
 import type { EventDetail } from '@/types';
 import { motion } from 'framer-motion';
 
 const EventDetailPage: React.FC = () => {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [event, setEvent] = useState<EventDetail | null>(null);
@@ -33,13 +35,21 @@ const EventDetailPage: React.FC = () => {
   }, [id]);
 
   if (loading) {
-    return <Container maxWidth="lg"><Typography>Loading...</Typography></Container>;
+    return (
+      <Container maxWidth="lg">
+        <Typography>{t('common.loadingShort')}</Typography>
+      </Container>
+    );
   }
 
   if (!event) {
     return (
       <Container maxWidth="lg">
-        <EmptyState title="Event not found" description="The event you're looking for doesn't exist" action={{ label: 'Go Back', onClick: () => navigate(-1) }} />
+        <EmptyState
+          title={t('events.notFound')}
+          description={t('events.notFoundDesc')}
+          action={{ label: t('common.back'), onClick: () => navigate(-1) }}
+        />
       </Container>
     );
   }
@@ -48,7 +58,11 @@ const EventDetailPage: React.FC = () => {
     <Container maxWidth="lg">
       <PageHeader
         title={event.title}
-        breadcrumbs={[{ label: 'Home', path: '/' }, { label: 'Events', path: '/events' }, { label: event.title }]}
+        breadcrumbs={[
+          { label: t('common.home'), path: '/' },
+          { label: t('events.title'), path: '/events' },
+          { label: event.title },
+        ]}
       />
 
       <Box component={motion.div} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
@@ -66,7 +80,7 @@ const EventDetailPage: React.FC = () => {
             <Box sx={{ display: 'flex', gap: 2, mb: 2, flexWrap: 'wrap', alignItems: 'center' }}>
               <CategoryChip category={event.category} size="medium" />
               <StatusChip status={event.status} size="medium" />
-              {event.isFeatured && <Chip label="Featured" color="primary" />}
+              {event.isFeatured && <Chip label={t('events.featured')} color="primary" />}
             </Box>
 
             <Typography variant="h3" fontWeight={800} gutterBottom>
@@ -80,7 +94,7 @@ const EventDetailPage: React.FC = () => {
 
             <Paper sx={{ p: 3, mb: 4 }}>
               <Typography variant="h5" fontWeight={600} gutterBottom>
-                Event Details
+                {t('events.details')}
               </Typography>
               <Divider sx={{ mb: 2 }} />
 
@@ -88,7 +102,7 @@ const EventDetailPage: React.FC = () => {
                 <AccessTime color="action" />
                 <Box>
                   <Typography variant="body2" color="text.secondary">
-                    Start
+                    {t('events.start')}
                   </Typography>
                   <Typography variant="body1" fontWeight={600}>
                     {formatDateTime(event.startAt)}
@@ -100,7 +114,7 @@ const EventDetailPage: React.FC = () => {
                 <AccessTime color="action" />
                 <Box>
                   <Typography variant="body2" color="text.secondary">
-                    End
+                    {t('events.end')}
                   </Typography>
                   <Typography variant="body1" fontWeight={600}>
                     {formatDateTime(event.endAt)}
@@ -112,7 +126,7 @@ const EventDetailPage: React.FC = () => {
                 <LocationOn color="action" />
                 <Box>
                   <Typography variant="body2" color="text.secondary">
-                    Location
+                    {t('events.location')}
                   </Typography>
                   <Typography variant="body1" fontWeight={600}>
                     {event.locationName}
@@ -130,7 +144,7 @@ const EventDetailPage: React.FC = () => {
                   <Person color="action" />
                   <Box>
                     <Typography variant="body2" color="text.secondary">
-                      Organizer
+                      {t('events.organizer')}
                     </Typography>
                     <Typography variant="body1" fontWeight={600}>
                       {event.organizerName}
@@ -142,7 +156,7 @@ const EventDetailPage: React.FC = () => {
 
             <Paper sx={{ p: 3, mb: 4 }}>
               <Typography variant="h5" fontWeight={600} gutterBottom>
-                Description
+                {t('events.description')}
               </Typography>
               <Divider sx={{ mb: 2 }} />
               <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
@@ -153,7 +167,7 @@ const EventDetailPage: React.FC = () => {
             {event.agenda && (
               <Paper sx={{ p: 3, mb: 4 }}>
                 <Typography variant="h5" fontWeight={600} gutterBottom>
-                  Agenda
+                  {t('events.agenda')}
                 </Typography>
                 <Divider sx={{ mb: 2 }} />
                 <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
@@ -165,7 +179,7 @@ const EventDetailPage: React.FC = () => {
             {event.speakers && event.speakers.length > 0 && (
               <Paper sx={{ p: 3, mb: 4 }}>
                 <Typography variant="h5" fontWeight={600} gutterBottom>
-                  Speakers
+                  {t('events.speakers')}
                 </Typography>
                 <Divider sx={{ mb: 2 }} />
                 <Grid container spacing={3}>
@@ -199,13 +213,13 @@ const EventDetailPage: React.FC = () => {
           <Grid item xs={12} md={4}>
             <Paper sx={{ p: 3, mb: 3, position: 'sticky', top: 80 }}>
               <Typography variant="h6" fontWeight={600} gutterBottom>
-                Registration
+                {t('events.registration')}
               </Typography>
               <Divider sx={{ mb: 3 }} />
 
               <Box sx={{ mb: 3 }}>
                 <Typography variant="body2" color="text.secondary" gutterBottom>
-                  Time until event
+                  {t('events.timeUntil')}
                 </Typography>
                 <Countdown targetDate={event.startAt} />
               </Box>
@@ -215,7 +229,7 @@ const EventDetailPage: React.FC = () => {
               </Box>
 
               <Typography variant="body2" color="text.secondary" gutterBottom>
-                Registration Deadline
+                {t('events.registrationDeadline')}
               </Typography>
               <Typography variant="body1" fontWeight={600} gutterBottom>
                 {formatDateTime(event.registrationDeadline)}
@@ -233,7 +247,7 @@ const EventDetailPage: React.FC = () => {
               {event.requirements && (
                 <Box sx={{ mt: 3, p: 2, bgcolor: 'background.default', borderRadius: 2 }}>
                   <Typography variant="body2" fontWeight={600} gutterBottom>
-                    Requirements
+                    {t('events.requirements')}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     {event.requirements}
