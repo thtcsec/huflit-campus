@@ -31,9 +31,16 @@ public class AttendanceRecordConfiguration : IEntityTypeConfiguration<Attendance
             .HasForeignKey(x => x.UserId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        // Restrict to avoid SQL Server multiple cascade paths
+        // (Event → QrTokens CASCADE and Event → Registrations → Attendance CASCADE).
         builder.HasOne(x => x.QrToken)
             .WithMany()
             .HasForeignKey(x => x.QrTokenId)
-            .OnDelete(DeleteBehavior.SetNull);
+            .OnDelete(DeleteBehavior.NoAction);
+
+        builder.HasOne(x => x.Registration)
+            .WithMany(x => x.AttendanceRecords)
+            .HasForeignKey(x => x.RegistrationId)
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }

@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppShell } from '@/components/layout';
-import { RoleGate } from '@/components/common';
+import { RoleGate, BootSplash } from '@/components/common';
 import { UserRole } from '@/types';
 import { useAuth } from '@/hooks';
 
@@ -26,7 +26,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   const { isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
-    return null;
+    return <BootSplash />;
   }
 
   if (!isAuthenticated) {
@@ -40,10 +40,23 @@ const OptionalAuthRoute: React.FC<{ children: React.ReactNode }> = ({ children }
   const { isLoading } = useAuth();
 
   if (isLoading) {
-    return null;
+    return <BootSplash />;
   }
 
   return <>{children}</>;
+};
+
+/** First paint: login (HCMUS-style) when anonymous; home feed when signed in. */
+const HomeEntry: React.FC = () => {
+  const { isAuthenticated } = useAuth();
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  return (
+    <AppShell>
+      <HomePage />
+    </AppShell>
+  );
 };
 
 const AppRouter: React.FC = () => {
@@ -56,9 +69,7 @@ const AppRouter: React.FC = () => {
           path="/"
           element={
             <OptionalAuthRoute>
-              <AppShell>
-                <HomePage />
-              </AppShell>
+              <HomeEntry />
             </OptionalAuthRoute>
           }
         />

@@ -1,15 +1,34 @@
 import React from 'react';
-import { Box, AppBar, Toolbar, IconButton, Typography, Badge, Avatar, Menu, MenuItem, useMediaQuery, useTheme } from '@mui/material';
-import { Notifications as NotificationsIcon, AccountCircle, Menu as MenuIcon } from '@mui/icons-material';
+import {
+  Box,
+  AppBar,
+  Toolbar,
+  IconButton,
+  Typography,
+  Badge,
+  Avatar,
+  Menu,
+  MenuItem,
+  Tooltip,
+  useMediaQuery,
+  useTheme,
+} from '@mui/material';
+import {
+  Notifications as NotificationsIcon,
+  AccountCircle,
+  Menu as MenuIcon,
+  MenuOpen,
+} from '@mui/icons-material';
 import { useAuth, useNotifications } from '@/hooks';
 import { useNavigate } from 'react-router-dom';
 import ThemeToggle from './ThemeToggle';
 
 interface TopNavProps {
   onMenuClick: () => void;
+  sidebarCollapsed?: boolean;
 }
 
-const TopNav: React.FC<TopNavProps> = ({ onMenuClick }) => {
+const TopNav: React.FC<TopNavProps> = ({ onMenuClick, sidebarCollapsed = false }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { user, logout } = useAuth();
@@ -37,17 +56,34 @@ const TopNav: React.FC<TopNavProps> = ({ onMenuClick }) => {
   };
 
   return (
-    <AppBar position="fixed" color="inherit" elevation={0}>
+    <AppBar position="fixed" color="inherit" elevation={0} sx={{ borderBottom: 1, borderColor: 'divider' }}>
       <Toolbar>
-        {isMobile && (
-          <IconButton edge="start" color="inherit" onClick={onMenuClick} sx={{ mr: 2 }}>
-            <MenuIcon />
+        <Tooltip title={isMobile ? 'Open menu' : sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}>
+          <IconButton
+            edge="start"
+            color="inherit"
+            onClick={onMenuClick}
+            aria-label={isMobile ? 'Open menu' : sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            sx={{ mr: 1 }}
+          >
+            {isMobile || sidebarCollapsed ? <MenuIcon /> : <MenuOpen />}
           </IconButton>
-        )}
-        
-        <Box component="img" src="/fit-huflit.png" alt="HUFLIT" sx={{ height: 40, mr: 2 }} />
-        
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontWeight: 700 }}>
+        </Tooltip>
+
+        <Box
+          component="img"
+          src="/fit-huflit.png"
+          alt="HUFLIT"
+          sx={{ height: 40, mr: 1.5, cursor: 'pointer' }}
+          onClick={() => navigate('/')}
+        />
+
+        <Typography
+          variant="h6"
+          component="div"
+          sx={{ flexGrow: 1, fontWeight: 700, cursor: 'pointer' }}
+          onClick={() => navigate('/')}
+        >
           HUFLIT Campus
         </Typography>
 

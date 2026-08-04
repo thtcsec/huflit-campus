@@ -38,14 +38,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(data);
     } catch (error) {
       console.error('Failed to load user:', error);
-      localStorage.clear();
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      setUser(null);
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    loadUser();
+    // Never leave the UI on a blank screen if /me hangs.
+    const safety = window.setTimeout(() => setIsLoading(false), 10000);
+    loadUser().finally(() => window.clearTimeout(safety));
+    return () => window.clearTimeout(safety);
   }, []);
 
   const login = async (payload: MicrosoftLoginRequest) => {

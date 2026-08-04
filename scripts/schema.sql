@@ -271,14 +271,15 @@ CREATE TABLE dbo.AttendanceRecords (
     CreatedBy       nvarchar(64)     NULL,
     UpdatedBy       nvarchar(64)     NULL,
     IsDeleted       bit              NOT NULL CONSTRAINT DF_AttendanceRecords_IsDeleted DEFAULT (0),
+    -- NO ACTION avoids SQL Server multiple cascade path errors.
     CONSTRAINT FK_AttendanceRecords_EventRegistrations_RegistrationId
-        FOREIGN KEY (RegistrationId) REFERENCES dbo.EventRegistrations (Id) ON DELETE CASCADE,
+        FOREIGN KEY (RegistrationId) REFERENCES dbo.EventRegistrations (Id) ON DELETE NO ACTION,
     CONSTRAINT FK_AttendanceRecords_Events_EventId
-        FOREIGN KEY (EventId) REFERENCES dbo.Events (Id),
+        FOREIGN KEY (EventId) REFERENCES dbo.Events (Id) ON DELETE NO ACTION,
     CONSTRAINT FK_AttendanceRecords_Users_UserId
-        FOREIGN KEY (UserId) REFERENCES dbo.Users (Id),
+        FOREIGN KEY (UserId) REFERENCES dbo.Users (Id) ON DELETE NO ACTION,
     CONSTRAINT FK_AttendanceRecords_QrTokens_QrTokenId
-        FOREIGN KEY (QrTokenId) REFERENCES dbo.QrTokens (Id) ON DELETE SET NULL
+        FOREIGN KEY (QrTokenId) REFERENCES dbo.QrTokens (Id) ON DELETE NO ACTION
 );
 GO
 

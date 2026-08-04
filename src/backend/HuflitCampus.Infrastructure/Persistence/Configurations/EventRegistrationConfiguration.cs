@@ -22,9 +22,7 @@ public class EventRegistrationConfiguration : IEntityTypeConfiguration<EventRegi
         builder.HasIndex(x => new { x.EventId, x.Status });
         builder.HasIndex(x => x.UserId);
 
-        builder.HasMany(x => x.AttendanceRecords)
-            .WithOne(x => x.Registration)
-            .HasForeignKey(x => x.RegistrationId)
-            .OnDelete(DeleteBehavior.Cascade);
+        // Attendance FK delete behavior is configured on AttendanceRecordConfiguration
+        // (NoAction) to avoid SQL Server multiple cascade path errors.
     }
 }

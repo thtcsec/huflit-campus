@@ -16,7 +16,16 @@ $ErrorActionPreference = "Stop"
 $Root = Split-Path -Parent $PSScriptRoot
 $ApiDir = Join-Path $Root "src\backend\HuflitCampus.Api"
 $Frontend = Join-Path $Root "src\frontend"
-$ApiLog = Join-Path $env:TEMP "huflit-campus-api.log"
+$ApiLogOut = Join-Path $env:TEMP "huflit-campus-api.out.log"
+$ApiLogErr = Join-Path $env:TEMP "huflit-campus-api.err.log"
+
+function Show-ApiLogs {
+  param([int]$Tail = 40)
+  Write-Host "--- API stdout ($ApiLogOut) ---" -ForegroundColor DarkGray
+  Get-Content $ApiLogOut -ErrorAction SilentlyContinue | Select-Object -Last $Tail
+  Write-Host "--- API stderr ($ApiLogErr) ---" -ForegroundColor DarkGray
+  Get-Content $ApiLogErr -ErrorAction SilentlyContinue | Select-Object -Last $Tail
+}
 
 function Assert-Command($Name, $Hint) {
   if (-not (Get-Command $Name -ErrorAction SilentlyContinue)) {
@@ -32,7 +41,7 @@ Write-Host " HUFLIT Campus — Cách 1 (dotnet + pnpm)" -ForegroundColor Cyan
 Write-Host "  API     http://localhost:$ApiPort" -ForegroundColor DarkGray
 Write-Host "  Web     http://localhost:$WebPort" -ForegroundColor DarkGray
 Write-Host "  Swagger http://localhost:$ApiPort/swagger" -ForegroundColor DarkGray
-Write-Host "  API log $ApiLog" -ForegroundColor DarkGray
+Write-Host "  API logs $ApiLogOut / $ApiLogErr" -ForegroundColor DarkGray
 Write-Host ""
 
 Push-Location (Join-Path $Root "src\backend")
@@ -66,17 +75,18 @@ $apiArgs = @(
   "--no-build",
   "--launch-profile", "http"
 )
+Remove-Item $ApiLogOut, $ApiLogErr -ErrorAction SilentlyContinue
 $apiProc = Start-Process -FilePath "dotnet" -ArgumentList $apiArgs `
   -WorkingDirectory $ApiDir `
   -PassThru -WindowStyle Hidden `
-  -RedirectStandardOutput $ApiLog `
-  -RedirectStandardError $ApiLog
+  -RedirectStandardOutput $ApiLogOut `
+  -RedirectStandardError $ApiLogErr
 
 $ready = $false
 for ($i = 0; $i -lt 90; $i++) {
   if ($apiProc.HasExited) {
-    Get-Content $ApiLog -ErrorAction SilentlyContinue | Select-Object -Last 40
-    Write-Error "API exited early (code $($apiProc.ExitCode)). See $ApiLog"
+    Show-ApiLogs
+    Write-Error "API exited early (code $($apiProc.ExitCode)). See $ApiLogOut / $ApiLogErr"
   }
   Start-Sleep -Seconds 1
   try {
@@ -88,7 +98,8 @@ for ($i = 0; $i -lt 90; $i++) {
 if ($ready) {
   Write-Host ">> API healthy on :$ApiPort" -ForegroundColor Green
 } else {
-  Write-Host ">> API health check timed out — continuing; see $ApiLog" -ForegroundColor DarkYellow
+  Write-Host ">> API health check timed out — continuing; see logs below" -ForegroundColor DarkYellow
+  Show-ApiLogs -Tail 20
 }
 
 function Stop-Api {
