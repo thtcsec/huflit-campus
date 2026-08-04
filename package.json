@@ -1,0 +1,18 @@
+{
+  "name": "huflit-campus",
+  "private": true,
+  "version": "1.0.0",
+  "description": "HUFLIT Campus — Event Management System",
+  "packageManager": "pnpm@10.28.2",
+  "scripts": {
+    "dev": "pwsh -File ./scripts/dev.ps1",
+    "dev:skip-install": "pwsh -File ./scripts/dev.ps1 -SkipInstall",
+    "docker:up": "pwsh -File ./scripts/docker-up.ps1",
+    "docker:up:d": "pwsh -File ./scripts/docker-up.ps1 -Detach",
+    "docker:down": "pwsh -File ./scripts/docker-up.ps1 -Down",
+    "frontend:dev": "pnpm --dir src/frontend run dev",
+    "frontend:build": "pnpm --dir src/frontend run build",
+    "api:run": "dotnet run --project src/backend/HuflitCampus.Api/HuflitCampus.Api.csproj --launch-profile http",
+    "api:build": "dotnet build src/backend/HuflitCampus.sln"
+  }
+}

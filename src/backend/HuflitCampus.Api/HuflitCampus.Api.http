@@ -1,0 +1,6 @@
+@HuflitCampus.Api_HostAddress = http://localhost:5017
+
+GET {{HuflitCampus.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

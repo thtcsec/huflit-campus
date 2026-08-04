@@ -1,0 +1,81 @@
+## .NET
+bin/
+obj/
+[Bb]uild/
+[Ll]og/
+[Ll]ogs/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+*.sln.docstates
+project.lock.json
+project.fragment.lock.json
+artifacts/
+TestResults/
+*.nupkg
+*.snupkg
+*.dbmdl
+*.jfm
+*.pfx
+*.publishsettings
+publish/
+out/
+
+## ASP.NET
+wwwroot/uploads/
+**/wwwroot/uploads/**
+appsettings.*.local.json
+secrets.json
+
+## Node / frontend
+node_modules/
+dist/
+dist-ssr/
+*.local
+.npm
+.yarn/
+.pnpm-store/
+package-lock.json
+npm-shrinkwrap.json
+coverage/
+.vite/
+*.tsbuildinfo
+
+## Environment & secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+**/service-account*.json
+**/firebase*.json
+**/fcm*.json
+**/google-services.json
+
+## IDE / OS
+.vs/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp
+*~
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+## Docker
+docker-compose.override.yml
+
+## Misc
+*.log
+*.tmp
+*.temp
+.cache/
+.turbo/
+.parcel-cache/
+uploads/
+**/Uploads/
+*.sql.bak
+*.bak
