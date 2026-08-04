@@ -20,12 +20,35 @@ public sealed class UserRepository : Repository<User>, IUserRepository
     public Task<User?> GetByExternalIdAsync(string externalId, CancellationToken cancellationToken = default)
         => DbSet.FirstOrDefaultAsync(u => u.ExternalId == externalId, cancellationToken);
 
+    public async Task<User?> FindForLoginAsync(
+        string email,
+        string? externalId,
+        CancellationToken cancellationToken = default)
+    {
+        var normalized = email.Trim().ToLowerInvariant();
+        var query = DbSet.AsNoTracking();
+
+        if (!string.IsNullOrWhiteSpace(externalId))
+        {
+            var byExternal = await query.FirstOrDefaultAsync(
+                u => u.ExternalId == externalId,
+                cancellationToken);
+            if (byExternal is not null)
+                return byExternal;
+        }
+
+        return await query.FirstOrDefaultAsync(u => u.Email == normalized, cancellationToken);
+    }
+
     public Task<User?> GetByStudentIdAsync(string studentId, CancellationToken cancellationToken = default)
         => DbSet.FirstOrDefaultAsync(u => u.StudentId == studentId, cancellationToken);
 
     public Task<User?> GetWithRefreshTokensAsync(Guid userId, CancellationToken cancellationToken = default)
         => DbSet.Include(u => u.RefreshTokens)
             .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+
+    public void AddRefreshToken(RefreshToken refreshToken)
+        => Context.Set<RefreshToken>().Add(refreshToken);
 
     public async Task<IReadOnlyList<User>> GetByRoleAsync(UserRole role, CancellationToken cancellationToken = default)
         => await DbSet.Where(u => u.Role == role && u.IsActive)

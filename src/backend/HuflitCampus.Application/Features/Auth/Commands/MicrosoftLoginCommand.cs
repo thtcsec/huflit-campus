@@ -41,11 +41,8 @@ public class MicrosoftLoginCommandHandler : IRequestHandler<MicrosoftLoginComman
 
         var email = req.Email.Trim().ToLowerInvariant();
 
-        var user = !string.IsNullOrWhiteSpace(req.ExternalId)
-            ? await _userRepository.GetByExternalIdAsync(req.ExternalId, cancellationToken)
-            : null;
-
-        user ??= await _userRepository.GetByEmailAsync(email, cancellationToken);
+        // AsNoTracking — avoid accidental User UPDATE concurrency with soft-delete filters.
+        var user = await _userRepository.FindForLoginAsync(email, req.ExternalId, cancellationToken);
 
         if (user is null)
         {
@@ -65,25 +62,17 @@ public class MicrosoftLoginCommandHandler : IRequestHandler<MicrosoftLoginComman
             };
 
             _userRepository.Add(user);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
         else
         {
             if (!user.IsActive)
                 return Result.Failure<AuthResponse>("Account is deactivated.");
-
-            user.ExternalId ??= req.ExternalId;
-            user.AuthProvider = AuthProvider.MicrosoftEntra;
-            user.FullName = string.IsNullOrWhiteSpace(req.FullName) ? user.FullName : req.FullName.Trim();
-            user.AvatarUrl = req.AvatarUrl ?? user.AvatarUrl;
-            user.StudentId ??= req.StudentId;
-            user.Faculty ??= req.Faculty;
-            user.Major ??= req.Major;
-            user.UpdatedAt = _dateTime.UtcNow;
-            _userRepository.Update(user);
         }
 
         var tokens = _jwtTokenService.GenerateTokens(user);
-        user.RefreshTokens.Add(RefreshToken.Create(user.Id, tokens.RefreshToken, tokens.RefreshTokenExpiresAt));
+        _userRepository.AddRefreshToken(
+            RefreshToken.Create(user.Id, tokens.RefreshToken, tokens.RefreshTokenExpiresAt));
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
@@ -99,7 +88,8 @@ public class MicrosoftLoginCommandHandler : IRequestHandler<MicrosoftLoginComman
 
     private static UserRole InferRoleFromEmail(string email)
     {
-        if (email.EndsWith("@huflit.edu.vn", StringComparison.OrdinalIgnoreCase))
+        if (email.EndsWith("@huflit.edu.vn", StringComparison.OrdinalIgnoreCase)
+            && !email.EndsWith("@student.huflit.edu.vn", StringComparison.OrdinalIgnoreCase))
             return UserRole.Lecturer;
 
         if (email.EndsWith("@student.huflit.edu.vn", StringComparison.OrdinalIgnoreCase))

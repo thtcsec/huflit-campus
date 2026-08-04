@@ -55,6 +55,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (payload: MicrosoftLoginRequest) => {
     const { data } = await authApi.microsoftLogin(payload);
+    if (!data?.accessToken || !data?.user) {
+      throw new Error('Login response was empty');
+    }
     localStorage.setItem('accessToken', data.accessToken);
     localStorage.setItem('refreshToken', data.refreshToken);
     setUser(data.user);
@@ -62,6 +65,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const loginGuest = async (payload: GuestOtpVerifyRequest) => {
     const { data } = await authApi.verifyGuestOtp(payload);
+    if (!data?.accessToken || !data?.user) {
+      throw new Error('Login response was empty');
+    }
     localStorage.setItem('accessToken', data.accessToken);
     localStorage.setItem('refreshToken', data.refreshToken);
     setUser(data.user);

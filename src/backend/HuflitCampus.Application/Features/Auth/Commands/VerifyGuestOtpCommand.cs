@@ -61,9 +61,8 @@ public class VerifyGuestOtpCommandHandler : IRequestHandler<VerifyGuestOtpComman
         }
 
         challenge.Consume();
-        _otpRepository.Update(challenge);
 
-        var user = await _userRepository.GetByEmailAsync(email, cancellationToken);
+        var user = await _userRepository.FindForLoginAsync(email, externalId: null, cancellationToken);
         if (user is null)
         {
             var fullName = string.IsNullOrWhiteSpace(request.Request.FullName)
@@ -80,18 +79,16 @@ public class VerifyGuestOtpCommandHandler : IRequestHandler<VerifyGuestOtpComman
                 CreatedAt = _dateTime.UtcNow
             };
             _userRepository.Add(user);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
         }
-        else
+        else if (!user.IsActive)
         {
-            if (!user.IsActive)
-                return Result.Failure<AuthResponse>("Account is deactivated.");
-
-            user.UpdatedAt = _dateTime.UtcNow;
-            _userRepository.Update(user);
+            return Result.Failure<AuthResponse>("Account is deactivated.");
         }
 
         var tokens = _jwtTokenService.GenerateTokens(user);
-        user.RefreshTokens.Add(RefreshToken.Create(user.Id, tokens.RefreshToken, tokens.RefreshTokenExpiresAt));
+        _userRepository.AddRefreshToken(
+            RefreshToken.Create(user.Id, tokens.RefreshToken, tokens.RefreshTokenExpiresAt));
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

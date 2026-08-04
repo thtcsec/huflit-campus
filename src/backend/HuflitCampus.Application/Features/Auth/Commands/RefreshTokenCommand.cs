@@ -56,9 +56,9 @@ public class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, R
 
         var tokens = _jwtTokenService.GenerateTokens(user);
         existing.Revoke(tokens.RefreshToken);
-        user.RefreshTokens.Add(RefreshToken.Create(user.Id, tokens.RefreshToken, tokens.RefreshTokenExpiresAt));
+        _userRepository.AddRefreshToken(
+            RefreshToken.Create(user.Id, tokens.RefreshToken, tokens.RefreshTokenExpiresAt));
 
-        _userRepository.Update(user);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Success(new AuthResponse
