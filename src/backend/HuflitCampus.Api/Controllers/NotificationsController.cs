@@ -42,4 +42,12 @@ public sealed class NotificationsController(ISender sender) : ApiControllerBase
         var result = await sender.Send(new MarkAllNotificationsReadCommand(), cancellationToken);
         return FromResult(result);
     }
+
+    [HttpDelete("{id:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(new DeleteNotificationCommand(id), cancellationToken);
+        return FromResult(result);
+    }
 }

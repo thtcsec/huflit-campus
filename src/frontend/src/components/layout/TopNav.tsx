@@ -19,8 +19,10 @@ import {
   Menu as MenuIcon,
   MenuOpen,
 } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 import { useAuth, useNotifications } from '@/hooks';
 import { useNavigate } from 'react-router-dom';
+import { LanguageSwitcher } from '@/components/common';
 import ThemeToggle from './ThemeToggle';
 
 interface TopNavProps {
@@ -29,6 +31,7 @@ interface TopNavProps {
 }
 
 const TopNav: React.FC<TopNavProps> = ({ onMenuClick, sidebarCollapsed = false }) => {
+  const { t } = useTranslation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { user, logout } = useAuth();
@@ -36,36 +39,17 @@ const TopNav: React.FC<TopNavProps> = ({ onMenuClick, sidebarCollapsed = false }
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
-  const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleProfile = () => {
-    navigate('/profile');
-    handleClose();
-  };
-
-  const handleLogout = async () => {
-    await logout();
-    navigate('/login');
-    handleClose();
-  };
+  const menuTooltip = isMobile
+    ? t('nav.openMenu')
+    : sidebarCollapsed
+      ? t('nav.expandSidebar')
+      : t('nav.collapseSidebar');
 
   return (
     <AppBar position="fixed" color="inherit" elevation={0} sx={{ borderBottom: 1, borderColor: 'divider' }}>
       <Toolbar>
-        <Tooltip title={isMobile ? 'Open menu' : sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}>
-          <IconButton
-            edge="start"
-            color="inherit"
-            onClick={onMenuClick}
-            aria-label={isMobile ? 'Open menu' : sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            sx={{ mr: 1 }}
-          >
+        <Tooltip title={menuTooltip}>
+          <IconButton edge="start" color="inherit" onClick={onMenuClick} aria-label={menuTooltip} sx={{ mr: 1 }}>
             {isMobile || sidebarCollapsed ? <MenuIcon /> : <MenuOpen />}
           </IconButton>
         </Tooltip>
@@ -84,18 +68,32 @@ const TopNav: React.FC<TopNavProps> = ({ onMenuClick, sidebarCollapsed = false }
           sx={{ flexGrow: 1, fontWeight: 700, cursor: 'pointer' }}
           onClick={() => navigate('/')}
         >
-          HUFLIT Campus
+          {t('common.appName')}
         </Typography>
 
+        <LanguageSwitcher compact />
         <ThemeToggle />
 
-        <IconButton color="inherit" onClick={() => navigate('/notifications')} sx={{ ml: 1 }}>
-          <Badge badgeContent={unreadCount} color="error">
-            <NotificationsIcon />
-          </Badge>
-        </IconButton>
+        <Tooltip title={t('nav.notifications')}>
+          <IconButton
+            color="inherit"
+            onClick={() => navigate('/notifications')}
+            sx={{ ml: 0.5 }}
+            aria-label={t('nav.notifications')}
+          >
+            <Badge badgeContent={unreadCount} color="error">
+              <NotificationsIcon />
+            </Badge>
+          </IconButton>
+        </Tooltip>
 
-        <IconButton edge="end" color="inherit" onClick={handleMenu} sx={{ ml: 1 }}>
+        <IconButton
+          edge="end"
+          color="inherit"
+          onClick={(e) => setAnchorEl(e.currentTarget)}
+          sx={{ ml: 0.5 }}
+          aria-label={t('common.profile')}
+        >
           {user?.avatarUrl ? (
             <Avatar src={user.avatarUrl} alt={user.fullName} sx={{ width: 32, height: 32 }} />
           ) : (
@@ -103,9 +101,24 @@ const TopNav: React.FC<TopNavProps> = ({ onMenuClick, sidebarCollapsed = false }
           )}
         </IconButton>
 
-        <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleClose}>
-          <MenuItem onClick={handleProfile}>Profile</MenuItem>
-          <MenuItem onClick={handleLogout}>Logout</MenuItem>
+        <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={() => setAnchorEl(null)}>
+          <MenuItem
+            onClick={() => {
+              navigate('/profile');
+              setAnchorEl(null);
+            }}
+          >
+            {t('common.profile')}
+          </MenuItem>
+          <MenuItem
+            onClick={async () => {
+              await logout();
+              navigate('/login');
+              setAnchorEl(null);
+            }}
+          >
+            {t('common.logout')}
+          </MenuItem>
         </Menu>
       </Toolbar>
     </AppBar>

@@ -1,20 +1,23 @@
+import i18n from '@/i18n';
+
 export const formatDate = (date: string | Date, format: 'short' | 'long' | 'time' = 'short'): string => {
   const d = new Date(date);
-  
+  const locale = i18n.language || 'en';
+
   if (format === 'time') {
-    return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    return d.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
   }
-  
+
   if (format === 'long') {
-    return d.toLocaleDateString('en-US', {
+    return d.toLocaleDateString(locale, {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
       day: 'numeric',
     });
   }
-  
-  return d.toLocaleDateString('en-US', {
+
+  return d.toLocaleDateString(locale, {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
@@ -23,7 +26,7 @@ export const formatDate = (date: string | Date, format: 'short' | 'long' | 'time
 
 export const formatDateTime = (date: string | Date): string => {
   const d = new Date(date);
-  return `${formatDate(d, 'short')} at ${formatDate(d, 'time')}`;
+  return `${formatDate(d, 'short')} · ${formatDate(d, 'time')}`;
 };
 
 export const getRelativeTime = (date: string | Date): string => {
@@ -34,10 +37,10 @@ export const getRelativeTime = (date: string | Date): string => {
   const diffHours = Math.floor(diffMs / 3600000);
   const diffDays = Math.floor(diffMs / 86400000);
 
-  if (diffMins < 1) return 'Just now';
-  if (diffMins < 60) return `${diffMins}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  if (diffDays < 7) return `${diffDays}d ago`;
+  if (diffMins < 1) return i18n.t('common.justNow');
+  if (diffMins < 60) return i18n.t('common.minutesAgo', { count: diffMins });
+  if (diffHours < 24) return i18n.t('common.hoursAgo', { count: diffHours });
+  if (diffDays < 7) return i18n.t('common.daysAgo', { count: diffDays });
   return formatDate(past);
 };
 
@@ -59,11 +62,12 @@ export const shareEvent = async (title: string, url: string): Promise<void> => {
     }
   } else {
     await navigator.clipboard.writeText(url);
-    alert('Link copied to clipboard!');
   }
 };
 
-export const getTimeUntil = (futureDate: string | Date): { days: number; hours: number; minutes: number; seconds: number } => {
+export const getTimeUntil = (
+  futureDate: string | Date
+): { days: number; hours: number; minutes: number; seconds: number } => {
   const now = new Date();
   const future = new Date(futureDate);
   const diffMs = future.getTime() - now.getTime();

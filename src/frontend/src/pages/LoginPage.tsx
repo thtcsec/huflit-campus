@@ -25,8 +25,11 @@ import { useSnackbar } from 'notistack';
 import { useAuth } from '@/hooks';
 import { authApi } from '@/api';
 import type { MicrosoftLoginRequest } from '@/types';
+import { useTranslation } from 'react-i18next';
+import { LanguageSwitcher } from '@/components/common';
 
 const LoginPage: React.FC = () => {
+  const { t } = useTranslation();
   const { login, loginGuest, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -62,14 +65,14 @@ const LoginPage: React.FC = () => {
         major: roleHint === 'student' ? 'Software Engineering' : undefined,
       };
       await login(mockPayload);
-      enqueueSnackbar('Signed in successfully', { variant: 'success' });
+      enqueueSnackbar(t('auth.loginSuccess'), { variant: 'success' });
       navigate(from, { replace: true });
     } catch (error: unknown) {
       const message =
         (error as { response?: { data?: { detail?: string; title?: string } } })?.response?.data
           ?.detail ||
         (error as { response?: { data?: { title?: string } } })?.response?.data?.title ||
-        'Microsoft sign-in failed';
+        t('auth.loginFailed');
       enqueueSnackbar(message, { variant: 'error' });
     } finally {
       setLoading(false);
@@ -78,18 +81,18 @@ const LoginPage: React.FC = () => {
 
   const handleGuestOtpRequest = async () => {
     if (!guestEmail.includes('@')) {
-      enqueueSnackbar('Please enter a valid email', { variant: 'error' });
+      enqueueSnackbar(t('auth.invalidEmail'), { variant: 'error' });
       return;
     }
     setLoading(true);
     try {
       await authApi.requestGuestOtp({ email: guestEmail });
       setOtpSent(true);
-      enqueueSnackbar('OTP sent (check API console in Development)', { variant: 'success' });
+      enqueueSnackbar(t('auth.otpSent'), { variant: 'success' });
     } catch (error: unknown) {
       const message =
         (error as { response?: { data?: { detail?: string } } })?.response?.data?.detail ||
-        'Failed to send OTP';
+        t('auth.otpFailed');
       enqueueSnackbar(message, { variant: 'error' });
     } finally {
       setLoading(false);
@@ -98,18 +101,18 @@ const LoginPage: React.FC = () => {
 
   const handleGuestVerify = async () => {
     if (!guestOtp || !guestEmail) {
-      enqueueSnackbar('Enter the OTP code', { variant: 'error' });
+      enqueueSnackbar(t('auth.enterOtp'), { variant: 'error' });
       return;
     }
     setLoading(true);
     try {
       await loginGuest({ email: guestEmail, code: guestOtp, fullName: guestName || undefined });
-      enqueueSnackbar('Signed in as guest', { variant: 'success' });
+      enqueueSnackbar(t('auth.guestSuccess'), { variant: 'success' });
       navigate(from, { replace: true });
     } catch (error: unknown) {
       const message =
         (error as { response?: { data?: { detail?: string } } })?.response?.data?.detail ||
-        'Invalid OTP';
+        t('auth.invalidOtp');
       enqueueSnackbar(message, { variant: 'error' });
     } finally {
       setLoading(false);
@@ -131,6 +134,10 @@ const LoginPage: React.FC = () => {
         backgroundSize: '28px 28px, 28px 28px, 100% 100%',
       }}
     >
+      <Box sx={{ position: 'absolute', top: 16, right: 16, zIndex: 2 }}>
+        <LanguageSwitcher />
+      </Box>
+
       <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', px: { xs: 2, md: 6 }, py: 4 }}>
         <Box
           sx={{
@@ -167,7 +174,7 @@ const LoginPage: React.FC = () => {
                 color: '#C8102E',
               }}
             >
-              HUFLIT
+              {t('auth.brandTitle')}
             </Typography>
             <Typography
               sx={{
@@ -179,7 +186,7 @@ const LoginPage: React.FC = () => {
                 color: '#1E5AA8',
               }}
             >
-              CAMPUS EMS
+              {t('auth.brandSubtitle')}
             </Typography>
             <Typography
               sx={{
@@ -190,7 +197,7 @@ const LoginPage: React.FC = () => {
                 color: '#1B7A4E',
               }}
             >
-              EVENT MANAGEMENT SYSTEM
+              {t('auth.systemName')}
             </Typography>
             <Typography
               sx={{
@@ -201,7 +208,7 @@ const LoginPage: React.FC = () => {
                 color: '#334155',
               }}
             >
-              FACULTY OF INFORMATION TECHNOLOGY
+              {t('auth.facultyName')}
             </Typography>
           </Box>
 
@@ -230,15 +237,14 @@ const LoginPage: React.FC = () => {
                 fit<span style={{ color: '#C8102E' }}>@</span>huflit
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Ho Chi Minh City University of Foreign Languages – Information Technology
+                {t('auth.universityName')}
               </Typography>
             </Stack>
 
             {mode !== 'guest' ? (
               <Stack spacing={2}>
                 <Typography variant="body2" color="text.secondary">
-                  Students and lecturers sign in with their Microsoft account. No password form —
-                  no Google login.
+                  {t('auth.microsoftHint')}
                 </Typography>
                 <Button
                   fullWidth
@@ -256,7 +262,7 @@ const LoginPage: React.FC = () => {
                     '&:hover': { bgcolor: '#174a8a' },
                   }}
                 >
-                  Continue with Microsoft
+                  {t('auth.continueMicrosoft')}
                 </Button>
                 <MuiLink
                   component="button"
@@ -268,7 +274,7 @@ const LoginPage: React.FC = () => {
                   }}
                   sx={{ alignSelf: 'flex-start', fontSize: 14 }}
                 >
-                  Create guest account
+                  {t('auth.createGuest')}
                 </MuiLink>
               </Stack>
             ) : (
@@ -277,7 +283,7 @@ const LoginPage: React.FC = () => {
                   <>
                     <TextField
                       fullWidth
-                      label="Email"
+                      label={t('auth.guestEmail')}
                       type="email"
                       value={guestEmail}
                       onChange={(e) => setGuestEmail(e.target.value)}
@@ -304,14 +310,14 @@ const LoginPage: React.FC = () => {
                         '&:hover': { bgcolor: '#a50d25' },
                       }}
                     >
-                      {loading ? <CircularProgress size={22} color="inherit" /> : 'Send OTP'}
+                      {loading ? <CircularProgress size={22} color="inherit" /> : t('auth.sendOtp')}
                     </Button>
                   </>
                 ) : (
                   <>
                     <TextField
                       fullWidth
-                      label="Full name (optional)"
+                      label={t('auth.guestName')}
                       value={guestName}
                       onChange={(e) => setGuestName(e.target.value)}
                       InputProps={{
@@ -324,7 +330,7 @@ const LoginPage: React.FC = () => {
                     />
                     <TextField
                       fullWidth
-                      label="OTP code"
+                      label={t('auth.otpCode')}
                       type={showOtp ? 'text' : 'password'}
                       value={guestOtp}
                       onChange={(e) => setGuestOtp(e.target.value)}
@@ -353,10 +359,10 @@ const LoginPage: React.FC = () => {
                         '&:hover': { bgcolor: '#a50d25' },
                       }}
                     >
-                      {loading ? <CircularProgress size={22} color="inherit" /> : 'Verify & login'}
+                      {loading ? <CircularProgress size={22} color="inherit" /> : t('auth.verifyLogin')}
                     </Button>
                     <Button fullWidth variant="text" onClick={() => setOtpSent(false)}>
-                      Use another email
+                      {t('auth.useAnotherEmail')}
                     </Button>
                   </>
                 )}
@@ -367,14 +373,14 @@ const LoginPage: React.FC = () => {
                   onClick={() => setMode('student')}
                   sx={{ alignSelf: 'flex-start', fontSize: 14 }}
                 >
-                  Back to Microsoft sign-in
+                  {t('auth.backToMicrosoft')}
                 </MuiLink>
               </Stack>
             )}
 
             <Divider sx={{ my: 3 }}>
               <Typography variant="caption" color="text.secondary" letterSpacing={1}>
-                OR CONTINUE WITH
+                {t('auth.orContinueWith')}
               </Typography>
             </Divider>
 
@@ -392,9 +398,7 @@ const LoginPage: React.FC = () => {
                     ? { bgcolor: '#1E5AA8', '&:hover': { bgcolor: '#174a8a' } }
                     : { borderColor: '#cbd5e1', color: '#0f172a' }),
                 }}
-              >
-                Lecturer
-              </Button>
+              >{t('auth.lecturer')}</Button>
               <Button
                 variant={mode === 'student' ? 'contained' : 'outlined'}
                 startIcon={<Microsoft />}
@@ -408,9 +412,7 @@ const LoginPage: React.FC = () => {
                     ? { bgcolor: '#1E5AA8', '&:hover': { bgcolor: '#174a8a' } }
                     : { borderColor: '#cbd5e1', color: '#0f172a' }),
                 }}
-              >
-                Student
-              </Button>
+              >{t('auth.student')}</Button>
             </Box>
 
             <Box
@@ -424,17 +426,17 @@ const LoginPage: React.FC = () => {
               <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1.25 }}>
                 <MenuBookOutlined sx={{ color: '#1E5AA8', fontSize: 20 }} />
                 <Typography variant="subtitle2" fontWeight={700} color="#1E5AA8">
-                  Read user guides
+                  {t('auth.userGuides')}
                 </Typography>
               </Stack>
               <Stack direction="row" spacing={1}>
-                {(['Lecturer', 'Student', 'Guest'] as const).map((label) => (
+                {(['lecturer', 'student', 'guest'] as const).map((key) => (
                   <Button
-                    key={label}
+                    key={key}
                     size="small"
                     variant="contained"
                     onClick={() =>
-                      setMode(label.toLowerCase() as 'lecturer' | 'student' | 'guest')
+                      setMode(key)
                     }
                     sx={{
                       flex: 1,
@@ -446,7 +448,7 @@ const LoginPage: React.FC = () => {
                       '&:hover': { bgcolor: '#f8fafc', boxShadow: 'none' },
                     }}
                   >
-                    {label}
+                    {t(`auth.${key}`)}
                   </Button>
                 ))}
               </Stack>
@@ -458,7 +460,7 @@ const LoginPage: React.FC = () => {
               fullWidth
               sx={{ mt: 2, textTransform: 'none' }}
             >
-              Browse events without signing in
+              {t('common.browseEvents')}
             </Button>
           </Box>
         </Box>
@@ -480,18 +482,18 @@ const LoginPage: React.FC = () => {
               fit<span style={{ color: '#F5C518' }}>@</span>huflit
             </Typography>
             <Typography variant="body2" sx={{ color: '#94a3b8', mb: 1.5 }}>
-              © {new Date().getFullYear()} Faculty of Information Technology, HUFLIT
+              {t('footer.copyright', { year: new Date().getFullYear() })}
             </Typography>
             <Stack direction="row" spacing={1} alignItems="center">
               <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: '#22c55e' }} />
               <Typography variant="caption" sx={{ color: '#cbd5e1' }}>
-                Campus events platform
+                {t('footer.about')}
               </Typography>
             </Stack>
           </Box>
           <Box>
             <Typography fontWeight={700} sx={{ mb: 1 }}>
-              Contact
+              {t('footer.contact')}
             </Typography>
             <Typography variant="body2" sx={{ color: '#cbd5e1' }}>
               828 Sư Vạn Hạnh, P.12, Q.10, TP.HCM
@@ -502,17 +504,17 @@ const LoginPage: React.FC = () => {
           </Box>
           <Box>
             <Typography fontWeight={700} sx={{ mb: 1 }}>
-              Links
+              {t('footer.links')}
             </Typography>
             <Stack spacing={0.75}>
               <MuiLink component={Link} to="/" sx={{ color: '#38bdf8' }}>
-                Home
+                {t('common.home')}
               </MuiLink>
               <MuiLink component={Link} to="/events" sx={{ color: '#38bdf8' }}>
-                Events
+                {t('nav.events')}
               </MuiLink>
               <MuiLink href="https://www.huflit.edu.vn" target="_blank" rel="noreferrer" sx={{ color: '#38bdf8' }}>
-                HUFLIT website
+                {t('footer.huflitWebsite')}
               </MuiLink>
             </Stack>
           </Box>

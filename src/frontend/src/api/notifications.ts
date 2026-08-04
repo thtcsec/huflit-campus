@@ -1,16 +1,16 @@
 import { apiClient } from './client';
 import type { Notification } from '@/types';
+import type { PagedResult } from '@/types/paging';
 
 export const notificationsApi = {
-  getMyNotifications: () =>
-    apiClient.get<Notification[]>('/notifications'),
+  getMyNotifications: (page = 1, pageSize = 50, unreadOnly = false) =>
+    apiClient.get<PagedResult<Notification>>('/notifications', {
+      params: { page, pageSize, unreadOnly },
+    }),
 
-  markAsRead: (id: string) =>
-    apiClient.put(`/notifications/${id}/read`),
+  markAsRead: (id: string) => apiClient.post(`/notifications/${id}/read`),
 
-  markAllAsRead: () =>
-    apiClient.put('/notifications/read-all'),
+  markAllAsRead: () => apiClient.post('/notifications/read-all'),
 
-  deleteNotification: (id: string) =>
-    apiClient.delete(`/notifications/${id}`),
+  deleteNotification: (id: string) => apiClient.delete(`/notifications/${id}`),
 };

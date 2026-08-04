@@ -2,8 +2,11 @@ import React from 'react';
 import { Box, Container, Typography, Link as MuiLink, Stack, IconButton } from '@mui/material';
 import { Facebook, LinkedIn, YouTube } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 const Footer: React.FC = () => {
+  const { t } = useTranslation();
+
   return (
     <Box
       component="footer"
@@ -35,17 +38,16 @@ const Footer: React.FC = () => {
               fit<span style={{ color: '#F5C518' }}>@</span>huflit
             </Typography>
             <Typography variant="body2" sx={{ color: '#94a3b8', mb: 2, maxWidth: 360 }}>
-              © {new Date().getFullYear()} Faculty of Information Technology, HUFLIT — Ho Chi Minh
-              City University of Foreign Languages – Information Technology.
+              {t('footer.copyright', { year: new Date().getFullYear() })}
             </Typography>
             <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
               <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: '#22c55e' }} />
               <Typography variant="caption" sx={{ color: '#cbd5e1' }}>
-                Campus Event Management System
+                {t('footer.about')}
               </Typography>
             </Stack>
             <Typography variant="caption" sx={{ color: '#94a3b8', display: 'block', mb: 1 }}>
-              Follow us
+              {t('footer.followUs')}
             </Typography>
             <Stack direction="row" spacing={0.5}>
               <IconButton size="small" sx={{ color: '#fff' }} aria-label="Facebook">
@@ -62,10 +64,10 @@ const Footer: React.FC = () => {
 
           <Box>
             <Typography fontWeight={700} sx={{ mb: 1.5 }}>
-              Contact information
+              {t('footer.contact')}
             </Typography>
             <Typography fontWeight={600} variant="body2" sx={{ mb: 0.75 }}>
-              Faculty Office
+              {t('footer.facultyOffice')}
             </Typography>
             <Typography variant="body2" sx={{ color: '#cbd5e1', mb: 0.5 }}>
               828 Sư Vạn Hạnh, Phường 12, Quận 10, TP. Hồ Chí Minh
@@ -86,17 +88,17 @@ const Footer: React.FC = () => {
 
           <Box>
             <Typography fontWeight={700} sx={{ mb: 1.5 }}>
-              Links
+              {t('footer.links')}
             </Typography>
             <Stack spacing={1}>
               <MuiLink component={Link} to="/events" sx={{ color: '#38bdf8' }}>
-                Campus events
+                {t('footer.campusEvents')}
               </MuiLink>
               <MuiLink component={Link} to="/calendar" sx={{ color: '#38bdf8' }}>
-                Event calendar
+                {t('footer.eventCalendar')}
               </MuiLink>
               <MuiLink component={Link} to="/login" sx={{ color: '#38bdf8' }}>
-                Sign in
+                {t('footer.signIn')}
               </MuiLink>
               <MuiLink
                 href="https://www.huflit.edu.vn"
@@ -104,7 +106,7 @@ const Footer: React.FC = () => {
                 rel="noreferrer"
                 sx={{ color: '#38bdf8' }}
               >
-                HUFLIT website
+                {t('footer.huflitWebsite')}
               </MuiLink>
               <MuiLink
                 href="https://fit.huflit.edu.vn"
@@ -112,7 +114,7 @@ const Footer: React.FC = () => {
                 rel="noreferrer"
                 sx={{ color: '#38bdf8' }}
               >
-                Faculty of IT
+                {t('footer.facultyIt')}
               </MuiLink>
             </Stack>
           </Box>

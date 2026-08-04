@@ -1,7 +1,8 @@
 import React, { createContext, useState, useEffect, ReactNode, useCallback } from 'react';
-import { HubConnectionBuilder, HubConnection, LogLevel } from '@microsoft/signalr';
+import { HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
 import { notificationsApi } from '@/api';
 import type { Notification } from '@/types';
+import { unwrapPaged } from '@/types/paging';
 import { useSnackbar } from 'notistack';
 
 interface NotificationContextType {
@@ -26,18 +27,19 @@ export const NotificationContext = createContext<NotificationContextType>({
 
 export const NotificationProvider = ({ children }: { children: ReactNode }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [connection, setConnection] = useState<HubConnection | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
 
-  const unreadCount = notifications.filter((n) => !n.isRead).length;
+  const list = Array.isArray(notifications) ? notifications : [];
+  const unreadCount = list.filter((n) => !n.isRead).length;
 
   const fetchNotifications = useCallback(async () => {
     try {
       const { data } = await notificationsApi.getMyNotifications();
-      setNotifications(data);
+      setNotifications(unwrapPaged<Notification>(data));
     } catch (error) {
       console.error('Failed to fetch notifications:', error);
+      setNotifications([]);
     }
   }, []);
 
@@ -45,18 +47,27 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     const token = localStorage.getItem('accessToken');
     if (!token) return;
 
-    fetchNotifications();
+    void fetchNotifications();
 
     const newConnection = new HubConnectionBuilder()
       .withUrl('/hubs/notifications', {
-        accessTokenFactory: () => token,
+        accessTokenFactory: () => localStorage.getItem('accessToken') || '',
       })
       .withAutomaticReconnect()
-      .configureLogging(LogLevel.Information)
+      .configureLogging(LogLevel.Warning)
       .build();
 
+    newConnection.on('notificationReceived', (notification: Notification) => {
+      setNotifications((prev) => [notification, ...(Array.isArray(prev) ? prev : [])]);
+      enqueueSnackbar(notification.title, {
+        variant: 'info',
+        autoHideDuration: 5000,
+      });
+    });
+
+    // Backward-compatible event name
     newConnection.on('ReceiveNotification', (notification: Notification) => {
-      setNotifications((prev) => [notification, ...prev]);
+      setNotifications((prev) => [notification, ...(Array.isArray(prev) ? prev : [])]);
       enqueueSnackbar(notification.title, {
         variant: 'info',
         autoHideDuration: 5000,
@@ -65,29 +76,18 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
 
     newConnection
       .start()
-      .then(() => {
-        setIsConnected(true);
-        console.log('SignalR connected');
-      })
+      .then(() => setIsConnected(true))
       .catch((err) => console.error('SignalR connection error:', err));
 
     newConnection.onreconnected(() => {
       setIsConnected(true);
-      fetchNotifications();
+      void fetchNotifications();
     });
-
-    newConnection.onreconnecting(() => {
-      setIsConnected(false);
-    });
-
-    newConnection.onclose(() => {
-      setIsConnected(false);
-    });
-
-    setConnection(newConnection);
+    newConnection.onreconnecting(() => setIsConnected(false));
+    newConnection.onclose(() => setIsConnected(false));
 
     return () => {
-      newConnection.stop();
+      void newConnection.stop();
     };
   }, [fetchNotifications, enqueueSnackbar]);
 
@@ -95,7 +95,9 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     try {
       await notificationsApi.markAsRead(id);
       setNotifications((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, isRead: true, readAt: new Date().toISOString() } : n))
+        (Array.isArray(prev) ? prev : []).map((n) =>
+          n.id === id ? { ...n, isRead: true, readAt: new Date().toISOString() } : n
+        )
       );
     } catch (error) {
       console.error('Failed to mark notification as read:', error);
@@ -106,7 +108,11 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     try {
       await notificationsApi.markAllAsRead();
       setNotifications((prev) =>
-        prev.map((n) => ({ ...n, isRead: true, readAt: new Date().toISOString() }))
+        (Array.isArray(prev) ? prev : []).map((n) => ({
+          ...n,
+          isRead: true,
+          readAt: new Date().toISOString(),
+        }))
       );
     } catch (error) {
       console.error('Failed to mark all notifications as read:', error);
@@ -114,18 +120,20 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const deleteNotification = async (id: string) => {
+    // Optimistic remove so UI never hangs on delete
+    setNotifications((prev) => (Array.isArray(prev) ? prev : []).filter((n) => n.id !== id));
     try {
       await notificationsApi.deleteNotification(id);
-      setNotifications((prev) => prev.filter((n) => n.id !== id));
     } catch (error) {
       console.error('Failed to delete notification:', error);
+      await fetchNotifications();
     }
   };
 
   return (
     <NotificationContext.Provider
       value={{
-        notifications,
+        notifications: list,
         unreadCount,
         isConnected,
         fetchNotifications,

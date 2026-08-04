@@ -27,6 +27,7 @@ import {
   QrCodeScanner,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks';
 import { UserRole } from '@/types';
 
@@ -41,6 +42,7 @@ interface SideNavProps {
 }
 
 const SideNav: React.FC<SideNavProps> = ({ open, collapsed, onClose, onToggleCollapse }) => {
+  const { t } = useTranslation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const navigate = useNavigate();
@@ -48,34 +50,34 @@ const SideNav: React.FC<SideNavProps> = ({ open, collapsed, onClose, onToggleCol
   const { user } = useAuth();
 
   const menuItems = [
-    { text: 'Home', icon: <Home />, path: '/', roles: [] as UserRole[] },
-    { text: 'Events', icon: <Event />, path: '/events', roles: [] as UserRole[] },
-    { text: 'Calendar', icon: <CalendarMonth />, path: '/calendar', roles: [] as UserRole[] },
-    { text: 'Saved Events', icon: <BookmarkBorder />, path: '/saved', roles: [] as UserRole[] },
-    { text: 'My Registrations', icon: <ConfirmationNumber />, path: '/registrations', roles: [] as UserRole[] },
+    { textKey: 'nav.home', icon: <Home />, path: '/', roles: [] as UserRole[] },
+    { textKey: 'nav.events', icon: <Event />, path: '/events', roles: [] as UserRole[] },
+    { textKey: 'nav.calendar', icon: <CalendarMonth />, path: '/calendar', roles: [] as UserRole[] },
+    { textKey: 'nav.saved', icon: <BookmarkBorder />, path: '/saved', roles: [] as UserRole[] },
+    { textKey: 'nav.registrations', icon: <ConfirmationNumber />, path: '/registrations', roles: [] as UserRole[] },
   ];
 
   const managerItems = [
     {
-      text: 'Create Event',
+      textKey: 'nav.createEvent',
       icon: <AddCircle />,
       path: '/events/create',
       roles: [UserRole.ClubManager, UserRole.FacultyManager, UserRole.Administrator],
     },
     {
-      text: 'My Events',
+      textKey: 'nav.manageEvents',
       icon: <ManageAccounts />,
       path: '/events/manage',
       roles: [UserRole.ClubManager, UserRole.FacultyManager, UserRole.Administrator],
     },
     {
-      text: 'Event QR',
+      textKey: 'nav.eventQr',
       icon: <QrCode />,
       path: '/organizer-qr',
       roles: [UserRole.ClubManager, UserRole.FacultyManager, UserRole.Administrator],
     },
     {
-      text: 'Attendance Scan',
+      textKey: 'nav.attendanceScan',
       icon: <QrCodeScanner />,
       path: '/attendance/scan',
       roles: [UserRole.ClubManager, UserRole.FacultyManager, UserRole.Administrator],
@@ -84,7 +86,7 @@ const SideNav: React.FC<SideNavProps> = ({ open, collapsed, onClose, onToggleCol
 
   const adminItems = [
     {
-      text: 'Dashboard',
+      textKey: 'nav.dashboard',
       icon: <Dashboard />,
       path: '/admin',
       roles: [UserRole.Administrator, UserRole.FacultyManager],
@@ -104,8 +106,14 @@ const SideNav: React.FC<SideNavProps> = ({ open, collapsed, onClose, onToggleCol
   const width = isMobile ? DRAWER_WIDTH : collapsed ? DRAWER_WIDTH_COLLAPSED : DRAWER_WIDTH;
   const mini = !isMobile && collapsed;
 
-  const renderItem = (item: { text: string; icon: React.ReactNode; path: string; roles: UserRole[] }) => {
+  const renderItem = (item: {
+    textKey: string;
+    icon: React.ReactNode;
+    path: string;
+    roles: UserRole[];
+  }) => {
     if (!canAccess(item.roles)) return null;
+    const label = t(item.textKey);
 
     const selected =
       item.path === '/'
@@ -136,12 +144,14 @@ const SideNav: React.FC<SideNavProps> = ({ open, collapsed, onClose, onToggleCol
         >
           {item.icon}
         </ListItemIcon>
-        {!mini && <ListItemText primary={item.text} primaryTypographyProps={{ fontWeight: selected ? 700 : 500 }} />}
+        {!mini && (
+          <ListItemText primary={label} primaryTypographyProps={{ fontWeight: selected ? 700 : 500 }} />
+        )}
       </ListItemButton>
     );
 
     return mini ? (
-      <Tooltip key={item.path} title={item.text} placement="right">
+      <Tooltip key={item.path} title={label} placement="right">
         {button}
       </Tooltip>
     ) : (
@@ -170,10 +180,13 @@ const SideNav: React.FC<SideNavProps> = ({ open, collapsed, onClose, onToggleCol
 
       {!isMobile && (
         <Box sx={{ p: 1, borderTop: 1, borderColor: 'divider' }}>
-          <Tooltip title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'} placement="right">
+          <Tooltip
+            title={collapsed ? t('nav.expandSidebar') : t('nav.collapseSidebar')}
+            placement="right"
+          >
             <IconButton
               onClick={onToggleCollapse}
-              aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+              aria-label={collapsed ? t('nav.expandSidebar') : t('nav.collapseSidebar')}
               sx={{ width: '100%', borderRadius: 2 }}
             >
               {collapsed ? <ChevronRight /> : <ChevronLeft />}

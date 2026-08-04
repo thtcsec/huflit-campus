@@ -1,69 +1,130 @@
 import React, { useEffect, useState } from 'react';
-import { Container, List, ListItem, ListItemText, ListItemButton, Typography, Box, IconButton, Badge } from '@mui/material';
-import { Delete, CheckCircle } from '@mui/icons-material';
+import {
+  Container,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemButton,
+  Typography,
+  Box,
+  IconButton,
+  Badge,
+  Tooltip,
+  Alert,
+} from '@mui/material';
+import { Delete, DoneAll } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 import { PageHeader, EmptyState, ListSkeleton } from '@/components/common';
 import { useNotifications } from '@/hooks';
 import { getRelativeTime } from '@/utils';
-import type { Notification } from '@/types';
 
 const NotificationsPage: React.FC = () => {
-  const { notifications, markAsRead, markAllAsRead, deleteNotification, fetchNotifications } = useNotifications();
+  const { t } = useTranslation();
+  const {
+    notifications,
+    markAsRead,
+    markAllAsRead,
+    deleteNotification,
+    fetchNotifications,
+  } = useNotifications();
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const items = Array.isArray(notifications) ? notifications : [];
 
   useEffect(() => {
-    fetchNotifications().finally(() => setLoading(false));
-  }, []);
+    let alive = true;
+    setLoading(true);
+    setError(null);
+    fetchNotifications()
+      .catch(() => {
+        if (alive) setError(t('notifications.loadError'));
+      })
+      .finally(() => {
+        if (alive) setLoading(false);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [fetchNotifications, t]);
+
+  const handleDelete = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!window.confirm(t('notifications.deleteConfirm'))) return;
+    await deleteNotification(id);
+  };
 
   return (
     <Container maxWidth="md">
       <PageHeader
-        title="Notifications"
-        subtitle="Stay updated with your events"
-        breadcrumbs={[{ label: 'Home', path: '/' }, { label: 'Notifications' }]}
+        title={t('notifications.title')}
+        subtitle={t('notifications.subtitle')}
+        breadcrumbs={[
+          { label: t('common.home'), path: '/' },
+          { label: t('notifications.title') },
+        ]}
         action={
-          notifications.length > 0 ? (
-            <IconButton onClick={markAllAsRead} color="primary">
-              <CheckCircle />
-            </IconButton>
+          items.length > 0 ? (
+            <Tooltip title={t('common.markAllRead')}>
+              <IconButton
+                onClick={() => void markAllAsRead()}
+                color="primary"
+                aria-label={t('common.markAllRead')}
+              >
+                <DoneAll />
+              </IconButton>
+            </Tooltip>
           ) : undefined
         }
       />
 
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
+
       {loading ? (
         <ListSkeleton count={5} />
-      ) : notifications.length > 0 ? (
-        <List>
-          {notifications.map((notif) => (
+      ) : items.length > 0 ? (
+        <List sx={{ bgcolor: 'background.paper', borderRadius: 2 }}>
+          {items.map((notif) => (
             <ListItem
               key={notif.id}
               disablePadding
               secondaryAction={
-                <IconButton edge="end" onClick={() => deleteNotification(notif.id)}>
-                  <Delete />
-                </IconButton>
+                <Tooltip title={t('common.delete')}>
+                  <IconButton
+                    edge="end"
+                    aria-label={t('common.delete')}
+                    onClick={(e) => void handleDelete(notif.id, e)}
+                  >
+                    <Delete />
+                  </IconButton>
+                </Tooltip>
               }
             >
               <ListItemButton
-                onClick={() => !notif.isRead && markAsRead(notif.id)}
-                sx={{ bgcolor: notif.isRead ? 'transparent' : 'action.hover' }}
+                onClick={() => {
+                  if (!notif.isRead) void markAsRead(notif.id);
+                }}
+                sx={{ bgcolor: notif.isRead ? 'transparent' : 'action.hover', pr: 7 }}
               >
                 <ListItemText
                   primary={
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Typography variant="body1" fontWeight={notif.isRead ? 400 : 600}>
+                      <Typography variant="body1" fontWeight={notif.isRead ? 400 : 700}>
                         {notif.title}
                       </Typography>
-                      {!notif.isRead && (
-                        <Badge variant="dot" color="primary" />
-                      )}
+                      {!notif.isRead && <Badge variant="dot" color="primary" />}
                     </Box>
                   }
                   secondary={
                     <>
-                      <Typography variant="body2" color="text.secondary">
+                      <Typography variant="body2" color="text.secondary" component="span" display="block">
                         {notif.body}
                       </Typography>
-                      <Typography variant="caption" color="text.secondary">
+                      <Typography variant="caption" color="text.secondary" component="span">
                         {getRelativeTime(notif.createdAt)}
                       </Typography>
                     </>
@@ -74,7 +135,10 @@ const NotificationsPage: React.FC = () => {
           ))}
         </List>
       ) : (
-        <EmptyState title="No notifications" description="You're all caught up! Check back later for updates." />
+        <EmptyState
+          title={t('notifications.emptyTitle')}
+          description={t('notifications.emptyDescription')}
+        />
       )}
     </Container>
   );

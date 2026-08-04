@@ -9,3 +9,4 @@ export { default as StatusChip } from './StatusChip';
 export { default as Countdown } from './Countdown';
 export { default as ShareButton } from './ShareButton';
 export { default as BootSplash } from './BootSplash';
+export { default as LanguageSwitcher } from './LanguageSwitcher';
