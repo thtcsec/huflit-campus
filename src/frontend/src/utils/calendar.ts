@@ -46,3 +46,22 @@ export function downloadIcsFile(event: EventDetail | EventListItem) {
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
 }
+
+export function getGoogleCalendarUrl(event: EventDetail | EventListItem): string {
+  const formatUtcDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return date.toISOString().replace(/-|:|\.\d+/g, '');
+  };
+
+  const titleText = event.title || 'HUFLIT Event';
+  const descText = 'description' in event && typeof event.description === 'string' ? event.description : titleText;
+  const locText = 'location' in event && typeof event.location === 'string' ? event.location : 'HUFLIT Campus';
+
+  const title = encodeURIComponent(titleText);
+  const description = encodeURIComponent(descText);
+  const location = encodeURIComponent(locText || 'HUFLIT Campus');
+  const start = formatUtcDate(event.startAt);
+  const end = formatUtcDate(event.endAt);
+
+  return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${start}/${end}&details=${description}&location=${location}`;
+}

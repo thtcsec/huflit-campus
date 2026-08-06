@@ -86,6 +86,8 @@ export interface UserProfile {
   createdAt: string;
 }
 
+export type User = UserProfile;
+
 export interface AuthResponse {
   accessToken: string;
   refreshToken: string;

@@ -1,16 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Grid, Card, CardContent, Typography, Chip, Box } from '@mui/material';
+import { Container, Grid, Card, CardContent, Typography, Chip, Box, Button } from '@mui/material';
+import { CardMembership } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { PageHeader, EmptyState, ListSkeleton } from '@/components/common';
 import { registrationsApi } from '@/api';
 import type { Registration } from '@/types';
 import { unwrapPaged } from '@/types/paging';
 import { formatDateTime } from '@/utils';
+import { generateCertificatePdf } from '@/utils/certificate';
+import { useAuth } from '@/hooks';
 import { useNavigate } from 'react-router-dom';
 
 const MyRegistrationsPage: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -76,7 +80,7 @@ const MyRegistrationsPage: React.FC = () => {
                     <Chip label={reg.status} color={getStatusColor(reg.status)} />
                   </Box>
 
-                  <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                  <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'center', mt: 1 }}>
                     <Typography variant="body2" color="text.secondary">
                       {t('registrations.registeredAt', { date: formatDateTime(reg.registeredAt) })}
                     </Typography>
@@ -89,6 +93,21 @@ const MyRegistrationsPage: React.FC = () => {
                       <Typography variant="body2" color="warning.main">
                         {t('registrations.waitlist', { position: reg.waitlistPosition })}
                       </Typography>
+                    )}
+                    {(reg.status === 'Attended' || reg.status === 'Approved') && (
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        color="primary"
+                        startIcon={<CardMembership />}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          generateCertificatePdf(reg, user);
+                        }}
+                        sx={{ ml: 'auto', textTransform: 'none', borderRadius: 2 }}
+                      >
+                        {t('events.downloadCertificate')}
+                      </Button>
                     )}
                   </Box>
                 </CardContent>

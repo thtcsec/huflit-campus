@@ -5,9 +5,9 @@ import { AccessTime, LocationOn, Person, CalendarToday as CalendarTodayIcon } fr
 import { useTranslation } from 'react-i18next';
 import { eventsApi } from '@/api';
 import { PageHeader, CategoryChip, StatusChip, Countdown, ShareButton, EmptyState } from '@/components/common';
-import { CapacityBar, RegisterButton, SaveEventButton } from '@/components/events';
+import { CapacityBar, RegisterButton, SaveEventButton, EventFeedbackSection } from '@/components/events';
 import { formatDateTime } from '@/utils';
-import { downloadIcsFile } from '@/utils/calendar';
+import { downloadIcsFile, getGoogleCalendarUrl } from '@/utils/calendar';
 import type { EventDetail } from '@/types';
 import { motion } from 'framer-motion';
 
@@ -209,6 +209,12 @@ const EventDetailPage: React.FC = () => {
                 </Grid>
               </Paper>
             )}
+
+            <EventFeedbackSection
+              eventId={event.id}
+              isCompleted={event.status === 'Completed'}
+              isAttended={event.isRegistered}
+            />
           </Grid>
 
           <Grid item xs={12} md={4}>
@@ -253,6 +259,20 @@ const EventDetailPage: React.FC = () => {
                   sx={{ textTransform: 'none', borderRadius: 2 }}
                 >
                   {t('events.addToCalendar')}
+                </Button>
+
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  fullWidth
+                  component="a"
+                  href={getGoogleCalendarUrl(event)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  startIcon={<CalendarTodayIcon />}
+                  sx={{ textTransform: 'none', borderRadius: 2 }}
+                >
+                  {t('events.addToGoogleCalendar')}
                 </Button>
 
                 {(event.status === 'Published' || event.status === 'RegistrationClosed') && (
