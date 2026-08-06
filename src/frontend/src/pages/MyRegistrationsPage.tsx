@@ -119,7 +119,10 @@ const MyRegistrationsPage: React.FC = () => {
         <EmptyState
           title={t('registrations.emptyTitle')}
           description={t('registrations.emptyDescription')}
-          action={{ label: t('common.browseEvents'), onClick: () => navigate('/events') }}
+          action={{
+            label: user ? t('common.browseEvents') : t('common.browseGuestEvents'),
+            onClick: () => navigate('/events'),
+          }}
         />
       )}
     </Container>

@@ -66,7 +66,7 @@ export const CreateEventPage: React.FC = () => {
   const [isPublic, setIsPublic] = useState(true);
 
   // Campus selection
-  const [selectedCampus, setSelectedCampus] = useState('Cơ sở 10 Cao Thắng');
+  const [selectedCampus, setSelectedCampus] = useState('Cơ sở Sư Vạn Hạnh');
 
   const handleChange = (field: keyof CreateEventRequest) => (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -169,7 +169,7 @@ export const CreateEventPage: React.FC = () => {
               >
                 {Object.values(EventCategory).map((cat) => (
                   <MenuItem key={cat} value={cat}>
-                    {cat}
+                    {t(`categories.${cat}` as any, cat)}
                   </MenuItem>
                 ))}
               </TextField>
@@ -318,9 +318,11 @@ export const CreateEventPage: React.FC = () => {
                 value={selectedCampus}
                 onChange={(e) => setSelectedCampus(e.target.value)}
               >
-                <MenuItem value="Cơ sở 10 Cao Thắng">Cơ sở 10 Cao Thắng (828 Sư Vạn Hạnh, Q.10)</MenuItem>
-                <MenuItem value="Cơ sở Hóc Môn">Cơ sở Hóc Môn (Tân Hiệp, Hóc Môn)</MenuItem>
-                <MenuItem value="Trực tuyến (Online)">Trực tuyến (MS Teams / Zoom)</MenuItem>
+                <MenuItem value="Cơ sở Sư Vạn Hạnh">Cơ sở Sư Vạn Hạnh (Cơ sở chính - 828 Sư Vạn Hạnh, Q.10)</MenuItem>
+                <MenuItem value="Cơ sở Hóc Môn">Cơ sở Hóc Môn (806 Lê Quang Đạo, QL 22, xã Tân Xuân, Hóc Môn)</MenuItem>
+                <MenuItem value="Cơ sở Ba Gia">Cơ sở Ba Gia (52 – 70 Ba Gia, P. Tân Sơn Nhất, Q. Tân Bình)</MenuItem>
+                <MenuItem value="Cơ sở Trường Sơn">Cơ sở Trường Sơn (32 Trường Sơn, P.2, Q. Tân Bình)</MenuItem>
+                <MenuItem value="Trực tuyến (Online)">Trực tuyến (MS Teams / Zoom Meeting)</MenuItem>
               </TextField>
             </Grid>
 

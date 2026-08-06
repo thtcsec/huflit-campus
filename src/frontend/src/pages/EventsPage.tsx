@@ -67,7 +67,7 @@ const EventsPage: React.FC = () => {
                 <MenuItem value="">{t('common.all')}</MenuItem>
                 {Object.values(EventCategoryEnum).map((cat) => (
                   <MenuItem key={cat} value={cat}>
-                    {cat}
+                    {t(`categories.${cat}` as any, cat)}
                   </MenuItem>
                 ))}
               </Select>

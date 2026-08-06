@@ -16,7 +16,8 @@
     "theme": "テーマ",
     "profile": "プロフィール",
     "logout": "ログアウト",
-    "browseEvents": "ログインせずにイベントを見る",
+    "browseEvents": "イベントを探す",
+    "browseGuestEvents": "ログインせずにイベントを見る",
     "justNow": "たった今",
     "minutesAgo": "{{count}}分前",
     "hoursAgo": "{{count}}時間前",
@@ -205,8 +206,21 @@
   },
   "calendar": {
     "title": "カレンダー",
-    "subtitle": "すべてのイベントをカレンダーで表示",
-    "comingSoon": "カレンダー表示は近日公開予定です。"
+    "subtitle": "すべてのイベントをカレンダー形式で表示",
+    "comingSoon": "カレンダービューはまもなく登場します。"
+  },
+  "categories": {
+    "all": "すべてのカテゴリー",
+    "Academic": "学術・セミナー",
+    "Workshop": "ワークショップ・研修",
+    "Competition": "コンテスト・大会",
+    "Volunteer": "ボランティア",
+    "Seminar": "ゼミ・研究会",
+    "Career": "キャリア・就職",
+    "Sports": "スポーツ",
+    "Arts": "芸術・文化",
+    "Entertainment": "エンターテインメント",
+    "ClubActivities": "サークル活動"
   },
   "profile": {
     "title": "プロフィール",

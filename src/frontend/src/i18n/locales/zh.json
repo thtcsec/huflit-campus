@@ -16,7 +16,8 @@
     "theme": "主题",
     "profile": "个人资料",
     "logout": "退出登录",
-    "browseEvents": "未登录也可浏览活动",
+    "browseEvents": "浏览活动",
+    "browseGuestEvents": "未登录也可浏览活动",
     "justNow": "刚刚",
     "minutesAgo": "{{count}} 分钟前",
     "hoursAgo": "{{count}} 小时前",
@@ -207,6 +208,19 @@
     "title": "日历",
     "subtitle": "以日历形式查看所有活动",
     "comingSoon": "日历视图即将上线。"
+  },
+  "categories": {
+    "all": "所有类别",
+    "Academic": "学术讲座",
+    "Workshop": "工作坊与培训",
+    "Competition": "竞赛活动",
+    "Volunteer": "志愿服务",
+    "Seminar": "研讨会",
+    "Career": "招聘与职业发展",
+    "Sports": "体育运动",
+    "Arts": "艺术文化",
+    "Entertainment": "娱乐活动",
+    "ClubActivities": "社团活动"
   },
   "profile": {
     "title": "个人资料",

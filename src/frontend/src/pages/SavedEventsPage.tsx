@@ -8,9 +8,12 @@ import type { EventListItem } from '@/types';
 import { unwrapPaged } from '@/types/paging';
 import { useNavigate } from 'react-router-dom';
 
+import { useAuth } from '@/hooks';
+
 const SavedEventsPage: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const [events, setEvents] = useState<EventListItem[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -46,7 +49,10 @@ const SavedEventsPage: React.FC = () => {
         <EmptyState
           title={t('saved.emptyTitle')}
           description={t('saved.emptyDescription')}
-          action={{ label: t('common.browseEvents'), onClick: () => navigate('/events') }}
+          action={{
+            label: isAuthenticated ? t('common.browseEvents') : t('common.browseGuestEvents'),
+            onClick: () => navigate('/events'),
+          }}
         />
       )}
     </Container>

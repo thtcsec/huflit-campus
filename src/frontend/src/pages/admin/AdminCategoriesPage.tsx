@@ -28,9 +28,11 @@ export const AdminCategoriesPage: React.FC = () => {
   ];
 
   const campuses = [
-    { name: 'Cơ sở 10 Cao Thắng', address: '828 Sư Vạn Hạnh, Phường 13, Quận 10, TP.HCM', capacity: '1,500 sinh viên' },
-    { name: 'Cơ sở Hóc Môn', address: 'Tân Hiệp, Hóc Môn, TP.HCM', capacity: '3,000 sinh viên' },
-    { name: 'Trực tuyến (Online / Teams)', address: 'Microsoft Teams / Zoom Meeting', capacity: 'Không giới hạn' },
+    { name: 'Cơ sở Sư Vạn Hạnh (Cơ sở chính)', address: '828 Sư Vạn Hạnh, Phường Hòa Hưng (P.13 cũ), Quận 10', capacity: 'Phòng ban chủ chốt & Hội trường lớn' },
+    { name: 'Cơ sở Hóc Môn', address: '806 Lê Quang Đạo (QL 22), xã Tân Xuân, Huyện Hóc Môn', capacity: 'Khu GD Thể chất, Phòng máy & Lớp học' },
+    { name: 'Cơ sở Ba Gia', address: '52 – 70 Ba Gia, Phường Tân Sơn Nhất (P.7 cũ), Quận Tân Bình', capacity: 'Khu giảng đường & Phòng hội thảo' },
+    { name: 'Cơ sở Trường Sơn', address: '32 Trường Sơn, Phường 2, Quận Tân Bình (Khu sân bay)', capacity: 'Cơ sở thực hành & Giảng đường' },
+    { name: 'Trực tuyến (Online / MS Teams)', address: 'Microsoft Teams / Zoom Meeting', capacity: 'Không giới hạn' },
   ];
 
   return (

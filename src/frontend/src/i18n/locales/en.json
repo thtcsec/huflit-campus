@@ -16,7 +16,8 @@
     "theme": "Theme",
     "profile": "Profile",
     "logout": "Logout",
-    "browseEvents": "Browse events without signing in",
+    "browseEvents": "Explore Events",
+    "browseGuestEvents": "Browse events without signing in",
     "justNow": "Just now",
     "minutesAgo": "{{count}}m ago",
     "hoursAgo": "{{count}}h ago",
@@ -214,6 +215,19 @@
     "title": "Calendar",
     "subtitle": "View all events in calendar format",
     "comingSoon": "Calendar view is coming soon."
+  },
+  "categories": {
+    "all": "All Categories",
+    "Academic": "Academic",
+    "Workshop": "Workshop & Skill",
+    "Competition": "Competition",
+    "Volunteer": "Volunteer & Social",
+    "Seminar": "Seminar & Webinar",
+    "Career": "Career & Job Fair",
+    "Sports": "Sports & Fitness",
+    "Arts": "Arts & Culture",
+    "Entertainment": "Entertainment & Festival",
+    "ClubActivities": "Club Activities"
   },
   "profile": {
     "title": "Profile",

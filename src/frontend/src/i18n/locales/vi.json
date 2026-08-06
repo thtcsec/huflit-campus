@@ -16,7 +16,8 @@
     "theme": "Giao diện",
     "profile": "Hồ sơ",
     "logout": "Đăng xuất",
-    "browseEvents": "Xem sự kiện không cần đăng nhập",
+    "browseEvents": "Khám phá sự kiện",
+    "browseGuestEvents": "Khám phá sự kiện không cần đăng nhập",
     "justNow": "Vừa xong",
     "minutesAgo": "{{count}} phút trước",
     "hoursAgo": "{{count}} giờ trước",
@@ -214,6 +215,19 @@
     "title": "Lịch",
     "subtitle": "Xem tất cả sự kiện dạng lịch",
     "comingSoon": "Chế độ xem lịch sẽ sớm ra mắt."
+  },
+  "categories": {
+    "all": "Tất cả danh mục",
+    "Academic": "Học thuật (Academic)",
+    "Workshop": "Workshop & Tập huấn",
+    "Competition": "Cuộc thi (Competition)",
+    "Volunteer": "Tình nguyện & Xã hội",
+    "Seminar": "Hội thảo (Seminar)",
+    "Career": "Tuyển dụng & Việc làm",
+    "Sports": "Thể thao (Sports)",
+    "Arts": "Nghệ thuật & Văn hóa",
+    "Entertainment": "Giải trí & Sự kiện CLB",
+    "ClubActivities": "Hoạt động Câu lạc bộ"
   },
   "profile": {
     "title": "Hồ sơ",
