@@ -27,7 +27,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useAuth, useNotifications } from '@/hooks';
 import { useNavigate } from 'react-router-dom';
-import { ConfirmDialog, LanguageSwitcher } from '@/components/common';
+import { ConfirmDialog, LanguageSwitcher, HuflitLogo } from '@/components/common';
 import { UserRole } from '@/types';
 import ThemeToggle from './ThemeToggle';
 
@@ -76,20 +76,7 @@ const TopNav: React.FC<TopNavProps> = ({ onMenuClick, sidebarCollapsed = false }
           </IconButton>
         </Tooltip>
 
-        <Box
-          component="img"
-          src="/fit-huflit.png"
-          alt="HUFLIT"
-          sx={{
-            height: 44,
-            maxWidth: { xs: 220, sm: 280 },
-            width: 'auto',
-            objectFit: 'contain',
-            cursor: 'pointer',
-            display: 'block',
-          }}
-          onClick={() => navigate('/')}
-        />
+        <HuflitLogo height={38} onClick={() => navigate('/')} />
 
         <Box sx={{ flexGrow: 1 }} />
 

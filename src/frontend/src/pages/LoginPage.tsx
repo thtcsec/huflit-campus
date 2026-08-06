@@ -26,7 +26,7 @@ import { useAuth } from '@/hooks';
 import { authApi } from '@/api';
 import type { MicrosoftLoginRequest } from '@/types';
 import { useTranslation } from 'react-i18next';
-import { LanguageSwitcher } from '@/components/common';
+import { LanguageSwitcher, HuflitLogo } from '@/components/common';
 
 const LoginPage: React.FC = () => {
   const { t } = useTranslation();
@@ -158,12 +158,9 @@ const LoginPage: React.FC = () => {
               px: { md: 2 },
             }}
           >
-            <Box
-              component="img"
-              src="/fit-huflit.png"
-              alt="HUFLIT"
-              sx={{ height: { xs: 72, md: 96 }, mb: 3, filter: 'drop-shadow(0 8px 18px rgba(0,0,0,0.12))' }}
-            />
+            <Box sx={{ mb: 3 }}>
+              <HuflitLogo height={72} />
+            </Box>
             <Typography
               sx={{
                 fontFamily: '"Manrope", sans-serif',
