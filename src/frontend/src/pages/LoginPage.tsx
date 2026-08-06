@@ -420,21 +420,30 @@ const LoginPage: React.FC = () => {
                 bgcolor: 'rgba(30, 90, 168, 0.08)',
               }}
             >
-              <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1.25 }}>
-                <MenuBookOutlined sx={{ color: '#1E5AA8', fontSize: 20 }} />
-                <Typography variant="subtitle2" fontWeight={700} color="#1E5AA8">
-                  {t('auth.userGuides')}
-                </Typography>
+              <Stack direction="row" spacing={1} alignItems="center" justifyContent="space-between" sx={{ mb: 1.25 }}>
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <MenuBookOutlined sx={{ color: '#1E5AA8', fontSize: 20 }} />
+                  <Typography variant="subtitle2" fontWeight={700} color="#1E5AA8">
+                    {t('auth.userGuides')}
+                  </Typography>
+                </Stack>
+                <Button
+                  component={Link}
+                  to="/user-guide"
+                  size="small"
+                  sx={{ textTransform: 'none', fontWeight: 700, p: 0 }}
+                >
+                  Xem chi tiết →
+                </Button>
               </Stack>
               <Stack direction="row" spacing={1}>
-                {(['lecturer', 'student', 'guest'] as const).map((key) => (
+                {(['student', 'lecturer', 'guest'] as const).map((key) => (
                   <Button
                     key={key}
+                    component={Link}
+                    to="/user-guide"
                     size="small"
                     variant="contained"
-                    onClick={() =>
-                      setMode(key)
-                    }
                     sx={{
                       flex: 1,
                       textTransform: 'none',

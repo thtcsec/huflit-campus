@@ -47,8 +47,9 @@
     "expandSidebar": "展开侧边栏",
     "collapseSidebar": "收起侧边栏",
     "openMenu": "打开菜单",
-    "viewProfile": "查看资料",
-    "adminDashboard": "管理仪表盘"
+    "viewProfile": "查看个人资料",
+    "adminDashboard": "仪表板",
+    "userGuide": "使用指南"
   },
   "auth": {
     "brandTitle": "HUFLIT",

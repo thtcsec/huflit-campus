@@ -19,6 +19,7 @@ import SavedEventsPage from '@/pages/SavedEventsPage';
 import MyRegistrationsPage from '@/pages/MyRegistrationsPage';
 import AnnouncementsPage from '@/pages/AnnouncementsPage';
 import NotificationsPage from '@/pages/NotificationsPage';
+import UserGuidePage from '@/pages/UserGuidePage';
 import CalendarPage from '@/pages/CalendarPage';
 import AdminDashboardPage from '@/pages/AdminDashboardPage';
 import UserManagementPage from '@/pages/admin/UserManagementPage';
@@ -213,6 +214,17 @@ const AppRouter: React.FC = () => {
             <OptionalAuthRoute>
               <AppShell>
                 <AnnouncementsPage />
+              </AppShell>
+            </OptionalAuthRoute>
+          }
+        />
+
+        <Route
+          path="/user-guide"
+          element={
+            <OptionalAuthRoute>
+              <AppShell>
+                <UserGuidePage />
               </AppShell>
             </OptionalAuthRoute>
           }

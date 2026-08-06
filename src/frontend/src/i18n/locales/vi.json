@@ -48,7 +48,8 @@
     "collapseSidebar": "Thu gọn thanh bên",
     "openMenu": "Mở menu",
     "viewProfile": "Xem hồ sơ",
-    "adminDashboard": "Bảng điều khiển"
+    "adminDashboard": "Bảng điều khiển",
+    "userGuide": "Hướng dẫn sử dụng"
   },
   "auth": {
     "brandTitle": "HUFLIT",

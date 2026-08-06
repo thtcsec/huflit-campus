@@ -47,8 +47,9 @@
     "expandSidebar": "Expand sidebar",
     "collapseSidebar": "Collapse sidebar",
     "openMenu": "Open menu",
-    "viewProfile": "View profile",
-    "adminDashboard": "Admin dashboard"
+    "viewProfile": "View Profile",
+    "adminDashboard": "Dashboard",
+    "userGuide": "User Guide"
   },
   "auth": {
     "brandTitle": "HUFLIT",

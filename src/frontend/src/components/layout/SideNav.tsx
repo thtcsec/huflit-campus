@@ -26,6 +26,7 @@ import {
   ChevronRight,
   QrCodeScanner,
   Campaign,
+  HelpOutline,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -57,6 +58,7 @@ const SideNav: React.FC<SideNavProps> = ({ open, collapsed, onClose, onToggleCol
     { textKey: 'nav.calendar', icon: <CalendarMonth />, path: '/calendar', roles: [] as UserRole[] },
     { textKey: 'nav.saved', icon: <BookmarkBorder />, path: '/saved', roles: [] as UserRole[] },
     { textKey: 'nav.registrations', icon: <ConfirmationNumber />, path: '/registrations', roles: [] as UserRole[] },
+    { textKey: 'nav.userGuide', icon: <HelpOutline />, path: '/user-guide', roles: [] as UserRole[] },
   ];
 
   const managerItems = [

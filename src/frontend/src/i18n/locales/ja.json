@@ -48,7 +48,8 @@
     "collapseSidebar": "サイドバーを折りたたむ",
     "openMenu": "メニューを開く",
     "viewProfile": "プロフィールを見る",
-    "adminDashboard": "管理ダッシュボード"
+    "adminDashboard": "ダッシュボード",
+    "userGuide": "利用ガイド"
   },
   "auth": {
     "brandTitle": "HUFLIT",
