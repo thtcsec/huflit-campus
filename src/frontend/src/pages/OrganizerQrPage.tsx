@@ -18,6 +18,7 @@ import QRCode from 'react-qr-code';
 import { attendanceApi, eventsApi } from '@/api';
 import { PageHeader } from '@/components/common';
 import { EventListItem, QrPayload } from '@/types';
+import { unwrapPaged } from '@/types/paging';
 
 const OrganizerQrPage: React.FC = () => {
   const { t } = useTranslation();
@@ -32,7 +33,7 @@ const OrganizerQrPage: React.FC = () => {
     const loadEvents = async () => {
       try {
         const { data } = await eventsApi.searchEvents({ organizerId: 'me' });
-        setEvents(data);
+        setEvents(unwrapPaged<EventListItem>(data));
       } catch (error: any) {
         enqueueSnackbar(error.response?.data?.message || 'Failed to load events', { variant: 'error' });
       }

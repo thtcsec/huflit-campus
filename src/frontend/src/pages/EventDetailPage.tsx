@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Box, Typography, Grid, Chip, Paper, Avatar, Divider } from '@mui/material';
+import { Container, Box, Typography, Grid, Chip, Paper, Avatar, Divider, Button } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
-import { AccessTime, LocationOn, Person } from '@mui/icons-material';
+import { AccessTime, LocationOn, Person, CalendarToday as CalendarTodayIcon } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { eventsApi } from '@/api';
 import { PageHeader, CategoryChip, StatusChip, Countdown, ShareButton, EmptyState } from '@/components/common';
 import { CapacityBar, RegisterButton, SaveEventButton } from '@/components/events';
 import { formatDateTime } from '@/utils';
+import { downloadIcsFile } from '@/utils/calendar';
 import type { EventDetail } from '@/types';
 import { motion } from 'framer-motion';
 
@@ -235,13 +236,45 @@ const EventDetailPage: React.FC = () => {
                 {formatDateTime(event.registrationDeadline)}
               </Typography>
 
-              <Box sx={{ mt: 3 }}>
+              <Box sx={{ mt: 3, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
                 <RegisterButton
                   eventId={event.id}
                   isRegistered={event.isRegistered}
                   remainingSeats={event.remainingSeats}
                   onUpdate={loadEvent}
                 />
+
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  fullWidth
+                  startIcon={<CalendarTodayIcon />}
+                  onClick={() => downloadIcsFile(event)}
+                  sx={{ textTransform: 'none', borderRadius: 2 }}
+                >
+                  {t('events.addToCalendar')}
+                </Button>
+
+                {(event.status === 'Published' || event.status === 'RegistrationClosed') && (
+                  <Button
+                    variant="contained"
+                    color="success"
+                    fullWidth
+                    onClick={async () => {
+                      if (window.confirm('Xác nhận hoàn tất sự kiện này?')) {
+                        try {
+                          await eventsApi.completeEvent(event.id);
+                          loadEvent();
+                        } catch (err) {
+                          console.error(err);
+                        }
+                      }
+                    }}
+                    sx={{ textTransform: 'none', borderRadius: 2, fontWeight: 600 }}
+                  >
+                    {t('events.completeEvent')}
+                  </Button>
+                )}
               </Box>
 
               {event.requirements && (

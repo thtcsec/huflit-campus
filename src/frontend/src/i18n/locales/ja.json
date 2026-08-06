@@ -33,6 +33,7 @@
   "nav": {
     "home": "ホーム",
     "events": "イベント",
+    "announcements": "お知らせ",
     "calendar": "カレンダー",
     "saved": "保存済みイベント",
     "registrations": "申し込み一覧",
@@ -78,7 +79,8 @@
     "otpFailed": "OTPの送信に失敗しました",
     "invalidOtp": "OTPが無効です",
     "logoutTitle": "ログアウト",
-    "logoutConfirm": "HUFLIT Campus からログアウトしますか？"
+    "logoutConfirm": "HUFLIT Campus からログアウトしますか？",
+    "loginRequiredNotice": "この機能にはログインが必要です。ログインして続けてください。"
   },
   "notifications": {
     "title": "通知",
@@ -90,6 +92,28 @@
     "markedRead": "既読にしました",
     "allMarkedRead": "すべて既読にしました",
     "loadError": "通知を読み込めませんでした"
+  },
+  "announcements": {
+    "title": "キャンパスお知らせ",
+    "subtitle": "HUFLIT本部、学部、クラブからの最新のお知らせ",
+    "create": "お知らせを投稿",
+    "edit": "お知らせを編集",
+    "createTitle": "新しいお知らせを作成",
+    "editTitle": "お知らせを編集",
+    "titleLabel": "お知らせの件名",
+    "bodyLabel": "詳細内容",
+    "pinLabel": "最上部にピン留めする",
+    "pinned": "ピン留め済み",
+    "submitCreate": "投稿する",
+    "submitUpdate": "更新する",
+    "empty": "投稿されたお知らせはまだありません。",
+    "confirmDelete": "このお知らせを削除してもよろしいですか？",
+    "successDelete": "お知らせを削除しました",
+    "successCreate": "新しいお知らせを投稿しました",
+    "successUpdate": "お知らせを更新しました",
+    "errorLoad": "お知らせを読み込めませんでした",
+    "errorDelete": "お知らせの削除に失敗しました",
+    "errorSave": "お知らせの保存中にエラーが発生しました"
   },
   "home": {
     "welcome": "HUFLIT Campus へようこそ",
@@ -153,6 +177,9 @@
     "requirements": "参加条件",
     "saved": "イベントを保存しました",
     "unsaved": "保存を解除しました",
+    "completeEvent": "イベントを完了",
+    "addToCalendar": "カレンダーに追加 (.ics)",
+    "exportCsv": "登録 CSV をエクスポート",
     "updateFailed": "更新に失敗しました",
     "startsInDaysHours": "{{days}}日{{hours}}時間後に開始",
     "startsInHoursMins": "{{hours}}時間{{minutes}}分後に開始",

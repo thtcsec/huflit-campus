@@ -25,6 +25,7 @@ import {
   ChevronLeft,
   ChevronRight,
   QrCodeScanner,
+  Campaign,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -52,6 +53,7 @@ const SideNav: React.FC<SideNavProps> = ({ open, collapsed, onClose, onToggleCol
   const menuItems = [
     { textKey: 'nav.home', icon: <Home />, path: '/', roles: [] as UserRole[] },
     { textKey: 'nav.events', icon: <Event />, path: '/events', roles: [] as UserRole[] },
+    { textKey: 'nav.announcements', icon: <Campaign />, path: '/announcements', roles: [] as UserRole[] },
     { textKey: 'nav.calendar', icon: <CalendarMonth />, path: '/calendar', roles: [] as UserRole[] },
     { textKey: 'nav.saved', icon: <BookmarkBorder />, path: '/saved', roles: [] as UserRole[] },
     { textKey: 'nav.registrations', icon: <ConfirmationNumber />, path: '/registrations', roles: [] as UserRole[] },
@@ -62,25 +64,25 @@ const SideNav: React.FC<SideNavProps> = ({ open, collapsed, onClose, onToggleCol
       textKey: 'nav.createEvent',
       icon: <AddCircle />,
       path: '/events/create',
-      roles: [UserRole.ClubManager, UserRole.FacultyManager, UserRole.Administrator],
+      roles: [UserRole.Lecturer, UserRole.ClubManager, UserRole.FacultyManager, UserRole.Administrator],
     },
     {
       textKey: 'nav.manageEvents',
       icon: <ManageAccounts />,
       path: '/events/manage',
-      roles: [UserRole.ClubManager, UserRole.FacultyManager, UserRole.Administrator],
+      roles: [UserRole.Lecturer, UserRole.ClubManager, UserRole.FacultyManager, UserRole.Administrator],
     },
     {
       textKey: 'nav.eventQr',
       icon: <QrCode />,
       path: '/organizer-qr',
-      roles: [UserRole.ClubManager, UserRole.FacultyManager, UserRole.Administrator],
+      roles: [UserRole.Lecturer, UserRole.ClubManager, UserRole.FacultyManager, UserRole.Administrator],
     },
     {
       textKey: 'nav.attendanceScan',
       icon: <QrCodeScanner />,
       path: '/attendance/scan',
-      roles: [UserRole.ClubManager, UserRole.FacultyManager, UserRole.Administrator],
+      roles: [UserRole.Lecturer, UserRole.ClubManager, UserRole.FacultyManager, UserRole.Administrator],
     },
   ];
 
@@ -164,7 +166,7 @@ const SideNav: React.FC<SideNavProps> = ({ open, collapsed, onClose, onToggleCol
       <List sx={{ flex: 1, px: 0 }}>{menuItems.map(renderItem)}</List>
 
       {user &&
-        [UserRole.ClubManager, UserRole.FacultyManager, UserRole.Administrator].includes(user.role) && (
+        [UserRole.Lecturer, UserRole.ClubManager, UserRole.FacultyManager, UserRole.Administrator].includes(user.role) && (
           <>
             <Divider sx={{ my: 1 }} />
             <List>{managerItems.map(renderItem)}</List>

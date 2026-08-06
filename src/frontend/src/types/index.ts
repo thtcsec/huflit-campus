@@ -300,6 +300,7 @@ export interface Announcement {
   isPinned: boolean;
   publishedAt?: string;
   expiresAt?: string;
+  createdAt?: string;
 }
 
 export interface HomeFeed {

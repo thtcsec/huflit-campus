@@ -15,13 +15,14 @@ import {
   MenuItem,
   Chip,
 } from '@mui/material';
-import { Add, MoreVert, Edit, Delete, Send, CheckCircle, Cancel, Publish } from '@mui/icons-material';
+import { Add, MoreVert, Edit, Delete, Send, CheckCircle, Cancel, Publish, Download } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
 import { useTranslation } from 'react-i18next';
-import { eventsApi } from '@/api';
+import { eventsApi, registrationsApi } from '@/api';
 import { PageHeader, StatusChip, CategoryChip, ConfirmDialog, EmptyState } from '@/components/common';
 import { EventListItem, EventStatus, EventSearchRequest, UserRole } from '@/types';
+import { unwrapPaged } from '@/types/paging';
 import { formatDate } from '@/utils';
 import { useAuth } from '@/hooks';
 
@@ -41,7 +42,7 @@ const ManageEventsPage: React.FC = () => {
     eventId: '',
   });
 
-  const isManager = user?.role && [UserRole.ClubManager, UserRole.FacultyManager, UserRole.Administrator].includes(user.role);
+  const isManager = user?.role && [UserRole.Lecturer, UserRole.ClubManager, UserRole.FacultyManager, UserRole.Administrator].includes(user.role);
   const canApprove = user?.role && [UserRole.FacultyManager, UserRole.Administrator].includes(user.role);
 
   const tabs = canApprove
@@ -79,7 +80,7 @@ const ManageEventsPage: React.FC = () => {
       }
 
       const { data } = await eventsApi.searchEvents(params);
-      setEvents(data);
+      setEvents(unwrapPaged<EventListItem>(data));
     } catch (error: any) {
       enqueueSnackbar(error.response?.data?.message || 'Failed to load events', { variant: 'error' });
     } finally {
@@ -128,6 +129,24 @@ const ManageEventsPage: React.FC = () => {
           await eventsApi.closeRegistration(eventId);
           enqueueSnackbar('Registration closed', { variant: 'info' });
           break;
+        case 'complete':
+          await eventsApi.completeEvent(eventId);
+          enqueueSnackbar('Event marked as completed', { variant: 'success' });
+          break;
+        case 'export-csv': {
+          const res = await registrationsApi.exportRegistrationsCsv(eventId);
+          const blob = new Blob([res.data], { type: 'text/csv;charset=utf-8;' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `Registrations_${eventId}.csv`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          enqueueSnackbar('Đã xuất file CSV thành công', { variant: 'success' });
+          break;
+        }
         case 'delete':
           await eventsApi.deleteEvent(eventId);
           enqueueSnackbar('Event deleted', { variant: 'success' });
@@ -146,6 +165,8 @@ const ManageEventsPage: React.FC = () => {
     const actions = [];
     const isOwner = event.organizerId === user?.id;
 
+    actions.push({ label: t('events.exportCsv'), icon: <Download />, action: 'export-csv' });
+
     if (isOwner) {
       if (event.status === EventStatus.Draft) {
         actions.push({ label: 'Edit', icon: <Edit />, action: 'edit' });
@@ -153,8 +174,11 @@ const ManageEventsPage: React.FC = () => {
         actions.push({ label: 'Delete', icon: <Delete />, action: 'delete', destructive: true });
       } else if (event.status === EventStatus.Approved) {
         actions.push({ label: 'Publish', icon: <Publish />, action: 'publish' });
-      } else if (event.status === EventStatus.Published) {
-        actions.push({ label: 'Close Registration', icon: <Cancel />, action: 'close-registration' });
+      } else if (event.status === EventStatus.Published || event.status === EventStatus.RegistrationClosed) {
+        if (event.status === EventStatus.Published) {
+          actions.push({ label: 'Close Registration', icon: <Cancel />, action: 'close-registration' });
+        }
+        actions.push({ label: t('events.completeEvent'), icon: <CheckCircle />, action: 'complete' });
         actions.push({ label: 'Cancel Event', icon: <Cancel />, action: 'cancel', destructive: true });
       }
     }

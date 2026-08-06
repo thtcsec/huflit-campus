@@ -141,6 +141,15 @@ public sealed class EventsController(ISender sender) : ApiControllerBase
         var result = await sender.Send(new CloseRegistrationCommand(id), cancellationToken);
         return FromResult(result);
     }
+
+    [HttpPost("{id:guid}/complete")]
+    [Authorize(Policy = Policies.CanManageEvents)]
+    [ProducesResponseType(typeof(EventDetailDto), StatusCodes.Status200OK)]
+    public async Task<IActionResult> Complete(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(new CompleteEventCommand(id), cancellationToken);
+        return FromResult(result);
+    }
 }
 
 public sealed class CancelEventBody

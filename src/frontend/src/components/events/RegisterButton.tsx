@@ -23,7 +23,8 @@ const RegisterButton: React.FC<RegisterButtonProps> = ({ eventId, isRegistered, 
 
   const handleRegister = async () => {
     if (!isAuthenticated) {
-      navigate('/login');
+      enqueueSnackbar(t('auth.loginRequiredNotice'), { variant: 'info' });
+      navigate('/login', { state: { from: { pathname: `/events/${eventId}` } } });
       return;
     }
 

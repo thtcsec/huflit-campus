@@ -17,6 +17,43 @@ import { attendanceApi } from '@/api';
 import { PageHeader } from '@/components/common';
 import { Attendance } from '@/types';
 
+const playSuccessSound = () => {
+  try {
+    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+    osc.frequency.setValueAtTime(880, ctx.currentTime + 0.1);
+    gain.gain.setValueAtTime(0.2, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.3);
+  } catch (e) {
+    // Ignore audio errors
+  }
+};
+
+const playErrorSound = () => {
+  try {
+    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(220, ctx.currentTime);
+    gain.gain.setValueAtTime(0.2, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.4);
+  } catch (e) {
+    // Ignore audio errors
+  }
+};
+
 const AttendanceScannerPage: React.FC = () => {
   const { t } = useTranslation();
   const { enqueueSnackbar } = useSnackbar();
@@ -46,9 +83,11 @@ const AttendanceScannerPage: React.FC = () => {
       });
 
       setLastAttendance(data);
-      enqueueSnackbar('Check-in successful', { variant: 'success' });
+      playSuccessSound();
+      enqueueSnackbar('Check-in successful!', { variant: 'success' });
       setQrData('');
     } catch (error: any) {
+      playErrorSound();
       const message = error.response?.data?.message || error.message || 'Failed to check in';
       enqueueSnackbar(message, { variant: 'error' });
       setLastAttendance(null);

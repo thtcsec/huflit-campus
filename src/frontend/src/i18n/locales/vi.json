@@ -33,6 +33,7 @@
   "nav": {
     "home": "Trang chủ",
     "events": "Sự kiện",
+    "announcements": "Bảng tin",
     "calendar": "Lịch",
     "saved": "Sự kiện đã lưu",
     "registrations": "Đăng ký của tôi",
@@ -78,7 +79,8 @@
     "otpFailed": "Không gửi được OTP",
     "invalidOtp": "OTP không hợp lệ",
     "logoutTitle": "Đăng xuất",
-    "logoutConfirm": "Bạn có chắc muốn đăng xuất khỏi HUFLIT Campus?"
+    "logoutConfirm": "Bạn có chắc muốn đăng xuất khỏi HUFLIT Campus?",
+    "loginRequiredNotice": "Tính năng này yêu cầu đăng nhập. Vui lòng đăng nhập để tiếp tục."
   },
   "notifications": {
     "title": "Thông báo",
@@ -90,6 +92,28 @@
     "markedRead": "Đã đánh dấu đã đọc",
     "allMarkedRead": "Đã đánh dấu tất cả đã đọc",
     "loadError": "Không tải được thông báo"
+  },
+  "announcements": {
+    "title": "Bảng Tin Campus",
+    "subtitle": "Thông báo mới nhất từ Ban Giám hiệu, Các Khoa & Câu lạc bộ HUFLIT",
+    "create": "Đăng Thông Báo",
+    "edit": "Chỉnh Sửa Thông Báo",
+    "createTitle": "Tạo Thông Báo Mới",
+    "editTitle": "Chỉnh Sửa Thông Báo",
+    "titleLabel": "Tiêu đề thông báo",
+    "bodyLabel": "Nội dung chi tiết",
+    "pinLabel": "Ghim thông báo lên đầu trang",
+    "pinned": "Đã Ghim",
+    "submitCreate": "Đăng Thông Báo",
+    "submitUpdate": "Cập Nhật",
+    "empty": "Hiện chưa có thông báo nào được đăng tải.",
+    "confirmDelete": "Bạn có chắc muốn xóa thông báo này?",
+    "successDelete": "Đã xóa thông báo thành công",
+    "successCreate": "Tạo thông báo mới thành công",
+    "successUpdate": "Cập nhật thông báo thành công",
+    "errorLoad": "Không thể tải bảng tin thông báo",
+    "errorDelete": "Không thể xóa thông báo",
+    "errorSave": "Có lỗi xảy ra khi lưu thông báo"
   },
   "home": {
     "welcome": "Chào mừng đến HUFLIT Campus",
@@ -153,6 +177,9 @@
     "requirements": "Yêu cầu",
     "saved": "Đã lưu sự kiện",
     "unsaved": "Đã bỏ lưu sự kiện",
+    "completeEvent": "Hoàn Tất Sự Kiện",
+    "addToCalendar": "Thêm vào Lịch (.ics)",
+    "exportCsv": "Xuất File CSV Đăng Ký",
     "updateFailed": "Cập nhật thất bại",
     "startsInDaysHours": "Bắt đầu sau {{days}} ngày {{hours}} giờ",
     "startsInHoursMins": "Bắt đầu sau {{hours}} giờ {{minutes}} phút",

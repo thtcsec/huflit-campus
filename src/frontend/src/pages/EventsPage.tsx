@@ -7,6 +7,7 @@ import { eventsApi } from '@/api';
 import { useDebounce } from '@/hooks';
 import type { EventListItem, EventCategory, EventStatus } from '@/types';
 import { EventCategory as EventCategoryEnum, EventStatus as EventStatusEnum } from '@/types';
+import { unwrapPaged } from '@/types/paging';
 
 const EventsPage: React.FC = () => {
   const { t } = useTranslation();
@@ -30,7 +31,7 @@ const EventsPage: React.FC = () => {
         page: 1,
         pageSize: 50,
       });
-      setEvents(data);
+      setEvents(unwrapPaged<EventListItem>(data));
     } catch (error) {
       console.error('Failed to load events:', error);
     } finally {

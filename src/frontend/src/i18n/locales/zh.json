@@ -33,6 +33,7 @@
   "nav": {
     "home": "首页",
     "events": "活动",
+    "announcements": "公告板",
     "calendar": "日历",
     "saved": "已收藏活动",
     "registrations": "我的报名",
@@ -78,7 +79,8 @@
     "otpFailed": "OTP 发送失败",
     "invalidOtp": "OTP 无效",
     "logoutTitle": "退出登录",
-    "logoutConfirm": "确定要退出 HUFLIT Campus 吗？"
+    "logoutConfirm": "确定要退出 HUFLIT Campus 吗？",
+    "loginRequiredNotice": "此功能需要登录。请登录后继续。"
   },
   "notifications": {
     "title": "通知",
@@ -90,6 +92,28 @@
     "markedRead": "已标为已读",
     "allMarkedRead": "已全部标为已读",
     "loadError": "无法加载通知"
+  },
+  "announcements": {
+    "title": "校园公告板",
+    "subtitle": "来自 HUFLIT 校领导、各学院与社团的最新公告",
+    "create": "发布公告",
+    "edit": "编辑公告",
+    "createTitle": "发布新公告",
+    "editTitle": "编辑公告",
+    "titleLabel": "公告标题",
+    "bodyLabel": "详细内容",
+    "pinLabel": "置顶显示此公告",
+    "pinned": "已置顶",
+    "submitCreate": "发布公告",
+    "submitUpdate": "更新",
+    "empty": "暂无发布公告。",
+    "confirmDelete": "确定要删除此公告吗？",
+    "successDelete": "公告删除成功",
+    "successCreate": "新公告发布成功",
+    "successUpdate": "公告更新成功",
+    "errorLoad": "无法加载公告板",
+    "errorDelete": "无法删除公告",
+    "errorSave": "保存公告时出错"
   },
   "home": {
     "welcome": "欢迎来到 HUFLIT Campus",
@@ -153,6 +177,9 @@
     "requirements": "要求",
     "saved": "已收藏活动",
     "unsaved": "已取消收藏",
+    "completeEvent": "完成活动",
+    "addToCalendar": "添加到日历 (.ics)",
+    "exportCsv": "导出报名 CSV",
     "updateFailed": "更新失败",
     "startsInDaysHours": "{{days}}天{{hours}}小时后开始",
     "startsInHoursMins": "{{hours}}小时{{minutes}}分钟后开始",

@@ -456,7 +456,7 @@ const LoginPage: React.FC = () => {
 
             <Button
               component={Link}
-              to="/"
+              to="/events"
               fullWidth
               sx={{ mt: 2, textTransform: 'none' }}
             >

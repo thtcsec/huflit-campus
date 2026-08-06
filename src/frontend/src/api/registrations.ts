@@ -13,4 +13,7 @@ export const registrationsApi = {
 
   getEventRegistrations: (eventId: string) =>
     apiClient.get<Registration[]>(`/registrations/events/${eventId}`),
+
+  exportRegistrationsCsv: (eventId: string) =>
+    apiClient.get(`/registrations/events/${eventId}/export`, { responseType: 'blob' }),
 };

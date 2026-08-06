@@ -7,4 +7,13 @@ export const announcementsApi = {
 
   getActiveAnnouncements: () =>
     apiClient.get<Announcement[]>('/announcements/active'),
+
+  createAnnouncement: (payload: { title: string; body: string; isPinned?: boolean; publishedAt?: string; expiresAt?: string }) =>
+    apiClient.post<Announcement>('/announcements', payload),
+
+  updateAnnouncement: (id: string, payload: { title: string; body: string; isPinned?: boolean; publishedAt?: string; expiresAt?: string }) =>
+    apiClient.put<Announcement>(`/announcements/${id}`, payload),
+
+  deleteAnnouncement: (id: string) =>
+    apiClient.delete(`/announcements/${id}`),
 };

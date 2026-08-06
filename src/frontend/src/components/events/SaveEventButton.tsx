@@ -22,7 +22,8 @@ const SaveEventButton: React.FC<SaveEventButtonProps> = ({ eventId, isSaved, onU
 
   const handleToggle = async () => {
     if (!isAuthenticated) {
-      navigate('/login');
+      enqueueSnackbar(t('auth.loginRequiredNotice'), { variant: 'info' });
+      navigate('/login', { state: { from: { pathname: `/events/${eventId}` } } });
       return;
     }
 

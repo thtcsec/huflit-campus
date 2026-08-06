@@ -5,6 +5,7 @@ import { PageHeader, EmptyState, EventGridSkeleton } from '@/components/common';
 import { EventGrid } from '@/components/events';
 import { savedEventsApi } from '@/api';
 import type { EventListItem } from '@/types';
+import { unwrapPaged } from '@/types/paging';
 import { useNavigate } from 'react-router-dom';
 
 const SavedEventsPage: React.FC = () => {
@@ -17,7 +18,7 @@ const SavedEventsPage: React.FC = () => {
     setLoading(true);
     try {
       const { data } = await savedEventsApi.getMySavedEvents();
-      setEvents(data);
+      setEvents(unwrapPaged<EventListItem>(data));
     } catch (error) {
       console.error('Failed to load saved events:', error);
     } finally {

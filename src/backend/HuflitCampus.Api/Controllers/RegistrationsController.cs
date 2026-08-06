@@ -88,6 +88,18 @@ public sealed class RegistrationsController(ISender sender) : ApiControllerBase
 
         return FromResult(result);
     }
+
+    [HttpGet("events/{eventId:guid}/export")]
+    [Authorize(Policy = Policies.CanManageEvents)]
+    public async Task<IActionResult> ExportByEvent(Guid eventId, CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(new ExportRegistrationsQuery(eventId), cancellationToken);
+        if (result.IsFailure)
+            return FromResult(result);
+
+        var fileResult = result.Value!;
+        return File(fileResult.Content, fileResult.ContentType, fileResult.FileName);
+    }
 }
 
 public sealed class RejectRegistrationBody

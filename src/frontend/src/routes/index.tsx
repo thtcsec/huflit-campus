@@ -17,20 +17,29 @@ import AttendanceScannerPage from '@/pages/AttendanceScannerPage';
 import ProfilePage from '@/pages/ProfilePage';
 import SavedEventsPage from '@/pages/SavedEventsPage';
 import MyRegistrationsPage from '@/pages/MyRegistrationsPage';
+import AnnouncementsPage from '@/pages/AnnouncementsPage';
 import NotificationsPage from '@/pages/NotificationsPage';
 import CalendarPage from '@/pages/CalendarPage';
 import AdminDashboardPage from '@/pages/AdminDashboardPage';
 import NotFoundPage from '@/pages/NotFoundPage';
 
+import { useSnackbar } from 'notistack';
+import { useTranslation } from 'react-i18next';
+import { useLocation } from 'react-router-dom';
+
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
+  const { enqueueSnackbar } = useSnackbar();
+  const { t } = useTranslation();
+  const location = useLocation();
 
   if (isLoading) {
     return <BootSplash />;
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    enqueueSnackbar(t('auth.loginRequiredNotice'), { variant: 'info' });
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   return <>{children}</>;
@@ -101,7 +110,7 @@ const AppRouter: React.FC = () => {
           element={
             <ProtectedRoute>
               <AppShell>
-                <RoleGate allowedRoles={[UserRole.ClubManager, UserRole.FacultyManager, UserRole.Administrator]}>
+                <RoleGate allowedRoles={[UserRole.Lecturer, UserRole.ClubManager, UserRole.FacultyManager, UserRole.Administrator]}>
                   <CreateEventPage />
                 </RoleGate>
               </AppShell>
@@ -114,7 +123,7 @@ const AppRouter: React.FC = () => {
           element={
             <ProtectedRoute>
               <AppShell>
-                <RoleGate allowedRoles={[UserRole.ClubManager, UserRole.FacultyManager, UserRole.Administrator]}>
+                <RoleGate allowedRoles={[UserRole.Lecturer, UserRole.ClubManager, UserRole.FacultyManager, UserRole.Administrator]}>
                   <EditEventPage />
                 </RoleGate>
               </AppShell>
@@ -127,7 +136,7 @@ const AppRouter: React.FC = () => {
           element={
             <ProtectedRoute>
               <AppShell>
-                <RoleGate allowedRoles={[UserRole.ClubManager, UserRole.FacultyManager, UserRole.Administrator]}>
+                <RoleGate allowedRoles={[UserRole.Lecturer, UserRole.ClubManager, UserRole.FacultyManager, UserRole.Administrator]}>
                   <ManageEventsPage />
                 </RoleGate>
               </AppShell>
@@ -140,7 +149,7 @@ const AppRouter: React.FC = () => {
           element={
             <ProtectedRoute>
               <AppShell>
-                <RoleGate allowedRoles={[UserRole.ClubManager, UserRole.FacultyManager, UserRole.Administrator]}>
+                <RoleGate allowedRoles={[UserRole.Lecturer, UserRole.ClubManager, UserRole.FacultyManager, UserRole.Administrator]}>
                   <OrganizerQrPage />
                 </RoleGate>
               </AppShell>
@@ -153,7 +162,7 @@ const AppRouter: React.FC = () => {
           element={
             <ProtectedRoute>
               <AppShell>
-                <RoleGate allowedRoles={[UserRole.ClubManager, UserRole.FacultyManager, UserRole.Administrator]}>
+                <RoleGate allowedRoles={[UserRole.Lecturer, UserRole.ClubManager, UserRole.FacultyManager, UserRole.Administrator]}>
                   <AttendanceScannerPage />
                 </RoleGate>
               </AppShell>
@@ -191,6 +200,17 @@ const AppRouter: React.FC = () => {
                 <MyRegistrationsPage />
               </AppShell>
             </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/announcements"
+          element={
+            <OptionalAuthRoute>
+              <AppShell>
+                <AnnouncementsPage />
+              </AppShell>
+            </OptionalAuthRoute>
           }
         />
 

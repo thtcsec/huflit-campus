@@ -43,4 +43,7 @@ export const eventsApi = {
 
   closeRegistration: (id: string) =>
     apiClient.post(`/events/${id}/close-registration`),
+
+  completeEvent: (id: string) =>
+    apiClient.post(`/events/${id}/complete`),
 };

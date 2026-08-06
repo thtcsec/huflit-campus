@@ -66,9 +66,19 @@ apiClient.interceptors.response.use(
       const refreshToken = localStorage.getItem('refreshToken');
       const accessToken = localStorage.getItem('accessToken');
 
+      // Stale/missing tokens: clear auth and retry once without Authorization
+      // so AllowAnonymous endpoints (e.g. browse events) still work.
       if (!refreshToken || !accessToken) {
-        localStorage.clear();
-        window.location.href = '/login';
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        isRefreshing = false;
+        processQueue(error as Error, null);
+
+        if (originalRequest.headers?.Authorization) {
+          delete originalRequest.headers.Authorization;
+          return apiClient(originalRequest);
+        }
+
         return Promise.reject(error);
       }
 
@@ -93,9 +103,15 @@ apiClient.interceptors.response.use(
         return apiClient(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError as Error, null);
-        localStorage.clear();
-        window.location.href = '/login';
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
         isRefreshing = false;
+
+        if (originalRequest.headers?.Authorization) {
+          delete originalRequest.headers.Authorization;
+          return apiClient(originalRequest);
+        }
+
         return Promise.reject(refreshError);
       }
     }

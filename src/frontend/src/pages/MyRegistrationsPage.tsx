@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { PageHeader, EmptyState, ListSkeleton } from '@/components/common';
 import { registrationsApi } from '@/api';
 import type { Registration } from '@/types';
+import { unwrapPaged } from '@/types/paging';
 import { formatDateTime } from '@/utils';
 import { useNavigate } from 'react-router-dom';
 
@@ -17,7 +18,7 @@ const MyRegistrationsPage: React.FC = () => {
     setLoading(true);
     try {
       const { data } = await registrationsApi.getMyRegistrations();
-      setRegistrations(data);
+      setRegistrations(unwrapPaged<Registration>(data));
     } catch (error) {
       console.error('Failed to load registrations:', error);
     } finally {
