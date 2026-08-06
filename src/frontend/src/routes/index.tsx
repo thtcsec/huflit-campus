@@ -21,6 +21,10 @@ import AnnouncementsPage from '@/pages/AnnouncementsPage';
 import NotificationsPage from '@/pages/NotificationsPage';
 import CalendarPage from '@/pages/CalendarPage';
 import AdminDashboardPage from '@/pages/AdminDashboardPage';
+import UserManagementPage from '@/pages/admin/UserManagementPage';
+import AdminEventsPage from '@/pages/admin/AdminEventsPage';
+import AdminCategoriesPage from '@/pages/admin/AdminCategoriesPage';
+import AdminLayout from '@/components/layout/AdminLayout';
 import NotFoundPage from '@/pages/NotFoundPage';
 
 import { useSnackbar } from 'notistack';
@@ -55,7 +59,7 @@ const OptionalAuthRoute: React.FC<{ children: React.ReactNode }> = ({ children }
   return <>{children}</>;
 };
 
-/** First paint: login (HCMUS-style) when anonymous; home feed when signed in. */
+/** First paint: login when anonymous; home feed when signed in. */
 const HomeEntry: React.FC = () => {
   const { isAuthenticated } = useAuth();
   if (!isAuthenticated) {
@@ -236,18 +240,23 @@ const AppRouter: React.FC = () => {
           }
         />
 
+        {/* Dedicated Admin Portal Routes */}
         <Route
           path="/admin"
           element={
             <ProtectedRoute>
-              <AppShell>
-                <RoleGate allowedRoles={[UserRole.Administrator, UserRole.FacultyManager]}>
-                  <AdminDashboardPage />
-                </RoleGate>
-              </AppShell>
+              <RoleGate allowedRoles={[UserRole.Administrator, UserRole.FacultyManager]}>
+                <AdminLayout />
+              </RoleGate>
             </ProtectedRoute>
           }
-        />
+        >
+          <Route index element={<Navigate to="/admin/analytics" replace />} />
+          <Route path="analytics" element={<AdminDashboardPage />} />
+          <Route path="users" element={<UserManagementPage />} />
+          <Route path="events" element={<AdminEventsPage />} />
+          <Route path="categories" element={<AdminCategoriesPage />} />
+        </Route>
 
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
