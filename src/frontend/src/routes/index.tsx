@@ -257,7 +257,7 @@ const AppRouter: React.FC = () => {
           path="/admin"
           element={
             <ProtectedRoute>
-              <RoleGate allowedRoles={[UserRole.Administrator, UserRole.FacultyManager]}>
+              <RoleGate allowedRoles={[UserRole.Administrator, UserRole.FacultyManager, UserRole.ClubManager, UserRole.Lecturer]}>
                 <AdminLayout />
               </RoleGate>
             </ProtectedRoute>

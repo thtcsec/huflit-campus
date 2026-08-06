@@ -80,15 +80,6 @@ export const UserGuidePage: React.FC = () => {
         { id: 'sec-gst-3', title: '3. Lưu sự kiện & Đăng ký tham gia' },
       ],
     },
-    {
-      roleTab: 3, // Admin
-      items: [
-        { id: 'sec-adm-1', title: '1. Truy cập Administrative Workspace (/admin)' },
-        { id: 'sec-adm-2', title: '2. Quản lý Người dùng & Phân quyền Tài khoản' },
-        { id: 'sec-adm-3', title: '3. Duyệt & Từ chối Sự kiện Chờ duyệt' },
-        { id: 'sec-adm-4', title: '4. Theo dõi Thống kê Show-up Rate & Hệ thống' },
-      ],
-    },
   ];
 
   const currentToc = tocItems.find((t) => t.roleTab === activeTab)?.items || [];
@@ -119,7 +110,6 @@ export const UserGuidePage: React.FC = () => {
           <Tab icon={<School />} iconPosition="start" label="🎓 Dành cho Sinh Viên" />
           <Tab icon={<Person />} iconPosition="start" label="👨‍🏫 Dành cho Giảng Viên / CLB" />
           <Tab icon={<HelpOutline />} iconPosition="start" label="👤 Dành cho Khách (Guest)" />
-          <Tab icon={<AdminPanelSettings />} iconPosition="start" label="🛡️ Dành cho Ban Quản Trị (Admin)" />
         </Tabs>
       </Paper>
 
@@ -382,46 +372,6 @@ export const UserGuidePage: React.FC = () => {
               </Box>
             )}
 
-            {/* TAB 3: ADMIN GUIDE */}
-            {activeTab === 3 && (
-              <Box>
-                <Box id="sec-adm-1" sx={{ mb: 5, scrollMarginTop: 100 }}>
-                  <Typography variant="h5" fontWeight={800} color="error.main" gutterBottom>
-                    1. Truy cập Administrative Workspace (/admin)
-                  </Typography>
-                  <Typography variant="body1" color="text.secondary" paragraph>
-                    Ban Quản trị và Trưởng Khoa truy cập không gian làm việc Admin chuyên biệt tại đường dẫn <Chip size="small" label="/admin" color="error" /> với giao diện Sidebar tối độc lập.
-                  </Typography>
-                </Box>
-
-                <Box id="sec-adm-2" sx={{ mb: 5, scrollMarginTop: 100 }}>
-                  <Typography variant="h5" fontWeight={800} color="error.main" gutterBottom>
-                    2. Quản lý Người dùng & Phân quyền Tài khoản
-                  </Typography>
-                  <Typography variant="body1" color="text.secondary" paragraph>
-                    Trang <strong>Users Management (`/admin/users`)</strong> cho phép Admin tìm kiếm sinh viên/giảng viên, lọc theo vai trò, 1-click kích hoạt / vô hiệu hóa tài khoản, bấm <strong>+ Thêm Người Dùng</strong> và xuất danh sách CSV toàn hệ thống.
-                  </Typography>
-                </Box>
-
-                <Box id="sec-adm-3" sx={{ mb: 5, scrollMarginTop: 100 }}>
-                  <Typography variant="h5" fontWeight={800} color="error.main" gutterBottom>
-                    3. Duyệt & Từ chối Sự kiện Chờ duyệt
-                  </Typography>
-                  <Typography variant="body1" color="text.secondary" paragraph>
-                    Trang <strong>Events Management (`/admin/events`)</strong> hiển thị các sự kiện đang ở trạng thái `PendingApproval`. Admin bấm nút <strong>CheckCircle</strong> để duyệt công khai sự kiện trên toàn campus.
-                  </Typography>
-                </Box>
-
-                <Box id="sec-adm-4" sx={{ scrollMarginTop: 100 }}>
-                  <Typography variant="h5" fontWeight={800} color="error.main" gutterBottom>
-                    4. Theo dõi Thống kê Show-up Rate & Hệ thống
-                  </Typography>
-                  <Typography variant="body1" color="text.secondary" paragraph>
-                    Trang <strong>Analytics (`/admin/analytics`)</strong> cung cấp các biểu đồ thống kê trực quan về tổng số người dùng, lượt tham gia, tỷ lệ tham gia thực tế (Show-up Rate %) và phân bố sự kiện theo từng danh mục.
-                  </Typography>
-                </Box>
-              </Box>
-            )}
           </Paper>
         </Grid>
       </Grid>

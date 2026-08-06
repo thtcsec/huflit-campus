@@ -21,7 +21,15 @@ const RoleGate: React.FC<RoleGateProps> = ({ children, allowedRoles, fallback = 
     return fallback === 'navigate' ? <Navigate to="/login" replace /> : null;
   }
 
-  if (!allowedRoles.includes(user.role)) {
+  const userRoleStr = String(user.role || '').toLowerCase();
+  const isAllowed = allowedRoles.some(
+    (role) =>
+      role.toLowerCase() === userRoleStr ||
+      (userRoleStr === 'admin' && role === UserRole.Administrator) ||
+      (userRoleStr === 'administrator' && role === UserRole.Administrator)
+  );
+
+  if (!isAllowed) {
     if (fallback === 'navigate') {
       return <Navigate to="/" replace />;
     }
