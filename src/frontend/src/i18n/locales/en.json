@@ -213,9 +213,22 @@
     "eventFallback": "Event"
   },
   "calendar": {
-    "title": "Calendar",
-    "subtitle": "View all events in calendar format",
-    "comingSoon": "Calendar view is coming soon."
+    "title": "Event Calendar",
+    "subtitle": "View and track all HUFLIT Campus events in a monthly calendar",
+    "comingSoon": "Calendar view is coming soon.",
+    "today": "Today",
+    "prevMonth": "Previous Month",
+    "nextMonth": "Next Month",
+    "monthEvents": "Events in {{month}}/{{year}}",
+    "dayEvents": "Events on {{day}}/{{month}}/{{year}}",
+    "noDayEvents": "No events on {{day}}/{{month}}",
+    "noMonthEvents": "No events in {{month}}/{{year}}",
+    "moreEvents": "+{{count}} events",
+    "registered": "Registered"
+  },
+  "userGuide": {
+    "title": "User Guide",
+    "subtitle": "Comprehensive guide for Students, Lecturers, Guests, and Administrators"
   },
   "categories": {
     "all": "All Categories",

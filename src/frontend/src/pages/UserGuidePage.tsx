@@ -87,11 +87,11 @@ export const UserGuidePage: React.FC = () => {
   return (
     <Container maxWidth="xl">
       <PageHeader
-        title="Hướng Dẫn Sử Dụng (User Guide)"
-        subtitle="Cẩm nang chi tiết hướng dẫn thao tác dành cho Sinh viên, Giảng viên, Khách và Ban Quản trị"
+        title={t('userGuide.title')}
+        subtitle={t('userGuide.subtitle')}
         breadcrumbs={[
           { label: t('common.home'), path: '/' },
-          { label: 'Hướng dẫn sử dụng' },
+          { label: t('userGuide.title') },
         ]}
       />
 

@@ -213,9 +213,22 @@
     "eventFallback": "Sự kiện"
   },
   "calendar": {
-    "title": "Lịch",
-    "subtitle": "Xem tất cả sự kiện dạng lịch",
-    "comingSoon": "Chế độ xem lịch sẽ sớm ra mắt."
+    "title": "Lịch sự kiện",
+    "subtitle": "Xem và theo dõi tất cả sự kiện HUFLIT Campus theo dạng lịch hàng tháng",
+    "comingSoon": "Chế độ xem lịch sẽ sớm ra mắt.",
+    "today": "Hôm nay",
+    "prevMonth": "Tháng trước",
+    "nextMonth": "Tháng sau",
+    "monthEvents": "Sự kiện tháng {{month}}/{{year}}",
+    "dayEvents": "Sự kiện ngày {{day}}/{{month}}/{{year}}",
+    "noDayEvents": "Không có sự kiện nào trong ngày {{day}}/{{month}}",
+    "noMonthEvents": "Không có sự kiện nào trong tháng {{month}}/{{year}}",
+    "moreEvents": "+{{count}} sự kiện",
+    "registered": "Đã đăng ký"
+  },
+  "userGuide": {
+    "title": "Hướng Dẫn Sử Dụng",
+    "subtitle": "Cẩm nang chi tiết hướng dẫn thao tác dành cho Sinh viên, Giảng viên, Khách và Ban Quản trị"
   },
   "categories": {
     "all": "Tất cả danh mục",

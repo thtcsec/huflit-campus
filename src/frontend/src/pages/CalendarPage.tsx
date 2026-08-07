@@ -27,10 +27,8 @@ import { calendarApi } from '@/api/calendar';
 import type { CalendarEvent } from '@/types';
 import { formatTime } from '@/utils';
 
-const DAYS_OF_WEEK_VI = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'Chủ nhật'];
-
 export const CalendarPage: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [events, setEvents] = useState<CalendarEvent[]>([]);
@@ -39,6 +37,20 @@ export const CalendarPage: React.FC = () => {
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
+
+  const daysOfWeek = useMemo(() => {
+    const locale = i18n.language || 'vi';
+    const dates = [
+      new Date(2024, 0, 1), // Monday
+      new Date(2024, 0, 2),
+      new Date(2024, 0, 3),
+      new Date(2024, 0, 4),
+      new Date(2024, 0, 5),
+      new Date(2024, 0, 6),
+      new Date(2024, 0, 7), // Sunday
+    ];
+    return dates.map((d) => d.toLocaleDateString(locale, { weekday: 'short' }));
+  }, [i18n.language]);
 
   const { startIso, endIso, daysInMonth, startDayOfWeek } = useMemo(() => {
     const firstDay = new Date(year, month, 1);
@@ -133,7 +145,7 @@ export const CalendarPage: React.FC = () => {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <EventIcon color="primary" sx={{ fontSize: 32 }} />
             <Typography variant="h5" fontWeight={700} color="primary.main">
-              {currentDate.toLocaleDateString('vi-VN', { month: 'long', year: 'numeric' })}
+              {currentDate.toLocaleDateString(i18n.language || 'vi', { month: 'long', year: 'numeric' })}
             </Typography>
           </Box>
 
@@ -145,17 +157,21 @@ export const CalendarPage: React.FC = () => {
               onClick={handleToday}
               sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 600 }}
             >
-              {t('common.justNow') ? 'Hôm nay' : 'Today'}
+              {t('calendar.today')}
             </Button>
 
             <Box sx={{ display: 'flex', border: 1, borderColor: 'divider', borderRadius: 2 }}>
-              <IconButton onClick={handlePrevMonth} size="small" aria-label="Tháng trước">
-                <ChevronLeft />
-              </IconButton>
+              <Tooltip title={t('calendar.prevMonth')}>
+                <IconButton onClick={handlePrevMonth} size="small" aria-label={t('calendar.prevMonth')}>
+                  <ChevronLeft />
+                </IconButton>
+              </Tooltip>
               <Divider orientation="vertical" flexItem />
-              <IconButton onClick={handleNextMonth} size="small" aria-label="Tháng sau">
-                <ChevronRight />
-              </IconButton>
+              <Tooltip title={t('calendar.nextMonth')}>
+                <IconButton onClick={handleNextMonth} size="small" aria-label={t('calendar.nextMonth')}>
+                  <ChevronRight />
+                </IconButton>
+              </Tooltip>
             </Box>
           </Box>
         </Box>
@@ -170,8 +186,8 @@ export const CalendarPage: React.FC = () => {
             <Paper sx={{ p: 2, borderRadius: 3, boxShadow: 2 }}>
               {/* Day headers */}
               <Grid container spacing={1} sx={{ mb: 1, textAlign: 'center' }}>
-                {DAYS_OF_WEEK_VI.map((dayName) => (
-                  <Grid item xs={12 / 7} key={dayName}>
+                {daysOfWeek.map((dayName, index) => (
+                  <Grid item xs={12 / 7} key={index}>
                     <Typography variant="caption" fontWeight={700} color="text.secondary" textTransform="uppercase">
                       {dayName}
                     </Typography>
@@ -282,7 +298,7 @@ export const CalendarPage: React.FC = () => {
                           ))}
                           {dayEvents.length > 2 && (
                             <Typography variant="caption" color="text.secondary" fontWeight={600}>
-                              +{dayEvents.length - 2} sự kiện
+                              {t('calendar.moreEvents', { count: dayEvents.length - 2 })}
                             </Typography>
                           )}
                         </Box>
@@ -300,12 +316,12 @@ export const CalendarPage: React.FC = () => {
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                 <Typography variant="h6" fontWeight={700}>
                   {selectedDay
-                    ? `Sự kiện ngày ${selectedDay}/${month + 1}/${year}`
-                    : `Sự kiện tháng ${month + 1}/${year}`}
+                    ? t('calendar.dayEvents', { day: selectedDay, month: month + 1, year })
+                    : t('calendar.monthEvents', { month: month + 1, year })}
                 </Typography>
                 {selectedDay && (
                   <Button size="small" onClick={() => setSelectedDay(null)}>
-                    Xem tất cả
+                    {t('common.viewAll')}
                   </Button>
                 )}
               </Box>
@@ -335,7 +351,7 @@ export const CalendarPage: React.FC = () => {
                             {ev.isRegistered && (
                               <Chip
                                 icon={<CheckCircle sx={{ fontSize: '14px !important' }} />}
-                                label="Đã đăng ký"
+                                label={t('calendar.registered')}
                                 color="success"
                                 size="small"
                               />
@@ -347,7 +363,7 @@ export const CalendarPage: React.FC = () => {
                           </Typography>
 
                           <Typography variant="body2" color="text.secondary">
-                            🕒 {new Date(ev.startAt).toLocaleDateString('vi-VN')} · {formatTime(ev.startAt)}
+                            🕒 {new Date(ev.startAt).toLocaleDateString(i18n.language || 'vi')} · {formatTime(ev.startAt)}
                           </Typography>
                         </CardContent>
                       </Card>
@@ -358,8 +374,8 @@ export const CalendarPage: React.FC = () => {
                     <EventIcon sx={{ fontSize: 48, mb: 1, opacity: 0.4 }} />
                     <Typography variant="body2">
                       {selectedDay
-                        ? `Không có sự kiện nào trong ngày ${selectedDay}/${month + 1}`
-                        : `Không có sự kiện nào trong tháng ${month + 1}/${year}`}
+                        ? t('calendar.noDayEvents', { day: selectedDay, month: month + 1 })
+                        : t('calendar.noMonthEvents', { month: month + 1, year })}
                     </Typography>
                   </Box>
                 )}
