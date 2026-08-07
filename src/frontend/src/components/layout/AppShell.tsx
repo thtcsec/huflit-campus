@@ -55,7 +55,6 @@ const AppShell: React.FC<AppShellProps> = ({ children }) => {
           sx={{
             flexGrow: 1,
             pt: 10,
-            px: { xs: 2, md: 3 },
             ml: `${sidebarWidth}px`,
             transition: theme.transitions.create('margin-left', {
               easing: theme.transitions.easing.sharp,
@@ -66,7 +65,7 @@ const AppShell: React.FC<AppShellProps> = ({ children }) => {
             minWidth: 0,
           }}
         >
-          <Box sx={{ flex: 1 }}>{children}</Box>
+          <Box sx={{ flex: 1, px: { xs: 2, md: 3 } }}>{children}</Box>
           <Footer />
         </Box>
       </Box>
