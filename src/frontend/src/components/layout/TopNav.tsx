@@ -30,6 +30,7 @@ import { useNavigate } from 'react-router-dom';
 import { ConfirmDialog, LanguageSwitcher, HuflitLogo } from '@/components/common';
 import { UserRole } from '@/types';
 import ThemeToggle from './ThemeToggle';
+import NotificationPopover from './NotificationPopover';
 
 interface TopNavProps {
   onMenuClick: () => void;
@@ -44,6 +45,7 @@ const TopNav: React.FC<TopNavProps> = ({ onMenuClick, sidebarCollapsed = false }
   const { unreadCount } = useNotifications();
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [notifAnchorEl, setNotifAnchorEl] = React.useState<null | HTMLElement>(null);
   const [logoutOpen, setLogoutOpen] = React.useState(false);
 
   const menuTooltip = isMobile
@@ -86,7 +88,7 @@ const TopNav: React.FC<TopNavProps> = ({ onMenuClick, sidebarCollapsed = false }
         <Tooltip title={t('nav.notifications')}>
           <IconButton
             color="inherit"
-            onClick={() => navigate('/notifications')}
+            onClick={(e) => setNotifAnchorEl(e.currentTarget)}
             aria-label={t('nav.notifications')}
           >
             <Badge badgeContent={unreadCount} color="error">
@@ -94,6 +96,12 @@ const TopNav: React.FC<TopNavProps> = ({ onMenuClick, sidebarCollapsed = false }
             </Badge>
           </IconButton>
         </Tooltip>
+
+        <NotificationPopover
+          anchorEl={notifAnchorEl}
+          open={Boolean(notifAnchorEl)}
+          onClose={() => setNotifAnchorEl(null)}
+        />
 
         <IconButton
           edge="end"

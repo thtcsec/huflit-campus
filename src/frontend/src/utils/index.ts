@@ -29,6 +29,8 @@ export const formatDateTime = (date: string | Date): string => {
   return `${formatDate(d, 'short')} · ${formatDate(d, 'time')}`;
 };
 
+export const formatTime = (date: string | Date): string => formatDate(date, 'time');
+
 export const getRelativeTime = (date: string | Date): string => {
   const now = new Date();
   const past = new Date(date);

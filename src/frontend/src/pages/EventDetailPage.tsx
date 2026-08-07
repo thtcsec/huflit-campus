@@ -1,18 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Box, Typography, Grid, Chip, Paper, Avatar, Divider, Button } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
-import { AccessTime, LocationOn, Person, CalendarToday as CalendarTodayIcon } from '@mui/icons-material';
+import { AccessTime, LocationOn, Person, CalendarToday as CalendarTodayIcon, CardMembership, Map as MapIcon } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { eventsApi } from '@/api';
+import { useAuth } from '@/hooks';
 import { PageHeader, CategoryChip, StatusChip, Countdown, ShareButton, EmptyState } from '@/components/common';
 import { CapacityBar, RegisterButton, SaveEventButton, EventFeedbackSection } from '@/components/events';
 import { formatDateTime } from '@/utils';
 import { downloadIcsFile, getGoogleCalendarUrl } from '@/utils/calendar';
-import type { EventDetail } from '@/types';
+import { generateCertificatePdf } from '@/utils/certificate';
+import { RegistrationStatus, type EventDetail } from '@/types';
 import { motion } from 'framer-motion';
 
 const EventDetailPage: React.FC = () => {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [event, setEvent] = useState<EventDetail | null>(null);
@@ -125,7 +128,7 @@ const EventDetailPage: React.FC = () => {
 
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
                 <LocationOn color="action" />
-                <Box>
+                <Box sx={{ flexGrow: 1 }}>
                   <Typography variant="body2" color="text.secondary">
                     {t('events.location')}
                   </Typography>
@@ -138,6 +141,20 @@ const EventDetailPage: React.FC = () => {
                     </Typography>
                   )}
                 </Box>
+                {(event.googleMapsUrl || event.address || event.locationName) && (
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    startIcon={<MapIcon />}
+                    component="a"
+                    href={event.googleMapsUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.address || event.locationName)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    sx={{ textTransform: 'none', borderRadius: 2, whitespace: 'nowrap' }}
+                  >
+                    Google Maps
+                  </Button>
+                )}
               </Box>
 
               {event.organizerName && (
@@ -249,6 +266,32 @@ const EventDetailPage: React.FC = () => {
                   remainingSeats={event.remainingSeats}
                   onUpdate={loadEvent}
                 />
+
+                {event.isRegistered && (
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    fullWidth
+                    startIcon={<CardMembership />}
+                    onClick={() =>
+                      generateCertificatePdf(
+                        {
+                          id: event.id,
+                          eventId: event.id,
+                          eventTitle: event.title,
+                          eventStartAt: event.startAt,
+                          userId: user?.id || '',
+                          status: RegistrationStatus.Attended,
+                          registeredAt: event.createdAt,
+                        },
+                        user
+                      )
+                    }
+                    sx={{ textTransform: 'none', borderRadius: 2, fontWeight: 600 }}
+                  >
+                    {t('events.downloadCertificate')}
+                  </Button>
+                )}
 
                 <Button
                   variant="outlined"
