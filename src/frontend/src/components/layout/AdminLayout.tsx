@@ -34,6 +34,7 @@ import { useAuth } from '@/hooks';
 import HuflitLogo from '@/components/common/HuflitLogo';
 import LanguageSwitcher from '@/components/common/LanguageSwitcher';
 import ThemeToggle from './ThemeToggle';
+import { UserRole } from '@/types';
 
 const DRAWER_WIDTH = 260;
 
@@ -50,24 +51,30 @@ export const AdminLayout: React.FC = () => {
     setMobileOpen(!mobileOpen);
   };
 
+  const isAdministrator = user?.role === UserRole.Administrator;
+
   const navItems = [
+    ...(isAdministrator
+      ? [
+          {
+            text: t('adminUsers.title'),
+            path: '/admin/users',
+            icon: <People />,
+          },
+        ]
+      : []),
     {
-      text: 'Quản lý Người dùng',
-      path: '/admin/users',
-      icon: <People />,
-    },
-    {
-      text: 'Quản lý Sự kiện',
+      text: t('admin.manageEventsNav'),
       path: '/admin/events',
       icon: <EventNote />,
     },
     {
-      text: 'Danh mục & Cơ sở',
+      text: t('admin.categoriesNav'),
       path: '/admin/categories',
       icon: <Category />,
     },
     {
-      text: 'Thống kê Systems',
+      text: t('admin.title'),
       path: '/admin/analytics',
       icon: <Analytics />,
     },
@@ -80,7 +87,7 @@ export const AdminLayout: React.FC = () => {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <HuflitLogo height={32} />
           <Typography variant="subtitle1" fontWeight={800} sx={{ color: '#ffffff', letterSpacing: 1 }}>
-            EMS Admin
+            {t('admin.brandShort')}
           </Typography>
         </Box>
       </Box>
@@ -136,7 +143,10 @@ export const AdminLayout: React.FC = () => {
           <ListItemIcon sx={{ color: '#ffffff', minWidth: 40 }}>
             <Home />
           </ListItemIcon>
-          <ListItemText primary="Về Trang Chủ Public" primaryTypographyProps={{ fontSize: '0.85rem', fontWeight: 600 }} />
+          <ListItemText
+            primary={t('admin.backToPublic')}
+            primaryTypographyProps={{ fontSize: '0.85rem', fontWeight: 600 }}
+          />
         </ListItemButton>
       </Box>
     </Box>
@@ -161,14 +171,19 @@ export const AdminLayout: React.FC = () => {
           </IconButton>
 
           <Typography variant="h6" fontWeight={700} noWrap>
-            HUFLIT Campus EMS — Administrative Workspace
+            {t('admin.workspaceTitle')}
           </Typography>
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <LanguageSwitcher />
             <ThemeToggle />
 
-            <Chip label={user?.role || 'Admin'} color="primary" size="small" sx={{ fontWeight: 700 }} />
+            <Chip
+              label={user?.role ? t(`roles.${user.role}`, { defaultValue: user.role }) : t('roles.Administrator')}
+              color="primary"
+              size="small"
+              sx={{ fontWeight: 700 }}
+            />
 
             <IconButton onClick={(e) => setAnchorEl(e.currentTarget)}>
               <Avatar src={user?.avatarUrl} alt={user?.fullName}>
@@ -187,7 +202,7 @@ export const AdminLayout: React.FC = () => {
                 <ListItemIcon>
                   <ExitToApp fontSize="small" />
                 </ListItemIcon>
-                Đăng xuất Admin
+                {t('admin.logoutAdmin')}
               </MenuItem>
             </Menu>
           </Box>

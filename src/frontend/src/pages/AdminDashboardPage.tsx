@@ -10,6 +10,10 @@ import {
   LinearProgress,
   Chip,
   Divider,
+  List,
+  ListItem,
+  ListItemText,
+  Alert,
 } from '@mui/material';
 import {
   People,
@@ -20,59 +24,48 @@ import {
   TrendingUp,
   School,
   Category,
+  EmojiEvents,
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
+import { useSnackbar } from 'notistack';
 import { PageHeader, ListSkeleton } from '@/components/common';
-import { eventsApi, registrationsApi } from '@/api';
-import { unwrapPaged } from '@/types/paging';
-import type { EventListItem } from '@/types';
+import { dashboardApi } from '@/api';
+import type { AdminDashboard } from '@/types';
 import { motion } from 'framer-motion';
 
 export const AdminDashboardPage: React.FC = () => {
   const { t } = useTranslation();
+  const { enqueueSnackbar } = useSnackbar();
   const [loading, setLoading] = useState(true);
-  const [totalEvents, setTotalEvents] = useState(0);
-  const [pendingApproval, setPendingApproval] = useState(0);
-  const [totalRegistrations, setTotalRegistrations] = useState(0);
-  const [attendedCount, setAttendedCount] = useState(0);
-  const [categoryStats, setCategoryStats] = useState<{ category: string; count: number }[]>([]);
+  const [dashboard, setDashboard] = useState<AdminDashboard | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadDashboardData = async () => {
       setLoading(true);
+      setError(null);
       try {
-        const { data: eventsData } = await eventsApi.searchEvents({});
-        const items = unwrapPaged<EventListItem>(eventsData);
-        setTotalEvents(items.length);
-
-        const pending = items.filter((e) => e.status === 'PendingApproval').length;
-        setPendingApproval(pending);
-
-        const regCount = items.reduce((acc, curr) => acc + (curr.registrationCount || 0), 0);
-        setTotalRegistrations(regCount);
-
-        // Estimate attended count (mock show-up rate ~82%)
-        setAttendedCount(Math.round(regCount * 0.82));
-
-        // Group events by category
-        const catMap: Record<string, number> = {};
-        items.forEach((e) => {
-          catMap[e.category] = (catMap[e.category] || 0) + 1;
-        });
-
-        const catArray = Object.entries(catMap).map(([category, count]) => ({ category, count }));
-        setCategoryStats(catArray);
-      } catch (err) {
-        console.error('Failed to load dashboard data:', err);
+        const { data } = await dashboardApi.getAdminDashboard();
+        setDashboard(data);
+      } catch (err: unknown) {
+        const message =
+          (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ||
+          t('admin.loadFailed');
+        setError(message);
+        enqueueSnackbar(message, { variant: 'error' });
       } finally {
         setLoading(false);
       }
     };
 
     void loadDashboardData();
-  }, []);
+  }, [enqueueSnackbar, t]);
 
-  const showUpRate = totalRegistrations > 0 ? Math.round((attendedCount / totalRegistrations) * 100) : 85;
+  const totalRegistrations = dashboard?.totalRegistrations ?? 0;
+  const totalAttendance = dashboard?.totalAttendance ?? 0;
+  const totalEvents = dashboard?.totalEvents ?? 0;
+  const showUpRate =
+    totalRegistrations > 0 ? Math.round((totalAttendance / totalRegistrations) * 100) : 0;
 
   return (
     <Container maxWidth="lg">
@@ -84,9 +77,10 @@ export const AdminDashboardPage: React.FC = () => {
 
       {loading ? (
         <ListSkeleton count={4} />
-      ) : (
+      ) : error ? (
+        <Alert severity="error">{error}</Alert>
+      ) : dashboard ? (
         <>
-          {/* Top KPI Cards */}
           <Grid container spacing={3} sx={{ mb: 4 }}>
             <Grid item xs={12} sm={6} md={3}>
               <Card component={motion.div} whileHover={{ y: -4 }} sx={{ borderRadius: 2, height: '100%' }}>
@@ -95,10 +89,15 @@ export const AdminDashboardPage: React.FC = () => {
                     <Box sx={{ p: 1.5, borderRadius: 2, bgcolor: 'primary.light', color: 'primary.main' }}>
                       <People fontSize="medium" />
                     </Box>
-                    <Chip label="+12% tháng này" color="primary" size="small" variant="outlined" />
+                    <Chip
+                      label={`${dashboard.activeUsers} ${t('admin.active')}`}
+                      color="primary"
+                      size="small"
+                      variant="outlined"
+                    />
                   </Box>
                   <Typography variant="h4" fontWeight={800}>
-                    1,248
+                    {dashboard.totalUsers.toLocaleString()}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     {t('admin.totalUsers')}
@@ -114,10 +113,14 @@ export const AdminDashboardPage: React.FC = () => {
                     <Box sx={{ p: 1.5, borderRadius: 2, bgcolor: 'success.light', color: 'success.main' }}>
                       <Event fontSize="medium" />
                     </Box>
-                    <Chip label="Đang hoạt động" color="success" size="small" />
+                    <Chip
+                      label={`${dashboard.publishedEvents} ${t('admin.published')}`}
+                      color="success"
+                      size="small"
+                    />
                   </Box>
                   <Typography variant="h4" fontWeight={800}>
-                    {totalEvents}
+                    {dashboard.totalEvents.toLocaleString()}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     {t('admin.totalEvents')}
@@ -133,10 +136,10 @@ export const AdminDashboardPage: React.FC = () => {
                     <Box sx={{ p: 1.5, borderRadius: 2, bgcolor: 'info.light', color: 'info.main' }}>
                       <HowToReg fontSize="medium" />
                     </Box>
-                    <Chip label="Lượt tham gia" color="info" size="small" variant="outlined" />
+                    <Chip label={t('admin.registrations')} color="info" size="small" variant="outlined" />
                   </Box>
                   <Typography variant="h4" fontWeight={800}>
-                    {totalRegistrations}
+                    {dashboard.totalRegistrations.toLocaleString()}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     {t('admin.totalRegistrations')}
@@ -152,10 +155,12 @@ export const AdminDashboardPage: React.FC = () => {
                     <Box sx={{ p: 1.5, borderRadius: 2, bgcolor: 'warning.light', color: 'warning.main' }}>
                       <PendingActions fontSize="medium" />
                     </Box>
-                    {pendingApproval > 0 && <Chip label="Cần xử lý" color="warning" size="small" />}
+                    {dashboard.pendingApprovalEvents > 0 && (
+                      <Chip label={t('admin.needsAction')} color="warning" size="small" />
+                    )}
                   </Box>
                   <Typography variant="h4" fontWeight={800}>
-                    {pendingApproval}
+                    {dashboard.pendingApprovalEvents.toLocaleString()}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     {t('admin.pendingApproval')}
@@ -165,15 +170,13 @@ export const AdminDashboardPage: React.FC = () => {
             </Grid>
           </Grid>
 
-          {/* Detailed Analytics Section */}
           <Grid container spacing={3}>
-            {/* Show-up rate card */}
             <Grid item xs={12} md={6}>
               <Paper sx={{ p: 3, borderRadius: 2, height: '100%' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
                   <TrendingUp color="primary" />
                   <Typography variant="h6" fontWeight={700}>
-                    Tỷ lệ Điểm danh Thực tế (Show-up Rate)
+                    {t('admin.showUpRate')}
                   </Typography>
                 </Box>
                 <Divider sx={{ mb: 3 }} />
@@ -181,7 +184,7 @@ export const AdminDashboardPage: React.FC = () => {
                 <Box sx={{ mb: 3 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                     <Typography variant="body1" fontWeight={600}>
-                      Tỷ lệ có mặt tại sự kiện
+                      {t('admin.attendanceRate')}
                     </Typography>
                     <Typography variant="h6" fontWeight={800} color="primary.main">
                       {showUpRate}%
@@ -189,7 +192,7 @@ export const AdminDashboardPage: React.FC = () => {
                   </Box>
                   <LinearProgress
                     variant="determinate"
-                    value={showUpRate}
+                    value={Math.min(showUpRate, 100)}
                     sx={{ height: 10, borderRadius: 5, bgcolor: 'action.hover' }}
                   />
                 </Box>
@@ -199,10 +202,10 @@ export const AdminDashboardPage: React.FC = () => {
                     <Box sx={{ p: 2, bgcolor: 'background.default', borderRadius: 2, textAlign: 'center' }}>
                       <CheckCircle color="success" sx={{ mb: 0.5 }} />
                       <Typography variant="h6" fontWeight={700}>
-                        {attendedCount}
+                        {totalAttendance.toLocaleString()}
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
-                        Đã check-in điểm danh
+                        {t('admin.checkedIn')}
                       </Typography>
                     </Box>
                   </Grid>
@@ -210,10 +213,10 @@ export const AdminDashboardPage: React.FC = () => {
                     <Box sx={{ p: 2, bgcolor: 'background.default', borderRadius: 2, textAlign: 'center' }}>
                       <HowToReg color="info" sx={{ mb: 0.5 }} />
                       <Typography variant="h6" fontWeight={700}>
-                        {totalRegistrations}
+                        {totalRegistrations.toLocaleString()}
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
-                        Tổng lượt đăng ký
+                        {t('admin.totalRegistrations')}
                       </Typography>
                     </Box>
                   </Grid>
@@ -221,19 +224,18 @@ export const AdminDashboardPage: React.FC = () => {
               </Paper>
             </Grid>
 
-            {/* Category breakdown */}
             <Grid item xs={12} md={6}>
               <Paper sx={{ p: 3, borderRadius: 2, height: '100%' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
                   <Category color="secondary" />
                   <Typography variant="h6" fontWeight={700}>
-                    Phân bố Sự kiện theo Danh mục
+                    {t('admin.categoryBreakdown')}
                   </Typography>
                 </Box>
                 <Divider sx={{ mb: 3 }} />
 
-                {categoryStats.length > 0 ? (
-                  categoryStats.map((item) => {
+                {dashboard.topCategories.length > 0 ? (
+                  dashboard.topCategories.map((item) => {
                     const percent = totalEvents > 0 ? Math.round((item.count / totalEvents) * 100) : 0;
                     return (
                       <Box key={item.category} sx={{ mb: 2 }}>
@@ -242,7 +244,7 @@ export const AdminDashboardPage: React.FC = () => {
                             {item.category}
                           </Typography>
                           <Typography variant="body2" color="text.secondary">
-                            {item.count} sự kiện ({percent}%)
+                            {item.count} ({percent}%)
                           </Typography>
                         </Box>
                         <LinearProgress
@@ -255,35 +257,90 @@ export const AdminDashboardPage: React.FC = () => {
                     );
                   })
                 ) : (
-                  <Box sx={{ mb: 2 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                      <Typography variant="body2" fontWeight={600}>
-                        Academic & Workshop
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        65%
-                      </Typography>
-                    </Box>
-                    <LinearProgress
-                      variant="determinate"
-                      value={65}
-                      color="secondary"
-                      sx={{ height: 8, borderRadius: 4, bgcolor: 'action.hover' }}
-                    />
-                  </Box>
+                  <Typography variant="body2" color="text.secondary">
+                    {t('admin.noCategoryData')}
+                  </Typography>
                 )}
 
-                <Box sx={{ mt: 3, p: 2, bgcolor: 'action.hover', borderRadius: 2, display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <Box
+                  sx={{
+                    mt: 3,
+                    p: 2,
+                    bgcolor: 'action.hover',
+                    borderRadius: 2,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1.5,
+                  }}
+                >
                   <School color="action" />
                   <Typography variant="caption" color="text.secondary">
-                    Khoa Công nghệ Thông tin dẫn đầu số lượng sự kiện học thuật và workshop trên campus HUFLIT.
+                    {t('admin.categoryHint')}
                   </Typography>
                 </Box>
               </Paper>
             </Grid>
+
+            <Grid item xs={12} md={6}>
+              <Paper sx={{ p: 3, borderRadius: 2, height: '100%' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
+                  <People color="primary" />
+                  <Typography variant="h6" fontWeight={700}>
+                    {t('admin.topOrganizers')}
+                  </Typography>
+                </Box>
+                <Divider sx={{ mb: 1 }} />
+                <List dense>
+                  {dashboard.topOrganizers.length > 0 ? (
+                    dashboard.topOrganizers.map((org) => (
+                      <ListItem key={org.organizerId} disableGutters>
+                        <ListItemText
+                          primary={org.organizerName}
+                          secondary={`${org.eventCount} ${t('admin.events')} · ${org.totalRegistrations} ${t('admin.registrations')}`}
+                          primaryTypographyProps={{ fontWeight: 600 }}
+                        />
+                      </ListItem>
+                    ))
+                  ) : (
+                    <Typography variant="body2" color="text.secondary" sx={{ py: 2 }}>
+                      {t('admin.noOrganizerData')}
+                    </Typography>
+                  )}
+                </List>
+              </Paper>
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+              <Paper sx={{ p: 3, borderRadius: 2, height: '100%' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
+                  <EmojiEvents color="warning" />
+                  <Typography variant="h6" fontWeight={700}>
+                    {t('admin.popularEvents')}
+                  </Typography>
+                </Box>
+                <Divider sx={{ mb: 1 }} />
+                <List dense>
+                  {dashboard.popularEvents.length > 0 ? (
+                    dashboard.popularEvents.slice(0, 5).map((evt) => (
+                      <ListItem key={evt.eventId} disableGutters>
+                        <ListItemText
+                          primary={evt.title}
+                          secondary={`${evt.registrationCount} ${t('admin.registrations')} · ${evt.viewCount} ${t('admin.views')}`}
+                          primaryTypographyProps={{ fontWeight: 600 }}
+                        />
+                      </ListItem>
+                    ))
+                  ) : (
+                    <Typography variant="body2" color="text.secondary" sx={{ py: 2 }}>
+                      {t('admin.noPopularEvents')}
+                    </Typography>
+                  )}
+                </List>
+              </Paper>
+            </Grid>
           </Grid>
         </>
-      )}
+      ) : null}
     </Container>
   );
 };

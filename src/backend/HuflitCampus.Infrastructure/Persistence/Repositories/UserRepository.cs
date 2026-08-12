@@ -1,3 +1,4 @@
+using HuflitCampus.Domain.Common;
 using HuflitCampus.Domain.Entities;
 using HuflitCampus.Domain.Enums;
 using HuflitCampus.Domain.Interfaces.Repositories;
@@ -75,5 +76,40 @@ public sealed class UserRepository : Repository<User>, IUserRepository
             .OrderBy(u => u.FullName)
             .Take(take)
             .ToListAsync(cancellationToken);
+    }
+
+    public async Task<PagedResult<User>> SearchAdminAsync(
+        string? search,
+        UserRole? role,
+        bool? isActive,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default)
+    {
+        var query = DbSet.AsQueryable().Where(u => !u.IsDeleted);
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.Trim().ToLowerInvariant();
+            query = query.Where(u =>
+                u.Email.ToLower().Contains(term)
+                || u.FullName.ToLower().Contains(term)
+                || (u.StudentId != null && u.StudentId.ToLower().Contains(term)));
+        }
+
+        if (role.HasValue)
+            query = query.Where(u => u.Role == role.Value);
+
+        if (isActive.HasValue)
+            query = query.Where(u => u.IsActive == isActive.Value);
+
+        var total = await query.CountAsync(cancellationToken);
+        var items = await query
+            .OrderBy(u => u.FullName)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+
+        return PagedResult<User>.Create(items, page, pageSize, total);
     }
 }

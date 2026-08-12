@@ -1,3 +1,4 @@
+using HuflitCampus.Domain.Common;
 using HuflitCampus.Domain.Entities;
 using HuflitCampus.Domain.Enums;
 
@@ -14,4 +15,11 @@ public interface IUserRepository : IRepository<User>
     Task<IReadOnlyList<User>> GetByRoleAsync(UserRole role, CancellationToken cancellationToken = default);
     Task<bool> EmailExistsAsync(string email, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<User>> SearchAsync(string query, int take = 20, CancellationToken cancellationToken = default);
+    Task<PagedResult<User>> SearchAdminAsync(
+        string? search,
+        UserRole? role,
+        bool? isActive,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default);
 }

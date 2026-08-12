@@ -2,6 +2,9 @@ using HuflitCampus.Application.DTOs.Attendance;
 using HuflitCampus.Application.DTOs.Auth;
 using HuflitCampus.Application.Features.Users.Commands;
 using HuflitCampus.Application.Features.Users.Queries;
+using HuflitCampus.Domain.Common;
+using HuflitCampus.Domain.Constants;
+using HuflitCampus.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,6 +15,47 @@ namespace HuflitCampus.Api.Controllers;
 [Route("api/users")]
 public sealed class UsersController(ISender sender) : ApiControllerBase
 {
+    [HttpGet]
+    [Authorize(Policy = Policies.CanManageUsers)]
+    [ProducesResponseType(typeof(PagedResult<UserProfileDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> List(
+        [FromQuery] string? search,
+        [FromQuery] UserRole? role,
+        [FromQuery] bool? isActive,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 50,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await sender.Send(
+            new ListUsersQuery(search, role, isActive, page, pageSize),
+            cancellationToken);
+        return FromResult(result);
+    }
+
+    [HttpPut("{id:guid}/role")]
+    [Authorize(Policy = Policies.CanManageUsers)]
+    [ProducesResponseType(typeof(UserProfileDto), StatusCodes.Status200OK)]
+    public async Task<IActionResult> UpdateRole(
+        Guid id,
+        [FromBody] UpdateUserRoleRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await sender.Send(new UpdateUserRoleCommand(id, request.Role), cancellationToken);
+        return FromResult(result);
+    }
+
+    [HttpPut("{id:guid}/active")]
+    [Authorize(Policy = Policies.CanManageUsers)]
+    [ProducesResponseType(typeof(UserProfileDto), StatusCodes.Status200OK)]
+    public async Task<IActionResult> SetActive(
+        Guid id,
+        [FromBody] SetUserActiveRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await sender.Send(new SetUserActiveCommand(id, request.IsActive), cancellationToken);
+        return FromResult(result);
+    }
+
     [HttpGet("{id:guid}/profile")]
     [ProducesResponseType(typeof(UserProfileDto), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetProfile(Guid id, CancellationToken cancellationToken)
@@ -55,6 +99,16 @@ public sealed class UsersController(ISender sender) : ApiControllerBase
         var result = await sender.Send(new GetUserAttendanceHistoryQuery(), cancellationToken);
         return FromResult(result);
     }
+}
+
+public sealed class UpdateUserRoleRequest
+{
+    public UserRole Role { get; set; }
+}
+
+public sealed class SetUserActiveRequest
+{
+    public bool IsActive { get; set; }
 }
 
 public sealed class UpdateProfileRequest

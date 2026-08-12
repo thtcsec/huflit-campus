@@ -1,5 +1,6 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/hooks';
 import { UserRole } from '@/types';
 import { Box, Typography } from '@mui/material';
@@ -12,6 +13,7 @@ interface RoleGateProps {
 
 const RoleGate: React.FC<RoleGateProps> = ({ children, allowedRoles, fallback = 'navigate' }) => {
   const { user, isLoading } = useAuth();
+  const { t } = useTranslation();
 
   if (isLoading) {
     return null;
@@ -37,10 +39,10 @@ const RoleGate: React.FC<RoleGateProps> = ({ children, allowedRoles, fallback = 
       return (
         <Box sx={{ textAlign: 'center', py: 8 }}>
           <Typography variant="h6" color="error">
-            Access Denied
+            {t('access.deniedTitle')}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            You do not have permission to access this resource.
+            {t('access.deniedDescription')}
           </Typography>
         </Box>
       );

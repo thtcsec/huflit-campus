@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Container,
   Paper,
@@ -23,155 +23,138 @@ import {
   Avatar,
   InputAdornment,
   Grid,
+  CircularProgress,
+  TablePagination,
 } from '@mui/material';
 import {
   Search,
-  PersonAdd,
   Download,
-  Edit,
   Block,
   CheckCircle,
-  Delete,
   AdminPanelSettings,
 } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
 import { useSnackbar } from 'notistack';
-import { UserRole } from '@/types';
+import { usersApi } from '@/api';
+import { unwrapPaged } from '@/types/paging';
+import { UserRole, type UserProfile } from '@/types';
+import { useAuth } from '@/hooks';
 
-interface UserRecord {
-  id: string;
-  fullName: string;
-  email: string;
-  studentId?: string;
-  role: UserRole;
-  faculty?: string;
-  isActive: boolean;
-  createdAt: string;
-}
+const ASSIGNABLE_ROLES: UserRole[] = [
+  UserRole.Guest,
+  UserRole.Student,
+  UserRole.Lecturer,
+  UserRole.ClubManager,
+  UserRole.FacultyManager,
+  UserRole.Administrator,
+];
 
 export const UserManagementPage: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { enqueueSnackbar } = useSnackbar();
+  const { user: currentUser } = useAuth();
 
-  // Seed user roster matching HUFLIT Campus roles
-  const [users, setUsers] = useState<UserRecord[]>([
-    {
-      id: 'usr-1',
-      fullName: 'Nguyễn Văn Admin',
-      email: 'admin@huflit.edu.vn',
-      role: UserRole.Administrator,
-      faculty: 'Khoa Công nghệ Thông tin',
-      isActive: true,
-      createdAt: '2026-01-10T08:00:00Z',
-    },
-    {
-      id: 'usr-2',
-      fullName: 'TS. Lê Thành Long',
-      email: 'longlt@huflit.edu.vn',
-      role: UserRole.FacultyManager,
-      faculty: 'Khoa Công nghệ Thông tin',
-      isActive: true,
-      createdAt: '2026-01-15T09:30:00Z',
-    },
-    {
-      id: 'usr-3',
-      fullName: 'ThS. Phạm Hoàng Nam',
-      email: 'namph@huflit.edu.vn',
-      role: UserRole.Lecturer,
-      faculty: 'Khoa Công nghệ Thông tin',
-      isActive: true,
-      createdAt: '2026-02-01T10:00:00Z',
-    },
-    {
-      id: 'usr-4',
-      fullName: 'Trần Minh Huy',
-      email: '2021600123@student.huflit.edu.vn',
-      studentId: '2021600123',
-      role: UserRole.ClubManager,
-      faculty: 'Khoa Công nghệ Thông tin',
-      isActive: true,
-      createdAt: '2026-02-12T14:20:00Z',
-    },
-    {
-      id: 'usr-5',
-      fullName: 'Đặng Ngọc Anh',
-      email: '2021600456@student.huflit.edu.vn',
-      studentId: '2021600456',
-      role: UserRole.Student,
-      faculty: 'Khoa Ngoại ngữ',
-      isActive: true,
-      createdAt: '2026-03-05T11:15:00Z',
-    },
-  ]);
+  const dateLocale = i18n.language?.startsWith('vi') ? 'vi-VN' : 'en-US';
 
+  const roleLabel = (role: UserRole) => t(`roles.${role}`, { defaultValue: role });
+
+  const [users, setUsers] = useState<UserProfile[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [searchInput, setSearchInput] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('ALL');
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(25);
+  const [roleDialogUser, setRoleDialogUser] = useState<UserProfile | null>(null);
+  const [selectedRole, setSelectedRole] = useState<UserRole>(UserRole.Student);
+  const [saving, setSaving] = useState(false);
 
-  // Modal dialog state
-  const [openModal, setOpenModal] = useState(false);
-  const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    studentId: '',
-    role: UserRole.Student,
-    faculty: 'Khoa Công nghệ Thông tin',
-  });
+  const loadUsers = useCallback(async () => {
+    setLoading(true);
+    try {
+      const { data } = await usersApi.list({
+        search: search || undefined,
+        role: roleFilter === 'ALL' ? undefined : (roleFilter as UserRole),
+        page: page + 1,
+        pageSize,
+      });
+      setUsers(unwrapPaged<UserProfile>(data));
+      setTotalCount(
+        data && typeof data === 'object' && 'totalCount' in data
+          ? Number((data as { totalCount: number }).totalCount) || 0
+          : unwrapPaged<UserProfile>(data).length,
+      );
+    } catch (error: unknown) {
+      const message =
+        (error as { response?: { data?: { detail?: string } } })?.response?.data?.detail ||
+        t('adminUsers.loadFailed');
+      enqueueSnackbar(message, { variant: 'error' });
+      setUsers([]);
+      setTotalCount(0);
+    } finally {
+      setLoading(false);
+    }
+  }, [enqueueSnackbar, page, pageSize, roleFilter, search, t]);
 
-  const filteredUsers = users.filter((u) => {
-    const matchSearch =
-      u.fullName.toLowerCase().includes(search.toLowerCase()) ||
-      u.email.toLowerCase().includes(search.toLowerCase()) ||
-      (u.studentId && u.studentId.includes(search));
-    const matchRole = roleFilter === 'ALL' || u.role === roleFilter;
-    return matchSearch && matchRole;
-  });
+  useEffect(() => {
+    void loadUsers();
+  }, [loadUsers]);
 
-  const handleToggleStatus = (id: string) => {
-    setUsers((prev) =>
-      prev.map((u) => (u.id === id ? { ...u, isActive: !u.isActive } : u))
-    );
-    enqueueSnackbar('Đã cập nhật trạng thái người dùng', { variant: 'info' });
-  };
-
-  const handleCreateUser = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.fullName || !formData.email) {
-      enqueueSnackbar('Vui lòng điền họ tên và email', { variant: 'warning' });
+  const handleToggleStatus = async (user: UserProfile) => {
+    if (user.id === currentUser?.id && user.isActive) {
+      enqueueSnackbar(t('adminUsers.cannotDeactivateSelf'), { variant: 'warning' });
       return;
     }
+    setSaving(true);
+    try {
+      const { data } = await usersApi.setActive(user.id, !user.isActive);
+      setUsers((prev) => prev.map((u) => (u.id === data.id ? data : u)));
+      enqueueSnackbar(
+        data.isActive ? t('adminUsers.activated') : t('adminUsers.deactivated'),
+        { variant: 'success' },
+      );
+    } catch (error: unknown) {
+      const message =
+        (error as { response?: { data?: { detail?: string } } })?.response?.data?.detail ||
+        t('adminUsers.updateFailed');
+      enqueueSnackbar(message, { variant: 'error' });
+    } finally {
+      setSaving(false);
+    }
+  };
 
-    const newUser: UserRecord = {
-      id: `usr-${Date.now()}`,
-      fullName: formData.fullName,
-      email: formData.email,
-      studentId: formData.studentId || undefined,
-      role: formData.role,
-      faculty: formData.faculty,
-      isActive: true,
-      createdAt: new Date().toISOString(),
-    };
+  const openRoleDialog = (user: UserProfile) => {
+    setRoleDialogUser(user);
+    setSelectedRole(user.role);
+  };
 
-    setUsers([newUser, ...users]);
-    setOpenModal(false);
-    setFormData({
-      fullName: '',
-      email: '',
-      studentId: '',
-      role: UserRole.Student,
-      faculty: 'Khoa Công nghệ Thông tin',
-    });
-    enqueueSnackbar('Thêm người dùng mới thành công!', { variant: 'success' });
+  const handleSaveRole = async () => {
+    if (!roleDialogUser) return;
+    setSaving(true);
+    try {
+      const { data } = await usersApi.updateRole(roleDialogUser.id, selectedRole);
+      setUsers((prev) => prev.map((u) => (u.id === data.id ? data : u)));
+      setRoleDialogUser(null);
+      enqueueSnackbar(t('adminUsers.roleUpdated'), { variant: 'success' });
+    } catch (error: unknown) {
+      const message =
+        (error as { response?: { data?: { detail?: string } } })?.response?.data?.detail ||
+        t('adminUsers.updateFailed');
+      enqueueSnackbar(message, { variant: 'error' });
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleExportCsv = () => {
-    const headers = ['Họ và Tên,Email,MSSV,Vai Trò,Khoa,Trạng Thái,Ngày Tạo'];
+    const headers = [t('adminUsers.csvHeaders')];
     const rows = users.map(
       (u) =>
-        `"${u.fullName}","${u.email}","${u.studentId || ''}","${u.role}","${u.faculty || ''}","${
-          u.isActive ? 'Active' : 'Inactive'
-        }","${new Date(u.createdAt).toLocaleDateString('vi-VN')}"`
+        `"${u.fullName}","${u.email}","${u.studentId || ''}","${roleLabel(u.role)}","${u.faculty || ''}","${
+          u.isActive ? t('adminUsers.active') : t('adminUsers.inactive')
+        }","${new Date(u.createdAt).toLocaleDateString(dateLocale)}"`,
     );
-
     const csvContent = '\uFEFF' + [headers, ...rows].join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -182,7 +165,7 @@ export const UserManagementPage: React.FC = () => {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    enqueueSnackbar('Đã xuất danh sách người dùng CSV thành công', { variant: 'success' });
+    enqueueSnackbar(t('adminUsers.exported'), { variant: 'success' });
   };
 
   const getRoleChipColor = (role: UserRole) => {
@@ -204,49 +187,43 @@ export const UserManagementPage: React.FC = () => {
 
   return (
     <Container maxWidth="xl" disableGutters>
-      {/* Top Header */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 2 }}>
         <Box>
           <Typography variant="h4" fontWeight={800}>
-            Quản lý Người dùng (Users Management)
+            {t('adminUsers.title')}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Quản lý toàn bộ danh sách sinh viên, giảng viên và ban quản trị hệ thống HUFLIT Campus.
+            {t('adminUsers.subtitle')}
           </Typography>
         </Box>
 
-        <Box sx={{ display: 'flex', gap: 1.5 }}>
-          <Button
-            variant="outlined"
-            color="primary"
-            startIcon={<Download />}
-            onClick={handleExportCsv}
-            sx={{ textTransform: 'none', borderRadius: 2 }}
-          >
-            Xuất File CSV
-          </Button>
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<PersonAdd />}
-            onClick={() => setOpenModal(true)}
-            sx={{ textTransform: 'none', borderRadius: 2 }}
-          >
-            + Thêm Người Dùng
-          </Button>
-        </Box>
+        <Button
+          variant="outlined"
+          color="primary"
+          startIcon={<Download />}
+          onClick={handleExportCsv}
+          disabled={users.length === 0}
+          sx={{ textTransform: 'none', borderRadius: 2 }}
+        >
+          {t('adminUsers.exportCsv')}
+        </Button>
       </Box>
 
-      {/* Filter Controls */}
       <Paper sx={{ p: 2.5, mb: 3, borderRadius: 2 }}>
         <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} sm={8} md={6}>
+          <Grid item xs={12} sm={7} md={6}>
             <TextField
               fullWidth
               size="small"
-              placeholder="Tìm kiếm theo tên, email, MSSV..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              placeholder={t('adminUsers.searchPlaceholder')}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  setPage(0);
+                  setSearch(searchInput.trim());
+                }
+              }}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -256,156 +233,192 @@ export const UserManagementPage: React.FC = () => {
               }}
             />
           </Grid>
-          <Grid item xs={12} sm={4} md={3}>
+          <Grid item xs={12} sm={3} md={3}>
             <TextField
               select
               fullWidth
               size="small"
-              label="Lọc theo Vai trò"
+              label={t('adminUsers.filterRole')}
               value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value)}
+              onChange={(e) => {
+                setPage(0);
+                setRoleFilter(e.target.value);
+              }}
             >
-              <MenuItem value="ALL">Tất cả vai trò</MenuItem>
-              <MenuItem value={UserRole.Administrator}>Admin</MenuItem>
-              <MenuItem value={UserRole.FacultyManager}>BHL Khoa</MenuItem>
-              <MenuItem value={UserRole.Lecturer}>Giảng viên</MenuItem>
-              <MenuItem value={UserRole.ClubManager}>Chủ nhiệm CLB</MenuItem>
-              <MenuItem value={UserRole.Student}>Sinh viên</MenuItem>
-              <MenuItem value={UserRole.Guest}>Khách</MenuItem>
+              <MenuItem value="ALL">{t('adminUsers.allRoles')}</MenuItem>
+              {ASSIGNABLE_ROLES.map((role) => (
+                <MenuItem key={role} value={role}>
+                  {roleLabel(role)}
+                </MenuItem>
+              ))}
             </TextField>
+          </Grid>
+          <Grid item xs={12} sm={2} md={2}>
+            <Button
+              fullWidth
+              variant="contained"
+              onClick={() => {
+                setPage(0);
+                setSearch(searchInput.trim());
+              }}
+              sx={{ textTransform: 'none', borderRadius: 2 }}
+            >
+              {t('common.search')}
+            </Button>
           </Grid>
         </Grid>
       </Paper>
 
-      {/* User Data Table */}
       <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
-        <Table sx={{ minWidth: 800 }}>
-          <TableHead sx={{ bgcolor: 'action.hover' }}>
-            <TableRow>
-              <TableCell sx={{ fontWeight: 700 }}>NGƯỜI DÙNG</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>MSSV / MÃ SỐ</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>KHOA</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>VAI TRÒ</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>TRẠNG THÁI</TableCell>
-              <TableCell sx={{ fontWeight: 700 }}>NGÀY TẠO</TableCell>
-              <TableCell align="right" sx={{ fontWeight: 700 }}>THAO TÁC</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {filteredUsers.map((u) => (
-              <TableRow key={u.id} hover>
-                <TableCell>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                    <Avatar sx={{ bgcolor: 'primary.light', color: 'primary.main', fontWeight: 700 }}>
-                      {u.fullName.charAt(0)}
-                    </Avatar>
-                    <Box>
-                      <Typography variant="subtitle2" fontWeight={700}>
-                        {u.fullName}
+        {loading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 6 }}>
+            <CircularProgress />
+          </Box>
+        ) : (
+          <>
+            <Table sx={{ minWidth: 800 }}>
+              <TableHead sx={{ bgcolor: 'action.hover' }}>
+                <TableRow>
+                  <TableCell sx={{ fontWeight: 700 }}>{t('adminUsers.colUser')}</TableCell>
+                  <TableCell sx={{ fontWeight: 700 }}>{t('adminUsers.colStudentId')}</TableCell>
+                  <TableCell sx={{ fontWeight: 700 }}>{t('adminUsers.colFaculty')}</TableCell>
+                  <TableCell sx={{ fontWeight: 700 }}>{t('adminUsers.colRole')}</TableCell>
+                  <TableCell sx={{ fontWeight: 700 }}>{t('adminUsers.colStatus')}</TableCell>
+                  <TableCell sx={{ fontWeight: 700 }}>{t('adminUsers.colCreated')}</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 700 }}>
+                    {t('adminUsers.colActions')}
+                  </TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {users.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={7} align="center">
+                      <Typography variant="body2" color="text.secondary" sx={{ py: 4 }}>
+                        {t('adminUsers.empty')}
                       </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        {u.email}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </TableCell>
-                <TableCell>
-                  <Typography variant="body2" fontWeight={600}>
-                    {u.studentId || '—'}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Typography variant="body2">{u.faculty || '—'}</Typography>
-                </TableCell>
-                <TableCell>
-                  <Chip label={u.role} color={getRoleChipColor(u.role)} size="small" sx={{ fontWeight: 600 }} />
-                </TableCell>
-                <TableCell>
-                  <Chip
-                    label={u.isActive ? 'Active' : 'Inactive'}
-                    color={u.isActive ? 'success' : 'error'}
-                    size="small"
-                    variant="outlined"
-                  />
-                </TableCell>
-                <TableCell>
-                  <Typography variant="caption">
-                    {new Date(u.createdAt).toLocaleDateString('vi-VN')}
-                  </Typography>
-                </TableCell>
-                <TableCell align="right">
-                  <Tooltip title={u.isActive ? 'Vô hiệu hóa tài khoản' : 'Kích hoạt tài khoản'}>
-                    <IconButton
-                      color={u.isActive ? 'warning' : 'success'}
-                      onClick={() => handleToggleStatus(u.id)}
-                    >
-                      {u.isActive ? <Block /> : <CheckCircle />}
-                    </IconButton>
-                  </Tooltip>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  users.map((u) => (
+                    <TableRow key={u.id} hover>
+                      <TableCell>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                          <Avatar
+                            src={u.avatarUrl}
+                            sx={{ bgcolor: 'primary.light', color: 'primary.main', fontWeight: 700 }}
+                          >
+                            {u.fullName.charAt(0)}
+                          </Avatar>
+                          <Box>
+                            <Typography variant="subtitle2" fontWeight={700}>
+                              {u.fullName}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">
+                              {u.email}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant="body2" fontWeight={600}>
+                          {u.studentId || '—'}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant="body2">{u.faculty || '—'}</Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Chip
+                          label={roleLabel(u.role)}
+                          color={getRoleChipColor(u.role)}
+                          size="small"
+                          sx={{ fontWeight: 600 }}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Chip
+                          label={u.isActive ? t('adminUsers.active') : t('adminUsers.inactive')}
+                          color={u.isActive ? 'success' : 'error'}
+                          size="small"
+                          variant="outlined"
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant="caption">
+                          {new Date(u.createdAt).toLocaleDateString(dateLocale)}
+                        </Typography>
+                      </TableCell>
+                      <TableCell align="right">
+                        <Tooltip title={t('adminUsers.changeRole')}>
+                          <IconButton color="primary" disabled={saving} onClick={() => openRoleDialog(u)}>
+                            <AdminPanelSettings />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip
+                          title={
+                            u.isActive ? t('adminUsers.deactivate') : t('adminUsers.activate')
+                          }
+                        >
+                          <IconButton
+                            color={u.isActive ? 'warning' : 'success'}
+                            disabled={saving}
+                            onClick={() => void handleToggleStatus(u)}
+                          >
+                            {u.isActive ? <Block /> : <CheckCircle />}
+                          </IconButton>
+                        </Tooltip>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+            <TablePagination
+              component="div"
+              count={totalCount}
+              page={page}
+              onPageChange={(_, next) => setPage(next)}
+              rowsPerPage={pageSize}
+              onRowsPerPageChange={(e) => {
+                setPageSize(parseInt(e.target.value, 10));
+                setPage(0);
+              }}
+              rowsPerPageOptions={[10, 25, 50]}
+            />
+          </>
+        )}
       </TableContainer>
 
-      {/* Add User Modal */}
-      <Dialog open={openModal} onClose={() => setOpenModal(false)} maxWidth="sm" fullWidth>
-        <DialogTitle fontWeight={700}>Thêm Người Dùng Mới (+ Add User)</DialogTitle>
-        <Box component="form" onSubmit={handleCreateUser}>
-          <DialogContent dividers>
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  required
-                  label="Họ và Tên người dùng"
-                  value={formData.fullName}
-                  onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  required
-                  type="email"
-                  label="Email trường (HUFLIT / Student)"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Mã số sinh viên (MSSV)"
-                  value={formData.studentId}
-                  onChange={(e) => setFormData({ ...formData, studentId: e.target.value })}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  select
-                  fullWidth
-                  label="Phân quyền Vai trò"
-                  value={formData.role}
-                  onChange={(e) => setFormData({ ...formData, role: e.target.value as UserRole })}
-                >
-                  <MenuItem value={UserRole.Student}>Sinh viên</MenuItem>
-                  <MenuItem value={UserRole.ClubManager}>Chủ nhiệm CLB</MenuItem>
-                  <MenuItem value={UserRole.Lecturer}>Giảng viên</MenuItem>
-                  <MenuItem value={UserRole.FacultyManager}>Trưởng/Phó Khoa</MenuItem>
-                  <MenuItem value={UserRole.Administrator}>Admin Hệ thống</MenuItem>
-                </TextField>
-              </Grid>
-            </Grid>
-          </DialogContent>
-          <DialogActions sx={{ p: 2 }}>
-            <Button onClick={() => setOpenModal(false)}>Hủy</Button>
-            <Button type="submit" variant="contained" color="primary">
-              Tạo Người Dùng
-            </Button>
-          </DialogActions>
-        </Box>
+      <Dialog open={Boolean(roleDialogUser)} onClose={() => setRoleDialogUser(null)} maxWidth="xs" fullWidth>
+        <DialogTitle fontWeight={700}>{t('adminUsers.changeRoleTitle')}</DialogTitle>
+        <DialogContent dividers>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            {roleDialogUser?.fullName} · {roleDialogUser?.email}
+          </Typography>
+          <TextField
+            select
+            fullWidth
+            label={t('adminUsers.colRole')}
+            value={selectedRole}
+            onChange={(e) => setSelectedRole(e.target.value as UserRole)}
+          >
+            {ASSIGNABLE_ROLES.map((role) => (
+              <MenuItem key={role} value={role}>
+                {roleLabel(role)}
+              </MenuItem>
+            ))}
+          </TextField>
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1.5 }}>
+            {t('adminUsers.roleHint')}
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={() => setRoleDialogUser(null)}>{t('common.cancel')}</Button>
+          <Button variant="contained" disabled={saving} onClick={() => void handleSaveRole()}>
+            {saving ? <CircularProgress size={20} color="inherit" /> : t('common.save')}
+          </Button>
+        </DialogActions>
       </Dialog>
     </Container>
   );

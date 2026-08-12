@@ -257,7 +257,7 @@ const AppRouter: React.FC = () => {
           path="/admin"
           element={
             <ProtectedRoute>
-              <RoleGate allowedRoles={[UserRole.Administrator, UserRole.FacultyManager, UserRole.ClubManager, UserRole.Lecturer]}>
+              <RoleGate allowedRoles={[UserRole.Administrator, UserRole.FacultyManager]}>
                 <AdminLayout />
               </RoleGate>
             </ProtectedRoute>
@@ -265,7 +265,14 @@ const AppRouter: React.FC = () => {
         >
           <Route index element={<Navigate to="/admin/analytics" replace />} />
           <Route path="analytics" element={<AdminDashboardPage />} />
-          <Route path="users" element={<UserManagementPage />} />
+          <Route
+            path="users"
+            element={
+              <RoleGate allowedRoles={[UserRole.Administrator]} fallback="message">
+                <UserManagementPage />
+              </RoleGate>
+            }
+          />
           <Route path="events" element={<AdminEventsPage />} />
           <Route path="categories" element={<AdminCategoriesPage />} />
         </Route>

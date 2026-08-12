@@ -8,3 +8,4 @@ export { savedEventsApi } from './saved';
 export { calendarApi } from './calendar';
 export { dashboardApi } from './dashboard';
 export { announcementsApi } from './announcements';
+export { usersApi } from './users';
