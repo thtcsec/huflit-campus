@@ -37,15 +37,14 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=HuflitCampus;User Id=sa;Password=Huflit_Campus_Dev_Strong_Passw0rd!;TrustServerCertificate=True;MultipleActiveResultSets=true"
+      Auth__AllowDevMicrosoftBypass: "true"
       Jwt__SecretKey: "HUFLIT_CAMPUS_DOCKER_DEV_SIGNING_KEY_32+"
       Jwt__Key: "HUFLIT_CAMPUS_DOCKER_DEV_SIGNING_KEY_32+"
       Jwt__Issuer: HuflitCampus
       Jwt__Audience: HuflitCampus
+      Jwt__AccessTokenExpirationMinutes: "15"
       Cors__Origins__0: http://localhost:5173
       Cors__Origins__1: http://127.0.0.1:5173
-      BlobStorage__Provider: Local
-      BlobStorage__LocalRootPath: wwwroot/uploads
-      BlobStorage__PublicBaseUrl: http://localhost:5080/uploads
       AzureBlob__LocalRootPath: wwwroot/uploads
       AzureBlob__PublicBaseUrl: http://localhost:5080/uploads
     volumes:

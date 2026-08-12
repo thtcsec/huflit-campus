@@ -16,6 +16,7 @@ public class MicrosoftLoginCommandHandler : IRequestHandler<MicrosoftLoginComman
     private readonly IUserRepository _userRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IJwtTokenService _jwtTokenService;
+    private readonly IMicrosoftIdTokenValidator _idTokenValidator;
     private readonly IMapper _mapper;
     private readonly IDateTimeProvider _dateTime;
 
@@ -23,12 +24,14 @@ public class MicrosoftLoginCommandHandler : IRequestHandler<MicrosoftLoginComman
         IUserRepository userRepository,
         IUnitOfWork unitOfWork,
         IJwtTokenService jwtTokenService,
+        IMicrosoftIdTokenValidator idTokenValidator,
         IMapper mapper,
         IDateTimeProvider dateTime)
     {
         _userRepository = userRepository;
         _unitOfWork = unitOfWork;
         _jwtTokenService = jwtTokenService;
+        _idTokenValidator = idTokenValidator;
         _mapper = mapper;
         _dateTime = dateTime;
     }
@@ -36,27 +39,37 @@ public class MicrosoftLoginCommandHandler : IRequestHandler<MicrosoftLoginComman
     public async Task<Result<AuthResponse>> Handle(MicrosoftLoginCommand request, CancellationToken cancellationToken)
     {
         var req = request.Request;
-        if (string.IsNullOrWhiteSpace(req.ExternalId) && string.IsNullOrWhiteSpace(req.Email))
-            return Result.Failure<AuthResponse>("External ID or email is required.");
+        var identityResult = await _idTokenValidator.ValidateAsync(
+            req.IdToken,
+            req.Email,
+            req.FullName,
+            req.ExternalId,
+            req.AvatarUrl,
+            cancellationToken);
 
-        var email = req.Email.Trim().ToLowerInvariant();
+        if (identityResult.IsFailure)
+            return Result.Failure<AuthResponse>(identityResult.Error!);
+
+        var identity = identityResult.Value!;
+        var email = identity.Email;
 
         // AsNoTracking — avoid accidental User UPDATE concurrency with soft-delete filters.
-        var user = await _userRepository.FindForLoginAsync(email, req.ExternalId, cancellationToken);
+        var user = await _userRepository.FindForLoginAsync(email, identity.ExternalId, cancellationToken);
 
         if (user is null)
         {
             user = new User
             {
                 Email = email,
-                FullName = string.IsNullOrWhiteSpace(req.FullName) ? email : req.FullName.Trim(),
-                AvatarUrl = req.AvatarUrl,
+                FullName = identity.FullName,
+                AvatarUrl = identity.AvatarUrl,
                 StudentId = req.StudentId,
                 Faculty = req.Faculty,
                 Major = req.Major,
-                ExternalId = req.ExternalId,
+                ExternalId = identity.ExternalId,
                 AuthProvider = AuthProvider.MicrosoftEntra,
-                Role = InferRoleFromEmail(email),
+                // Privileged roles are assigned by admins / IdP groups — never inferred from email.
+                Role = InferInitialRoleFromEmail(email),
                 IsActive = true,
                 CreatedAt = _dateTime.UtcNow
             };
@@ -86,13 +99,12 @@ public class MicrosoftLoginCommandHandler : IRequestHandler<MicrosoftLoginComman
         });
     }
 
-    private static UserRole InferRoleFromEmail(string email)
+    private static UserRole InferInitialRoleFromEmail(string email)
     {
-        if (email.EndsWith("@huflit.edu.vn", StringComparison.OrdinalIgnoreCase)
-            && !email.EndsWith("@student.huflit.edu.vn", StringComparison.OrdinalIgnoreCase))
-            return UserRole.Lecturer;
-
         if (email.EndsWith("@student.huflit.edu.vn", StringComparison.OrdinalIgnoreCase))
+            return UserRole.Student;
+
+        if (email.EndsWith("@huflit.edu.vn", StringComparison.OrdinalIgnoreCase))
             return UserRole.Student;
 
         return UserRole.Student;

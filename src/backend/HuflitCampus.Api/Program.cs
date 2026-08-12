@@ -1,3 +1,4 @@
+using System.Threading.RateLimiting;
 using HuflitCampus.Api.Authorization;
 using HuflitCampus.Api.Middleware;
 using HuflitCampus.Application;
@@ -5,6 +6,7 @@ using HuflitCampus.Infrastructure;
 using HuflitCampus.Infrastructure.Notifications;
 using HuflitCampus.Infrastructure.Persistence;
 using HuflitCampus.Infrastructure.Persistence.Seed;
+using Microsoft.AspNetCore.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,10 +32,53 @@ builder.Services.AddCors(options =>
 
         policy
             .WithOrigins(origins)
-            .AllowAnyHeader()
-            .AllowAnyMethod()
+            .WithHeaders("Authorization", "Content-Type", "Accept", "X-Requested-With")
+            .WithMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
             .AllowCredentials();
     });
+});
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.OnRejected = async (context, token) =>
+    {
+        context.HttpContext.Response.ContentType = "application/problem+json";
+        await context.HttpContext.Response.WriteAsync(
+            """{"title":"Too Many Requests","status":429,"detail":"Rate limit exceeded. Please try again later."}""",
+            token);
+    };
+
+    options.AddPolicy("auth", httpContext =>
+        RateLimitPartition.GetSlidingWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new SlidingWindowRateLimiterOptions
+            {
+                PermitLimit = 20,
+                Window = TimeSpan.FromMinutes(1),
+                SegmentsPerWindow = 4,
+                QueueLimit = 0
+            }));
+
+    options.AddPolicy("otp", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 5,
+                Window = TimeSpan.FromMinutes(10),
+                QueueLimit = 0
+            }));
+
+    options.AddPolicy("upload", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 30,
+                Window = TimeSpan.FromMinutes(10),
+                QueueLimit = 0
+            }));
 });
 
 builder.Services.AddEndpointsApiExplorer();
@@ -49,17 +94,23 @@ if (app.Environment.IsDevelopment())
     // DbSeeder.MigrateAsync + seed demo admin / sample events
     await DbSeeder.SeedAsync(app.Services);
 }
+else
+{
+    app.UseHsts();
+}
 
+app.UseMiddleware<SecurityHeadersMiddleware>();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseHttpsRedirection();
 app.UseCors("Frontend");
+app.UseRateLimiter();
 app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapHub<NotificationHub>("/hubs/notifications");
+app.MapHub<NotificationHub>("/hubs/notifications").RequireAuthorization();
 app.MapHealthChecks("/health");
 
 app.Run();

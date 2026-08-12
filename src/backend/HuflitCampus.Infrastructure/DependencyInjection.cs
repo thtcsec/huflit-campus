@@ -25,6 +25,7 @@ public static class DependencyInjection
         services.Configure<FcmOptions>(configuration.GetSection(FcmOptions.SectionName));
         services.Configure<EntraIdOptions>(configuration.GetSection(EntraIdOptions.SectionName));
         services.Configure<SmtpOptions>(configuration.GetSection(SmtpOptions.SectionName));
+        services.Configure<AuthOptions>(configuration.GetSection(AuthOptions.SectionName));
 
         var connectionString = configuration.GetConnectionString("DefaultConnection")
             ?? throw new InvalidOperationException("Connection string 'DefaultConnection' is not configured.");
@@ -48,6 +49,7 @@ public static class DependencyInjection
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IJwtTokenService, JwtTokenService>();
+        services.AddScoped<IMicrosoftIdTokenValidator, MicrosoftIdTokenValidator>();
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
         services.AddSingleton<IOtpService, OtpService>();
         services.AddScoped<IEmailSender, EmailSender>();

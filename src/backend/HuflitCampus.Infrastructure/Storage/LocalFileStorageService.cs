@@ -30,6 +30,11 @@ public sealed class LocalFileStorageService : IBlobStorageService
         CancellationToken cancellationToken = default)
     {
         var safeName = Path.GetFileName(fileName);
+        // Prefer extension-only storage names; never trust original client filenames.
+        var extension = Path.GetExtension(safeName);
+        if (string.IsNullOrWhiteSpace(extension) || extension.Length > 8)
+            extension = ".bin";
+
         var relativeFolder = string.IsNullOrWhiteSpace(folder)
             ? string.Empty
             : folder.Trim('/').Replace('\\', '/');
@@ -40,7 +45,7 @@ public sealed class LocalFileStorageService : IBlobStorageService
 
         Directory.CreateDirectory(targetDir);
 
-        var storedName = $"{Guid.NewGuid():N}_{safeName}";
+        var storedName = $"{Guid.NewGuid():N}{extension.ToLowerInvariant()}";
         var fullPath = Path.Combine(targetDir, storedName);
 
         await using (var fileStream = File.Create(fullPath))

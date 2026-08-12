@@ -45,11 +45,12 @@ public sealed class EmailSender : IEmailSender
     {
         if (!_options.Enabled)
         {
+            // Never log message bodies — OTP codes and other secrets travel through email content.
             _logger.LogInformation(
-                "Email (dev/log): To={To}, Subject={Subject}, Body={Body}",
+                "Email (dev/log, SMTP disabled): To={To}, Subject={Subject}, BodyLength={BodyLength}",
                 to,
                 subject,
-                body);
+                body.Length);
             return;
         }
 

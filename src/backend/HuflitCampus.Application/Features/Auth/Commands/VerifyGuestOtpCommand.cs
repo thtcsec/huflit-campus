@@ -85,6 +85,12 @@ public class VerifyGuestOtpCommandHandler : IRequestHandler<VerifyGuestOtpComman
         {
             return Result.Failure<AuthResponse>("Account is deactivated.");
         }
+        else if (user.Role != UserRole.Guest)
+        {
+            // Prevent privilege escalation: OTP must never mint tokens for staff/admin accounts.
+            return Result.Failure<AuthResponse>(
+                "This account requires Microsoft sign-in. Guest OTP cannot be used for staff accounts.");
+        }
 
         var tokens = _jwtTokenService.GenerateTokens(user);
         _userRepository.AddRefreshToken(

@@ -24,8 +24,30 @@ public static class AuthenticationExtensions
         var entraOptions = configuration.GetSection(EntraIdOptions.SectionName).Get<EntraIdOptions>()
                            ?? new EntraIdOptions();
 
+        if (string.IsNullOrWhiteSpace(jwtSettings.SecretKey) || jwtSettings.SecretKey.Length < 32)
+        {
+            throw new InvalidOperationException(
+                "Jwt:SecretKey must be configured and at least 32 characters long. " +
+                "Do not use placeholder/fallback signing keys.");
+        }
+
+        if (LooksLikePlaceholderSecret(jwtSettings.SecretKey)
+            && !string.Equals(
+                configuration["ASPNETCORE_ENVIRONMENT"] ?? configuration["DOTNET_ENVIRONMENT"],
+                "Development",
+                StringComparison.OrdinalIgnoreCase)
+            && !string.Equals(
+                Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"),
+                "Development",
+                StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException(
+                "Jwt:SecretKey appears to be a committed placeholder. Set a strong secret via environment/Key Vault in non-Development environments.");
+        }
+
         services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));
         services.Configure<EntraIdOptions>(configuration.GetSection(EntraIdOptions.SectionName));
+        services.Configure<AuthOptions>(configuration.GetSection(AuthOptions.SectionName));
 
         var authBuilder = services.AddAuthentication(options =>
         {
@@ -42,11 +64,7 @@ public static class AuthenticationExtensions
                 ValidateAudience = true,
                 ValidAudience = jwtSettings.Audience,
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes(
-                        string.IsNullOrWhiteSpace(jwtSettings.SecretKey)
-                            ? new string('x', 32)
-                            : jwtSettings.SecretKey)),
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
                 ValidateLifetime = true,
                 ClockSkew = TimeSpan.FromMinutes(1),
                 NameClaimType = JwtRegisteredClaimNames.Sub,
@@ -105,4 +123,10 @@ public static class AuthenticationExtensions
 
         return services;
     }
+
+    private static bool LooksLikePlaceholderSecret(string secret) =>
+        secret.Contains("CHANGE_ME", StringComparison.OrdinalIgnoreCase)
+        || secret.Contains("DEV_ONLY", StringComparison.OrdinalIgnoreCase)
+        || secret.Contains("DOCKER_DEV", StringComparison.OrdinalIgnoreCase)
+        || secret.All(c => c == 'x' || c == 'X');
 }

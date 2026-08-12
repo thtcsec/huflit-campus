@@ -52,13 +52,25 @@ const LoginPage: React.FC = () => {
   const handleMicrosoftLogin = async (roleHint: 'student' | 'lecturer') => {
     setLoading(true);
     try {
+      if (!import.meta.env.DEV) {
+        enqueueSnackbar(
+          t('auth.microsoftNotConfigured', {
+            defaultValue: 'Microsoft Entra login is not configured yet. Contact an administrator.',
+          }),
+          { variant: 'warning' },
+        );
+        return;
+      }
+
+      // Development-only mock — backend accepts this only when Auth:AllowDevMicrosoftBypass=true.
+      // Lecturer mode signs into the seeded admin account for local privileged testing.
       const mockPayload: MicrosoftLoginRequest = {
         idToken: 'dev-mock-id-token',
         email:
           roleHint === 'lecturer'
-            ? 'lecturer@huflit.edu.vn'
+            ? 'admin@huflit.edu.vn'
             : 'user@student.huflit.edu.vn',
-        fullName: roleHint === 'lecturer' ? 'Demo Lecturer' : 'Demo Student',
+        fullName: roleHint === 'lecturer' ? 'Demo Administrator' : 'Demo Student',
         externalId: `mock-${roleHint}-id`,
         studentId: roleHint === 'student' ? '2021600123' : undefined,
         faculty: 'Information Technology',

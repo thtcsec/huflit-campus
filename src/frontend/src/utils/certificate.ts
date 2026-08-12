@@ -1,9 +1,18 @@
 import type { Registration, User } from '@/types';
 
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 export function generateCertificatePdf(registration: Registration, user?: User | null) {
-  const studentName = user?.fullName || 'Sinh viên HUFLIT';
-  const studentId = user?.studentId || 'HUFLIT Student';
-  const eventTitle = registration.eventTitle || 'Sự kiện HUFLIT Campus';
+  const studentName = escapeHtml(user?.fullName || 'Sinh viên HUFLIT');
+  const studentId = escapeHtml(user?.studentId || 'HUFLIT Student');
+  const eventTitle = escapeHtml(registration.eventTitle || 'Sự kiện HUFLIT Campus');
   const eventDate = registration.eventStartAt
     ? new Date(registration.eventStartAt).toLocaleDateString('vi-VN', {
         year: 'numeric',
@@ -11,7 +20,8 @@ export function generateCertificatePdf(registration: Registration, user?: User |
         day: 'numeric',
       })
     : new Date().toLocaleDateString('vi-VN');
-  const certId = `CERT-HUFLIT-${registration.id.substring(0, 8).toUpperCase()}`;
+  const certId = escapeHtml(`CERT-HUFLIT-${registration.id.substring(0, 8).toUpperCase()}`);
+  const safeEventDate = escapeHtml(eventDate);
 
   const htmlContent = `
 <!DOCTYPE html>
@@ -200,7 +210,7 @@ export function generateCertificatePdf(registration: Registration, user?: User |
       <div class="reason">
         Đã hoàn thành tham gia sự kiện campus:
         <span class="event-title">"${eventTitle}"</span>
-        Diễn ra vào ngày <strong>${eventDate}</strong> tại HUFLIT Campus.
+        Diễn ra vào ngày <strong>${safeEventDate}</strong> tại HUFLIT Campus.
       </div>
     </div>
 

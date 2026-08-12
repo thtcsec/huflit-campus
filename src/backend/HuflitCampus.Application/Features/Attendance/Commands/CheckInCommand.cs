@@ -62,8 +62,7 @@ public class CheckInCommandHandler : IRequestHandler<CheckInCommand, Result<Atte
             return Result.Failure<AttendanceDto>("Invalid or expired QR token.");
 
         var registration = await _registrationRepository.GetByEventAndUserAsync(evt.Id, userId, cancellationToken);
-        if (registration is null
-            || registration.Status is not (RegistrationStatus.Approved or RegistrationStatus.Pending))
+        if (registration is null || registration.Status != RegistrationStatus.Approved)
         {
             return Result.Failure<AttendanceDto>("You must have an approved registration to check in.");
         }

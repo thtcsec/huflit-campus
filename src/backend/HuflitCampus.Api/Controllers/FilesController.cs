@@ -1,10 +1,13 @@
 using HuflitCampus.Application.Common.Interfaces;
+using HuflitCampus.Domain.Constants;
+using HuflitCampus.Infrastructure.Storage;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace HuflitCampus.Api.Controllers;
 
-[Authorize]
+[Authorize(Policy = Policies.CanManageEvents)]
 [Route("api/files")]
 public sealed class FilesController(IBlobStorageService blobStorage) : ApiControllerBase
 {
@@ -14,16 +17,8 @@ public sealed class FilesController(IBlobStorageService blobStorage) : ApiContro
         "gallery"
     };
 
-    private static readonly HashSet<string> AllowedContentTypes = new(StringComparer.OrdinalIgnoreCase)
-    {
-        "image/jpeg",
-        "image/jpg",
-        "image/png",
-        "image/webp",
-        "image/gif"
-    };
-
     [HttpPost("upload")]
+    [EnableRateLimiting("upload")]
     [ProducesResponseType(typeof(FileUploadResponse), StatusCodes.Status200OK)]
     [RequestSizeLimit(10 * 1024 * 1024)]
     public async Task<IActionResult> Upload(
@@ -47,28 +42,44 @@ public sealed class FilesController(IBlobStorageService blobStorage) : ApiContro
                 title: "Upload failed");
         }
 
-        if (!AllowedContentTypes.Contains(file.ContentType))
+        await using var buffer = new MemoryStream();
+        await file.CopyToAsync(buffer, cancellationToken);
+        if (buffer.Length < 3)
         {
             return Problem(
-                detail: "Only JPEG, PNG, WebP, and GIF images are allowed.",
+                detail: "File content is too small to be a valid image.",
                 statusCode: StatusCodes.Status400BadRequest,
                 title: "Upload failed");
         }
 
-        await using var stream = file.OpenReadStream();
+        buffer.Position = 0;
+        var header = new byte[Math.Min(16, (int)buffer.Length)];
+        _ = await buffer.ReadAsync(header.AsMemory(0, header.Length), cancellationToken);
+
+        var detected = ImageContentInspector.Detect(header);
+        if (detected is null)
+        {
+            return Problem(
+                detail: "Only JPEG, PNG, WebP, and GIF images are allowed (validated by file content).",
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Upload failed");
+        }
+
+        buffer.Position = 0;
+        var safeFileName = $"{Guid.NewGuid():N}{detected.Extension}";
         var url = await blobStorage.UploadAsync(
-            stream,
-            file.FileName,
-            file.ContentType,
+            buffer,
+            safeFileName,
+            detected.ContentType,
             folder,
             cancellationToken);
 
         return Ok(new FileUploadResponse
         {
             Url = url,
-            FileName = file.FileName,
-            ContentType = file.ContentType,
-            Size = file.Length,
+            FileName = safeFileName,
+            ContentType = detected.ContentType,
+            Size = buffer.Length,
             Folder = folder.ToLowerInvariant()
         });
     }

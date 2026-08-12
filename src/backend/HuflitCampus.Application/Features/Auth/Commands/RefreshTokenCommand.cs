@@ -45,17 +45,29 @@ public class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, R
         if (user is null || !user.IsActive)
             return Result.Failure<AuthResponse>("User not found or inactive.");
 
+        var presentedHash = TokenHash.Compute(request.Request.RefreshToken);
         var existing = user.RefreshTokens
+            .FirstOrDefault(t => t.Token == presentedHash && !t.IsDeleted);
+
+        // Backward-compatible lookup for tokens stored before hashing was introduced.
+        existing ??= user.RefreshTokens
             .FirstOrDefault(t => t.Token == request.Request.RefreshToken && !t.IsDeleted);
 
         if (existing is null)
             return Result.Failure<AuthResponse>("Refresh token not found.");
 
         if (!existing.IsActive)
-            return Result.Failure<AuthResponse>("Refresh token is expired or revoked.");
+        {
+            // Reuse of a revoked/expired refresh token → revoke the entire family.
+            foreach (var token in user.RefreshTokens.Where(t => t.IsActive))
+                token.Revoke();
+
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            return Result.Failure<AuthResponse>("Refresh token reuse detected. All sessions have been revoked.");
+        }
 
         var tokens = _jwtTokenService.GenerateTokens(user);
-        existing.Revoke(tokens.RefreshToken);
+        existing.Revoke(TokenHash.Compute(tokens.RefreshToken));
         _userRepository.AddRefreshToken(
             RefreshToken.Create(user.Id, tokens.RefreshToken, tokens.RefreshTokenExpiresAt));
 

@@ -4,6 +4,7 @@ using HuflitCampus.Application.Features.Auth.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace HuflitCampus.Api.Controllers;
 
@@ -12,6 +13,7 @@ public sealed class AuthController(ISender sender) : ApiControllerBase
 {
     [HttpPost("microsoft-login")]
     [AllowAnonymous]
+    [EnableRateLimiting("auth")]
     [ProducesResponseType(typeof(AuthResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> MicrosoftLogin(
         [FromBody] MicrosoftLoginRequest request,
@@ -23,6 +25,7 @@ public sealed class AuthController(ISender sender) : ApiControllerBase
 
     [HttpPost("guest/request-otp")]
     [AllowAnonymous]
+    [EnableRateLimiting("otp")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> RequestGuestOtp(
         [FromBody] GuestOtpRequest request,
@@ -34,6 +37,7 @@ public sealed class AuthController(ISender sender) : ApiControllerBase
 
     [HttpPost("guest/verify-otp")]
     [AllowAnonymous]
+    [EnableRateLimiting("otp")]
     [ProducesResponseType(typeof(AuthResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> VerifyGuestOtp(
         [FromBody] GuestOtpVerifyRequest request,
@@ -45,6 +49,7 @@ public sealed class AuthController(ISender sender) : ApiControllerBase
 
     [HttpPost("refresh")]
     [AllowAnonymous]
+    [EnableRateLimiting("auth")]
     [ProducesResponseType(typeof(AuthResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> Refresh(
         [FromBody] RefreshTokenRequest request,

@@ -1,5 +1,6 @@
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using Azure.Storage.Sas;
 using HuflitCampus.Application.Common.Interfaces;
 using HuflitCampus.Infrastructure.Options;
 using Microsoft.Extensions.Options;
@@ -28,7 +29,8 @@ public sealed class AzureBlobStorageService : IBlobStorageService
         string? folder = null,
         CancellationToken cancellationToken = default)
     {
-        await _container.CreateIfNotExistsAsync(PublicAccessType.Blob, cancellationToken: cancellationToken);
+        // Private container — public reads use time-limited SAS URLs.
+        await _container.CreateIfNotExistsAsync(PublicAccessType.None, cancellationToken: cancellationToken);
 
         var safeName = Path.GetFileName(fileName);
         var blobName = string.IsNullOrWhiteSpace(folder)
@@ -40,6 +42,19 @@ public sealed class AzureBlobStorageService : IBlobStorageService
             content,
             new BlobHttpHeaders { ContentType = contentType },
             cancellationToken: cancellationToken);
+
+        if (blobClient.CanGenerateSasUri)
+        {
+            var sasBuilder = new BlobSasBuilder
+            {
+                BlobContainerName = _container.Name,
+                BlobName = blobName,
+                Resource = "b",
+                ExpiresOn = DateTimeOffset.UtcNow.AddYears(1)
+            };
+            sasBuilder.SetPermissions(BlobSasPermissions.Read);
+            return blobClient.GenerateSasUri(sasBuilder).ToString();
+        }
 
         if (!string.IsNullOrWhiteSpace(_options.PublicBaseUrl))
             return $"{_options.PublicBaseUrl.TrimEnd('/')}/{blobName}";

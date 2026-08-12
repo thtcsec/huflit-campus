@@ -23,12 +23,15 @@ public class RefreshToken : BaseEntity
         UpdatedAt = DateTime.UtcNow;
     }
 
-    public static RefreshToken Create(Guid userId, string token, DateTime expiresAt)
+    /// <summary>
+    /// Stores a SHA-256 hash of the raw refresh token. Never persist the plaintext token.
+    /// </summary>
+    public static RefreshToken Create(Guid userId, string rawToken, DateTime expiresAt)
     {
         return new RefreshToken
         {
             UserId = userId,
-            Token = token,
+            Token = TokenHash.Compute(rawToken),
             ExpiresAt = expiresAt,
             CreatedAt = DateTime.UtcNow
         };

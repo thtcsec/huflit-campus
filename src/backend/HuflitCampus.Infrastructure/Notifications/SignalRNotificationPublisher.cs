@@ -1,12 +1,14 @@
 using HuflitCampus.Application.Common.Interfaces;
 using HuflitCampus.Domain.Entities;
 using HuflitCampus.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace HuflitCampus.Infrastructure.Notifications;
 
+[Authorize]
 public sealed class NotificationHub : Hub
 {
     public const string HubPath = "/hubs/notifications";

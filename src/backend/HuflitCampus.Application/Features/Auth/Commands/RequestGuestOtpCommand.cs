@@ -2,6 +2,7 @@ using HuflitCampus.Application.Common.Interfaces;
 using HuflitCampus.Application.DTOs.Auth;
 using HuflitCampus.Domain.Common;
 using HuflitCampus.Domain.Entities;
+using HuflitCampus.Domain.Enums;
 using HuflitCampus.Domain.Interfaces.Repositories;
 using MediatR;
 
@@ -12,17 +13,20 @@ public record RequestGuestOtpCommand(GuestOtpRequest Request) : IRequest<Result>
 public class RequestGuestOtpCommandHandler : IRequestHandler<RequestGuestOtpCommand, Result>
 {
     private readonly IOtpChallengeRepository _otpRepository;
+    private readonly IUserRepository _userRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IOtpService _otpService;
     private readonly IEmailSender _emailSender;
 
     public RequestGuestOtpCommandHandler(
         IOtpChallengeRepository otpRepository,
+        IUserRepository userRepository,
         IUnitOfWork unitOfWork,
         IOtpService otpService,
         IEmailSender emailSender)
     {
         _otpRepository = otpRepository;
+        _userRepository = userRepository;
         _unitOfWork = unitOfWork;
         _otpService = otpService;
         _emailSender = emailSender;
@@ -31,6 +35,13 @@ public class RequestGuestOtpCommandHandler : IRequestHandler<RequestGuestOtpComm
     public async Task<Result> Handle(RequestGuestOtpCommand request, CancellationToken cancellationToken)
     {
         var email = request.Request.Email.Trim().ToLowerInvariant();
+
+        var existing = await _userRepository.GetByEmailAsync(email, cancellationToken);
+        if (existing is not null && existing.Role != UserRole.Guest)
+        {
+            // Do not send OTP for privileged accounts; return success to avoid email enumeration.
+            return Result.Success();
+        }
 
         await _otpRepository.InvalidatePendingAsync(email, cancellationToken);
 

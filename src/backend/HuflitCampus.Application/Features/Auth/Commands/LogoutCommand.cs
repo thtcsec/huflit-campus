@@ -35,7 +35,9 @@ public class LogoutCommandHandler : IRequestHandler<LogoutCommand, Result>
 
         if (!string.IsNullOrWhiteSpace(request.RefreshToken))
         {
-            var token = user.RefreshTokens.FirstOrDefault(t => t.Token == request.RefreshToken && t.IsActive);
+            var hash = TokenHash.Compute(request.RefreshToken);
+            var token = user.RefreshTokens.FirstOrDefault(t =>
+                (t.Token == hash || t.Token == request.RefreshToken) && t.IsActive);
             token?.Revoke();
         }
         else
