@@ -33,6 +33,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<Announcement> Announcements => Set<Announcement>();
     public DbSet<OtpChallenge> OtpChallenges => Set<OtpChallenge>();
+    public DbSet<EventFeedback> EventFeedbacks => Set<EventFeedback>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

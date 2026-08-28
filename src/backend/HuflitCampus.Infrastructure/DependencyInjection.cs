@@ -66,6 +66,8 @@ public static class DependencyInjection
         services.AddSignalR();
         services.AddScoped<INotificationPublisher, SignalRNotificationPublisher>();
 
+        services.AddHostedService<HuflitCampus.Infrastructure.BackgroundJobs.EventLifecycleWorker>();
+
         services.AddHuflitAuthentication(configuration);
 
         return services;

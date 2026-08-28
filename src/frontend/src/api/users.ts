@@ -1,5 +1,5 @@
 import { apiClient } from './client';
-import type { UserProfile, UserRole } from '@/types';
+import type { UserProfile, UserRole, Achievement } from '@/types';
 import type { PagedResult } from '@/types/paging';
 
 export interface ListUsersParams {
@@ -27,4 +27,7 @@ export const usersApi = {
 
   setActive: (id: string, isActive: boolean) =>
     apiClient.put<UserProfile>(`/users/${id}/active`, { isActive }),
+
+  getMyAchievements: () =>
+    apiClient.get<Achievement[]>('/users/me/achievements'),
 };

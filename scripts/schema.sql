@@ -11,6 +11,7 @@ GO
 IF OBJECT_ID(N'dbo.AttendanceRecords', N'U') IS NOT NULL DROP TABLE dbo.AttendanceRecords;
 IF OBJECT_ID(N'dbo.QrTokens', N'U') IS NOT NULL DROP TABLE dbo.QrTokens;
 IF OBJECT_ID(N'dbo.EventRegistrations', N'U') IS NOT NULL DROP TABLE dbo.EventRegistrations;
+IF OBJECT_ID(N'dbo.EventFeedbacks', N'U') IS NOT NULL DROP TABLE dbo.EventFeedbacks;
 IF OBJECT_ID(N'dbo.SavedEvents', N'U') IS NOT NULL DROP TABLE dbo.SavedEvents;
 IF OBJECT_ID(N'dbo.EventMedia', N'U') IS NOT NULL DROP TABLE dbo.EventMedia;
 IF OBJECT_ID(N'dbo.EventSpeakers', N'U') IS NOT NULL DROP TABLE dbo.EventSpeakers;
@@ -375,4 +376,27 @@ CREATE TABLE dbo.Achievements (
 GO
 
 CREATE INDEX IX_Achievements_UserId ON dbo.Achievements (UserId);
+GO
+
+CREATE TABLE dbo.EventFeedbacks (
+    Id           uniqueidentifier NOT NULL CONSTRAINT PK_EventFeedbacks PRIMARY KEY,
+    EventId      uniqueidentifier NOT NULL,
+    UserId       uniqueidentifier NOT NULL,
+    Rating       int              NOT NULL,
+    Comment      nvarchar(2000)   NOT NULL,
+    IsAnonymous  bit              NOT NULL CONSTRAINT DF_EventFeedbacks_IsAnonymous DEFAULT (0),
+    CreatedAt    datetime2        NOT NULL,
+    UpdatedAt    datetime2        NULL,
+    CreatedBy    nvarchar(64)     NULL,
+    UpdatedBy    nvarchar(64)     NULL,
+    IsDeleted    bit              NOT NULL CONSTRAINT DF_EventFeedbacks_IsDeleted DEFAULT (0),
+    CONSTRAINT FK_EventFeedbacks_Events_EventId
+        FOREIGN KEY (EventId) REFERENCES dbo.Events (Id) ON DELETE CASCADE,
+    CONSTRAINT FK_EventFeedbacks_Users_UserId
+        FOREIGN KEY (UserId) REFERENCES dbo.Users (Id)
+);
+GO
+
+CREATE INDEX IX_EventFeedbacks_EventId ON dbo.EventFeedbacks (EventId);
+CREATE INDEX IX_EventFeedbacks_UserId ON dbo.EventFeedbacks (UserId);
 GO

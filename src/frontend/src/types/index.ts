@@ -354,3 +354,38 @@ export interface AnalyticsSummary {
   averageAttendanceRate: number;
   categoryBreakdown: CategoryCount[];
 }
+
+export interface EventFeedback {
+  id: string;
+  eventId: string;
+  userId: string;
+  userName: string;
+  userAvatar?: string;
+  rating: number;
+  comment: string;
+  isAnonymous: boolean;
+  createdAt: string;
+}
+
+export interface CreateEventFeedbackRequest {
+  rating: number;
+  comment: string;
+  isAnonymous?: boolean;
+}
+
+export interface EventFeedbackSummary {
+  averageRating: number;
+  totalFeedbacks: number;
+  ratingCounts: Record<number, number>;
+  items: EventFeedback[];
+}
+
+export interface Achievement {
+  id: string;
+  userId: string;
+  title: string;
+  description: string;
+  iconUrl?: string;
+  earnedAt: string;
+}
+

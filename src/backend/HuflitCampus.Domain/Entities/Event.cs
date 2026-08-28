@@ -46,6 +46,7 @@ public class Event : BaseEntity
     public ICollection<EventRegistration> Registrations { get; set; } = new List<EventRegistration>();
     public ICollection<QrToken> QrTokens { get; set; } = new List<QrToken>();
     public ICollection<SavedEvent> SavedByUsers { get; set; } = new List<SavedEvent>();
+    public ICollection<EventFeedback> Feedbacks { get; set; } = new List<EventFeedback>();
 
     public int RemainingSeats => Math.Max(0, Capacity - RegistrationCount);
 

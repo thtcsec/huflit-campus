@@ -150,6 +150,41 @@ public sealed class EventsController(ISender sender) : ApiControllerBase
         var result = await sender.Send(new CompleteEventCommand(id), cancellationToken);
         return FromResult(result);
     }
+
+    [HttpGet("{id:guid}/feedbacks")]
+    [AllowAnonymous]
+    [ProducesResponseType(typeof(EventFeedbackSummaryDto), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetFeedbacks(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(new GetEventFeedbacksQuery(id), cancellationToken);
+        return FromResult(result);
+    }
+
+    [HttpPost("{id:guid}/feedbacks")]
+    [Authorize]
+    [ProducesResponseType(typeof(EventFeedbackDto), StatusCodes.Status200OK)]
+    public async Task<IActionResult> SubmitFeedback(
+        Guid id,
+        [FromBody] CreateEventFeedbackRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(new SubmitFeedbackCommand(id, request), cancellationToken);
+        return FromResult(result);
+    }
+
+    [HttpDelete("{id:guid}/feedbacks/{feedbackId:guid}")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> DeleteFeedback(
+        Guid id,
+        Guid feedbackId,
+        CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(new DeleteFeedbackCommand(id, feedbackId), cancellationToken);
+        if (result.IsFailure)
+            return FromResult(result);
+        return NoContent();
+    }
 }
 
 public sealed class CancelEventBody

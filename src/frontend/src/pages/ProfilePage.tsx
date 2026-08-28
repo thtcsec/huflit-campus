@@ -29,9 +29,10 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { PageHeader, EmptyState, ListSkeleton } from '@/components/common';
 import { useAuth } from '@/hooks';
-import { registrationsApi } from '@/api';
+import { usersApi, registrationsApi } from '@/api';
 import { formatDate, formatDateTime } from '@/utils';
-import { RegistrationStatus, type Registration } from '@/types';
+import { RegistrationStatus, type Registration, type Achievement } from '@/types';
+import { EmojiEvents, MilitaryTech, VerifiedUser, QrCodeScanner, Bookmark, CardMembership } from '@mui/icons-material';
 
 const unwrapRegistrations = (data: unknown): Registration[] => {
   if (Array.isArray(data)) return data;
@@ -46,7 +47,9 @@ const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [registrations, setRegistrations] = useState<Registration[]>([]);
+  const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [loadingRegs, setLoadingRegs] = useState(true);
+  const [loadingAchievements, setLoadingAchievements] = useState(true);
   const [search, setSearch] = useState('');
 
   useEffect(() => {
@@ -62,6 +65,19 @@ const ProfilePage: React.FC = () => {
       }
     };
     void load();
+
+    const loadAchievements = async () => {
+      setLoadingAchievements(true);
+      try {
+        const { data } = await usersApi.getMyAchievements();
+        setAchievements(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error('Failed to load achievements:', error);
+      } finally {
+        setLoadingAchievements(false);
+      }
+    };
+    void loadAchievements();
   }, []);
 
   const now = Date.now();
@@ -256,6 +272,86 @@ const ProfilePage: React.FC = () => {
           </Grid>
         ))}
       </Grid>
+
+      {/* Gamification & Achievements Section */}
+      <Paper sx={{ p: { xs: 2, md: 3 }, mb: 3, borderRadius: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2, flexWrap: 'wrap', gap: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <EmojiEvents sx={{ color: '#f59e0b', fontSize: 28 }} />
+            <Typography variant="h6" fontWeight={700}>
+              Danh hiệu & Huy hiệu Campus ({achievements.length})
+            </Typography>
+          </Box>
+          <Chip label={`${achievements.length * 50} Điểm rèn luyện`} color="warning" size="small" variant="outlined" sx={{ fontWeight: 700 }} />
+        </Box>
+
+        {loadingAchievements ? (
+          <ListSkeleton count={2} />
+        ) : achievements.length === 0 ? (
+          <EmptyState
+            title="Chưa có danh hiệu"
+            description="Hãy tích cực đăng ký và điểm danh các sự kiện để mở khóa các danh hiệu độc quyền!"
+          />
+        ) : (
+          <Grid container spacing={2}>
+            {achievements.map((ach) => (
+              <Grid item xs={12} sm={6} md={3} key={ach.id}>
+                <Box
+                  sx={{
+                    p: 2,
+                    borderRadius: 2,
+                    border: '1px solid',
+                    borderColor: 'warning.light',
+                    bgcolor: 'rgba(245, 158, 11, 0.05)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    textAlign: 'center',
+                    height: '100%',
+                    transition: 'all 0.2s',
+                    '&:hover': { transform: 'translateY(-3px)', boxShadow: 2 },
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: 52,
+                      height: 52,
+                      borderRadius: '50%',
+                      bgcolor: 'warning.main',
+                      color: 'white',
+                      display: 'grid',
+                      placeItems: 'center',
+                      mb: 1.5,
+                      boxShadow: '0 4px 12px rgba(245, 158, 11, 0.3)',
+                    }}
+                  >
+                    {ach.title.includes('Citizen') ? (
+                      <VerifiedUser />
+                    ) : ach.title.includes('Champion') ? (
+                      <QrCodeScanner />
+                    ) : ach.title.includes('Bookmark') ? (
+                      <Bookmark />
+                    ) : (
+                      <MilitaryTech />
+                    )}
+                  </Box>
+                  <Typography variant="subtitle2" fontWeight={800} gutterBottom>
+                    {ach.title}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" sx={{ mb: 1, flexGrow: 1 }}>
+                    {ach.description}
+                  </Typography>
+                  <Chip
+                    label={`Đạt ngày ${new Date(ach.earnedAt).toLocaleDateString('vi-VN')}`}
+                    size="small"
+                    sx={{ fontSize: '0.65rem', height: 20 }}
+                  />
+                </Box>
+              </Grid>
+            ))}
+          </Grid>
+        )}
+      </Paper>
 
       <Paper sx={{ p: { xs: 2, md: 3 } }}>
         <Stack

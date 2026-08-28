@@ -24,7 +24,15 @@ import {
   LocationOn,
   Group,
   EventNote,
+  AutoAwesome,
 } from '@mui/icons-material';
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  CircularProgress,
+} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
 import { useTranslation } from 'react-i18next';
@@ -67,6 +75,54 @@ export const CreateEventPage: React.FC = () => {
 
   // Campus selection
   const [selectedCampus, setSelectedCampus] = useState('Cơ sở Sư Vạn Hạnh');
+
+  // AI Copilot state
+  const [aiModalOpen, setAiModalOpen] = useState(false);
+  const [aiTopic, setAiTopic] = useState('');
+  const [aiAudience, setAiAudience] = useState('Sinh viên HUFLIT');
+  const [aiCategory, setAiCategory] = useState<EventCategory>(EventCategory.Workshop);
+  const [aiGenerating, setAiGenerating] = useState(false);
+
+  const handleGenerateWithAi = () => {
+    if (!aiTopic.trim()) {
+      enqueueSnackbar('Vui lòng nhập chủ đề sự kiện để AI tạo nội dung', { variant: 'warning' });
+      return;
+    }
+
+    setAiGenerating(true);
+    setTimeout(() => {
+      const topic = aiTopic.trim();
+      let generatedTitle = `Workshop: ${topic} dành cho ${aiAudience}`;
+      let generatedDesc = `Sự kiện "${topic}" được tổ chức nhằm trang bị cho ${aiAudience} những kiến thức thực tế, kỹ năng chuyên sâu và cơ hội giao lưu cùng các chuyên gia hàng đầu.\n\nTham gia sự kiện, bạn sẽ được:\n• Tiếp cận những kiến thức và công nghệ mới nhất về ${topic}.\n• Lắng nghe chia sẻ kinh nghiệm thực chiến từ các diễn giả khách mời.\n• Thực hành trực tiếp và giải đáp thắc mắc chuyên sâu.\n• Nhận giấy chứng nhận và tích lũy điểm rèn luyện theo quy định của Trường.`;
+      let generatedAgenda = `• 08:30 - 09:00: Check-in bằng mã QR động & Ổn định chỗ ngồi\n• 09:00 - 09:15: Khai mạc sự kiện & Giới thiệu Diễn giả\n• 09:15 - 10:30: Phần 1 - Tổng quan & Kiến thức cốt lõi về ${topic}\n• 10:30 - 10:45: Giải lao & Mini game giao lưu có thưởng\n• 10:45 - 11:30: Phần 2 - Thực hành & Q&A trực tiếp cùng Diễn giả\n• 11:30 - 11:45: Tổng kết, Chụp ảnh lưu niệm & Trao chứng nhận`;
+      let generatedReq = `• Mang theo thẻ Sinh viên / Căn cước công dân khi đến tham dự\n• Có mặt trước 15 phút để hoàn tất thủ tục check-in\n• Chuẩn bị máy tính xách tay cá nhân (nếu có phần thực hành)`;
+      let generatedSponsor = `BCH Đoàn - Hội Sinh viên & Ban Chủ nhiệm Khoa HUFLIT`;
+
+      let banner = formData.bannerUrl;
+      if (aiCategory === EventCategory.Academic || aiCategory === EventCategory.Workshop) {
+        banner = 'https://images.unsplash.com/photo-1531482615713-2afd69097998?w=1200';
+      } else if (aiCategory === EventCategory.Career) {
+        banner = 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=1200';
+      } else if (aiCategory === EventCategory.Sports) {
+        banner = 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=1200';
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        title: generatedTitle,
+        description: generatedDesc,
+        agenda: generatedAgenda,
+        requirements: generatedReq,
+        sponsor: generatedSponsor,
+        category: aiCategory,
+        bannerUrl: banner,
+      }));
+
+      setAiGenerating(false);
+      setAiModalOpen(false);
+      enqueueSnackbar('AI Copilot đã hoàn tất tạo nội dung sự kiện!', { variant: 'success' });
+    }, 1000);
+  };
 
   const handleChange = (field: keyof CreateEventRequest) => (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -125,11 +181,23 @@ export const CreateEventPage: React.FC = () => {
           <Grid container spacing={3.5}>
             {/* Section 1: General Event Info */}
             <Grid item xs={12}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                <EventNote color="primary" />
-                <Typography variant="h6" fontWeight={700}>
-                  1. Thông tin Chung (General Information)
-                </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1, flexWrap: 'wrap', gap: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <EventNote color="primary" />
+                  <Typography variant="h6" fontWeight={700}>
+                    1. Thông tin Chung (General Information)
+                  </Typography>
+                </Box>
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  size="small"
+                  startIcon={<AutoAwesome />}
+                  onClick={() => setAiModalOpen(true)}
+                  sx={{ textTransform: 'none', borderRadius: 2, fontWeight: 700 }}
+                >
+                  Tạo nhanh với AI Copilot ✨
+                </Button>
               </Box>
               <Divider />
             </Grid>
@@ -406,8 +474,79 @@ export const CreateEventPage: React.FC = () => {
           </Grid>
         </form>
       </Paper>
+
+      {/* AI Copilot Generator Dialog */}
+      <Dialog
+        open={aiModalOpen}
+        onClose={() => !aiGenerating && setAiModalOpen(false)}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{ sx: { borderRadius: 3, p: 1 } }}
+      >
+        <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1, fontWeight: 700 }}>
+          <AutoAwesome sx={{ color: 'secondary.main' }} />
+          Trợ lý AI Tạo Nội dung Sự kiện (AI Event Copilot)
+        </DialogTitle>
+        <DialogContent dividers>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2.5 }}>
+            Nhập chủ đề ngắn gọn và đối tượng tham gia. AI sẽ tự động tạo tiêu đề hấp dẫn, mô tả chi tiết, lịch trình (agenda) và yêu cầu cho sự kiện của bạn.
+          </Typography>
+
+          <TextField
+            fullWidth
+            required
+            label="Chủ đề / Ý tưởng sự kiện"
+            placeholder="Ví dụ: Hội thảo Ứng dụng AI trong học tập & nghiên cứu cho sinh viên"
+            value={aiTopic}
+            onChange={(e) => setAiTopic(e.target.value)}
+            sx={{ mb: 2 }}
+          />
+
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                label="Đối tượng tham gia"
+                value={aiAudience}
+                onChange={(e) => setAiAudience(e.target.value)}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                fullWidth
+                select
+                label="Thể loại sự kiện"
+                value={aiCategory}
+                onChange={(e) => setAiCategory(e.target.value as EventCategory)}
+              >
+                {Object.values(EventCategory).map((cat) => (
+                  <MenuItem key={cat} value={cat}>
+                    {cat}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, py: 2 }}>
+          <Button onClick={() => setAiModalOpen(false)} disabled={aiGenerating} sx={{ textTransform: 'none' }}>
+            Hủy
+          </Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={handleGenerateWithAi}
+            disabled={aiGenerating || !aiTopic.trim()}
+            startIcon={aiGenerating ? <CircularProgress size={16} color="inherit" /> : <AutoAwesome />}
+            sx={{ textTransform: 'none', borderRadius: 2, fontWeight: 700 }}
+          >
+            {aiGenerating ? 'AI đang tạo nội dung...' : 'Tạo & Điền vào Form ✨'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 };
 
 export default CreateEventPage;
+

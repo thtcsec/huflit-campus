@@ -5,6 +5,9 @@ import type {
   CreateEventRequest,
   EventSearchRequest,
   HomeFeed,
+  EventFeedback,
+  EventFeedbackSummary,
+  CreateEventFeedbackRequest,
 } from '@/types';
 
 export const eventsApi = {
@@ -46,4 +49,13 @@ export const eventsApi = {
 
   completeEvent: (id: string) =>
     apiClient.post(`/events/${id}/complete`),
+
+  getFeedbacks: (id: string) =>
+    apiClient.get<EventFeedbackSummary>(`/events/${id}/feedbacks`),
+
+  submitFeedback: (id: string, payload: CreateEventFeedbackRequest) =>
+    apiClient.post<EventFeedback>(`/events/${id}/feedbacks`, payload),
+
+  deleteFeedback: (id: string, feedbackId: string) =>
+    apiClient.delete(`/events/${id}/feedbacks/${feedbackId}`),
 };

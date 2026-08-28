@@ -1,5 +1,6 @@
 using HuflitCampus.Application.DTOs.Attendance;
 using HuflitCampus.Application.DTOs.Auth;
+using HuflitCampus.Application.DTOs.Users;
 using HuflitCampus.Application.Features.Users.Commands;
 using HuflitCampus.Application.Features.Users.Queries;
 using HuflitCampus.Domain.Common;
@@ -97,6 +98,14 @@ public sealed class UsersController(ISender sender) : ApiControllerBase
     public async Task<IActionResult> GetMyAttendanceHistory(CancellationToken cancellationToken)
     {
         var result = await sender.Send(new GetUserAttendanceHistoryQuery(), cancellationToken);
+        return FromResult(result);
+    }
+
+    [HttpGet("me/achievements")]
+    [ProducesResponseType(typeof(IReadOnlyList<AchievementDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetMyAchievements(CancellationToken cancellationToken)
+    {
+        var result = await sender.Send(new GetMyAchievementsQuery(), cancellationToken);
         return FromResult(result);
     }
 }

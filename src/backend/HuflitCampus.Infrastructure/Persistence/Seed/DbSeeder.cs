@@ -142,9 +142,40 @@ public static class DbSeeder
             now);
 
         context.Events.AddRange(workshop, career, sports);
+
+        var feedback1 = EventFeedback.Create(
+            workshop.Id,
+            admin.Id,
+            5,
+            "Hội thảo rất bổ ích, diễn giả chia sẻ chi tiết và nhiệt tình! Rất mong Khoa tổ chức thêm nhiều workshop như thế này.",
+            isAnonymous: false);
+
+        var feedback2 = EventFeedback.Create(
+            workshop.Id,
+            organizer.Id,
+            5,
+            "Nội dung cập nhật xu hướng mới nhất. Khâu check-in bằng mã QR động rất tiện lợi và chuyên nghiệp.",
+            isAnonymous: false);
+
+        context.EventFeedbacks.AddRange(feedback1, feedback2);
+
+        var ach1 = Achievement.Create(
+            admin.Id,
+            "HUFLIT Citizen",
+            "Gia nhập nền tảng kỹ thuật số HUFLIT Campus EMS.",
+            "verified_user");
+
+        var ach2 = Achievement.Create(
+            admin.Id,
+            "First Step",
+            "Đăng ký tham gia sự kiện campus đầu tiên.",
+            "event_available");
+
+        context.Achievements.AddRange(ach1, ach2);
+
         await context.SaveChangesAsync(cancellationToken);
 
-        logger.LogInformation("Seed completed: admin, organizer, announcements, and 3 demo events.");
+        logger.LogInformation("Seed completed: admin, organizer, announcements, demo events, feedbacks, and achievements.");
     }
 
     private static Event CreateEvent(

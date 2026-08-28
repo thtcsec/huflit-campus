@@ -47,6 +47,7 @@ All routes require Auth.
 | `PUT` | `/api/users/me/profile` | Auth | `fullName`, `phone?`, `faculty?`, `major?`, `avatarUrl?` | `200` `UserProfileDto` |
 | `PUT` | `/api/users/me/fcm-token` | Auth | `{ "fcmToken": "..." }` | `204` |
 | `GET` | `/api/users/me/attendance` | Auth | — | `200` `AttendanceDto[]` |
+| `GET` | `/api/users/me/achievements` | Auth | — | `200` `AchievementDto[]` |
 
 ---
 
@@ -58,6 +59,9 @@ All routes require Auth.
 | `GET` | `/api/events/home` | Public | Query `take` (default 8) | `200` `HomeFeedDto` |
 | `GET` | `/api/events/{id}` | Public | — | `200` `EventDetailDto` |
 | `GET` | `/api/events/{id}/related` | Public | Query `take` (default 6) | `200` `EventListItemDto[]` |
+| `GET` | `/api/events/{id}/feedbacks` | Public | — | `200` `EventFeedbackSummaryDto` |
+| `POST` | `/api/events/{id}/feedbacks` | Auth | `CreateEventFeedbackRequest`: `rating`, `comment`, `isAnonymous` | `200` `EventFeedbackDto` |
+| `DELETE` | `/api/events/{id}/feedbacks/{feedbackId}` | Auth | — | `204` |
 | `POST` | `/api/events` | ManageEvents | `CreateEventRequest` | `201` `EventDetailDto` |
 | `PUT` | `/api/events/{id}` | ManageEvents | `UpdateEventRequest` (same shape as create) | `200` `EventDetailDto` |
 | `DELETE` | `/api/events/{id}` | ManageEvents | — | `204` (soft delete) |
@@ -67,6 +71,7 @@ All routes require Auth.
 | `POST` | `/api/events/{id}/publish` | ManageEvents | — | `200` `EventDetailDto` |
 | `POST` | `/api/events/{id}/cancel` | ManageEvents | Optional `{ "reason": "..." }` | `200` `EventDetailDto` |
 | `POST` | `/api/events/{id}/close-registration` | ManageEvents | — | `200` `EventDetailDto` |
+| `POST` | `/api/events/{id}/complete` | ManageEvents | — | `200` `EventDetailDto` |
 
 `CreateEventRequest` includes title, description, agenda, banner, category, faculty, location/address/geo, capacity, waitlist, deadlines, schedule, requirements, sponsor, featured, speakers, media.
 

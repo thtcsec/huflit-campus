@@ -37,11 +37,13 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { PageHeader, CategoryChip, ListSkeleton } from '@/components/common';
 import { calendarApi } from '@/api/calendar';
 import type { CalendarEvent } from '@/types';
+import { useSnackbar } from 'notistack';
 import { formatTime } from '@/utils';
 
 export const CalendarPage: React.FC = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const { enqueueSnackbar } = useSnackbar();
   const [searchParams, setSearchParams] = useSearchParams();
   
   const initialTab = searchParams.get('tab') === 'timetable' ? 1 : 0;
@@ -52,6 +54,50 @@ export const CalendarPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [tkbModalOpen, setTkbModalOpen] = useState(false);
+
+  const handleExportMonthIcs = () => {
+    if (events.length === 0) {
+      enqueueSnackbar('Không có sự kiện nào trong tháng này để xuất', { variant: 'info' });
+      return;
+    }
+    const now = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+    const vevents = events.map((ev) => {
+      const start = new Date(ev.startAt).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+      const end = new Date(ev.endAt).toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+      return [
+        'BEGIN:VEVENT',
+        `UID:huflit-${ev.id}@huflit.edu.vn`,
+        `DTSTAMP:${now}`,
+        `DTSTART:${start}`,
+        `DTEND:${end}`,
+        `SUMMARY:${(ev.title || 'HUFLIT Event').replace(/,/g, '\\,')}`,
+        `LOCATION:${(ev.locationName || 'HUFLIT Campus').replace(/,/g, '\\,')}`,
+        'STATUS:CONFIRMED',
+        'END:VEVENT',
+      ].join('\r\n');
+    }).join('\r\n');
+
+    const ics = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//HUFLIT Campus//EMS//VI',
+      'CALSCALE:GREGORIAN',
+      'METHOD:PUBLISH',
+      vevents,
+      'END:VCALENDAR',
+    ].join('\r\n');
+
+    const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `huflit-events-${currentDate.getFullYear()}-${currentDate.getMonth() + 1}.ics`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+    enqueueSnackbar('Đã tải về tệp lịch .ICS cho tháng này!', { variant: 'success' });
+  };
 
   useEffect(() => {
     if (searchParams.get('tab') === 'timetable') {
@@ -195,6 +241,17 @@ export const CalendarPage: React.FC = () => {
               </Box>
 
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  startIcon={<Download />}
+                  onClick={handleExportMonthIcs}
+                  disabled={events.length === 0}
+                  sx={{ borderRadius: 2, textTransform: 'none', fontWeight: 600 }}
+                >
+                  Xuất Lịch (.ICS)
+                </Button>
+
                 <Button
                   size="small"
                   variant="outlined"
