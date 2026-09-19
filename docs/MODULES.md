@@ -43,6 +43,31 @@ Registration: Pending → Approved / Rejected / Waitlisted → Attended / NoShow
 
 ---
 
+## Ask HUFLIT (Campus Knowledge Assistant) — in progress
+
+Official Q&A for students/freshmen. Answers come only from a **verified** knowledge base (EnterpriseRAG), with citations. Not UGC and not Facebook-group gossip.
+
+| Area | Ownership |
+| --- | --- |
+| BFF | `Features/Ask`, `IAskRagClient`, `/api/ask` |
+| AI engine | External **EnterpriseRAG** (FastAPI) — hybrid retrieve, citation verify, hallucination shield |
+| UI | SPA route `/ask` |
+| Auth | Reuse campus JWT; map role → RAG `X-ACL-Scope` (`public`, `student`, admin `*`-equivalent via RAG key) |
+
+### Ask workflows
+
+```text
+Student asks → Campus BFF (auth + rate limit + ACL) → EnterpriseRAG
+                    ↓
+              answer + sources  OR  abstain (“không đủ căn cứ”)
+                    ↓
+         (later) escalate ticket → Student Services
+```
+
+**Do not** index Life@HUFLIT / social UGC as “official” corpus. Keep community content clearly labeled if deep-linked later.
+
+---
+
 ## Planned modules (future)
 
 | Module | Suggested route prefix | Suggested ownership |

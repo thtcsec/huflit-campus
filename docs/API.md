@@ -164,6 +164,19 @@ There is currently **no** create/update/delete announcement API (seed-only / fut
 
 ---
 
+## Ask HUFLIT — `/api/ask`
+
+BFF to EnterpriseRAG. Requires authenticated campus JWT. When `AskRag:Enabled` is false or RAG is unreachable, endpoints return a clear error.
+
+| Method | Path | Auth | Request | Response |
+| --- | --- | --- | --- | --- |
+| `GET` | `/api/ask/health` | Auth | — | `200` `{ enabled, ragReachable, message }` |
+| `POST` | `/api/ask/query` | Auth + rate limit `ask` | `AskQueryRequest`: `query`, optional `sessionId` | `200` `AskQueryResponse` |
+
+`AskQueryResponse`: `query`, `answer`, `cached`, `cacheType`, `sessionId`, `sources[]` (`source`, `score`, `text`), `abstained`, `message`.
+
+---
+
 ## SignalR — `/hubs/notifications`
 
 | Item | Detail |
@@ -180,4 +193,4 @@ Vite dev proxy forwards `/hubs` with WebSocket support to the API.
 
 ## Controllers not present
 
-Do not assume endpoints for: Google OAuth, announcement CRUD, user admin CRUD, achievement APIs, or module routes beyond the tables above. Document only what is implemented in `HuflitCampus.Api/Controllers`.
+Do not assume endpoints for: Google OAuth, achievement APIs, Food Court / Campus Map / Student Services, or raw EnterpriseRAG admin ingest from this API. Document only what is implemented in `HuflitCampus.Api/Controllers`.

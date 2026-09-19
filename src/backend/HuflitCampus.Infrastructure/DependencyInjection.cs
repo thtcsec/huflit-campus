@@ -1,5 +1,6 @@
 using HuflitCampus.Application.Common.Interfaces;
 using HuflitCampus.Domain.Interfaces.Repositories;
+using HuflitCampus.Infrastructure.Ask;
 using HuflitCampus.Infrastructure.Auth;
 using HuflitCampus.Infrastructure.Identity;
 using HuflitCampus.Infrastructure.Notifications;
@@ -26,6 +27,18 @@ public static class DependencyInjection
         services.Configure<EntraIdOptions>(configuration.GetSection(EntraIdOptions.SectionName));
         services.Configure<SmtpOptions>(configuration.GetSection(SmtpOptions.SectionName));
         services.Configure<AuthOptions>(configuration.GetSection(AuthOptions.SectionName));
+        services.Configure<AskRagOptions>(configuration.GetSection(AskRagOptions.SectionName));
+
+        var askOptions = configuration.GetSection(AskRagOptions.SectionName).Get<AskRagOptions>()
+                         ?? new AskRagOptions();
+        services.AddHttpClient<IAskRagClient, AskRagClient>(client =>
+        {
+            var baseUrl = string.IsNullOrWhiteSpace(askOptions.BaseUrl)
+                ? "http://localhost:8000"
+                : askOptions.BaseUrl.TrimEnd('/');
+            client.BaseAddress = new Uri(baseUrl + "/");
+            client.Timeout = TimeSpan.FromSeconds(askOptions.TimeoutSeconds <= 0 ? 60 : askOptions.TimeoutSeconds);
+        });
 
         var connectionString = configuration.GetConnectionString("DefaultConnection")
             ?? throw new InvalidOperationException("Connection string 'DefaultConnection' is not configured.");

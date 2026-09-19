@@ -50,7 +50,8 @@
     "openMenu": "Mở menu",
     "viewProfile": "Xem hồ sơ",
     "adminDashboard": "Bảng điều khiển",
-    "userGuide": "Hướng dẫn sử dụng"
+    "userGuide": "Hướng dẫn sử dụng",
+    "ask": "Ask HUFLIT"
   },
   "auth": {
     "brandTitle": "HUFLIT",
@@ -226,6 +227,26 @@
     "noMonthEvents": "Không có sự kiện nào trong tháng {{month}}/{{year}}",
     "moreEvents": "+{{count}} sự kiện",
     "registered": "Đã đăng ký"
+  },
+  "ask": {
+    "title": "Ask HUFLIT",
+    "subtitle": "Hỏi đáp chính thức từ knowledge base đã kiểm chứng — không phải tin đồn nhóm Facebook.",
+    "trustNotice": "Câu trả lời kèm nguồn tài liệu chính thức. Nếu chưa đủ căn cứ, hệ thống sẽ nói rõ thay vì bịa.",
+    "placeholder": "Ví dụ: Tân sinh viên đăng ký môn học như thế nào?",
+    "send": "Gửi câu hỏi",
+    "thinking": "Đang tìm trong knowledge base…",
+    "emptyState": "Hỏi bất kỳ điều gì về quy chế, nhập học, ĐKMH, học phí, giấy tờ…",
+    "emptyAnswer": "Không nhận được câu trả lời.",
+    "errorQuery": "Không hỏi được Ask HUFLIT. Thử lại sau.",
+    "healthUnavailable": "EnterpriseRAG chưa chạy hoặc Ask đang tắt. Khởi động enterprise-rag (localhost:8000).",
+    "sources": "{{count}} nguồn",
+    "unknownSource": "Tài liệu",
+    "suggestions": {
+      "registration": "Tân sinh viên đăng ký môn học thế nào?",
+      "tuition": "Học phí nộp ở đâu và khi nào?",
+      "campus": "HUFLIT có những cơ sở nào?",
+      "documents": "Xin giấy xác nhận sinh viên cần gì?"
+    }
   },
   "userGuide": {
     "title": "Hướng Dẫn Sử Dụng",

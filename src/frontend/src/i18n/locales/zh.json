@@ -49,7 +49,8 @@
     "openMenu": "打开菜单",
     "viewProfile": "查看个人资料",
     "adminDashboard": "仪表板",
-    "userGuide": "使用指南"
+    "userGuide": "使用指南",
+    "ask": "Ask HUFLIT"
   },
   "auth": {
     "brandTitle": "HUFLIT",

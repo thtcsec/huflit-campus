@@ -9,3 +9,5 @@ export { calendarApi } from './calendar';
 export { dashboardApi } from './dashboard';
 export { announcementsApi } from './announcements';
 export { usersApi } from './users';
+export { askApi } from './ask';
+export type { AskQueryResponse, AskSource, AskHealth } from './ask';

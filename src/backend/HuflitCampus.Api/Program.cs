@@ -79,6 +79,19 @@ builder.Services.AddRateLimiter(options =>
                 Window = TimeSpan.FromMinutes(10),
                 QueueLimit = 0
             }));
+
+    options.AddPolicy("ask", httpContext =>
+        RateLimitPartition.GetSlidingWindowLimiter(
+            partitionKey: httpContext.User.Identity?.Name
+                          ?? httpContext.Connection.RemoteIpAddress?.ToString()
+                          ?? "unknown",
+            factory: _ => new SlidingWindowRateLimiterOptions
+            {
+                PermitLimit = 30,
+                Window = TimeSpan.FromMinutes(1),
+                SegmentsPerWindow = 6,
+                QueueLimit = 0
+            }));
 });
 
 builder.Services.AddEndpointsApiExplorer();

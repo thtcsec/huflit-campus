@@ -20,6 +20,7 @@ import MyRegistrationsPage from '@/pages/MyRegistrationsPage';
 import AnnouncementsPage from '@/pages/AnnouncementsPage';
 import NotificationsPage from '@/pages/NotificationsPage';
 import UserGuidePage from '@/pages/UserGuidePage';
+import AskPage from '@/pages/AskPage';
 import CalendarPage from '@/pages/CalendarPage';
 import AdminDashboardPage from '@/pages/AdminDashboardPage';
 import UserManagementPage from '@/pages/admin/UserManagementPage';
@@ -216,6 +217,17 @@ const AppRouter: React.FC = () => {
                 <AnnouncementsPage />
               </AppShell>
             </OptionalAuthRoute>
+          }
+        />
+
+        <Route
+          path="/ask"
+          element={
+            <ProtectedRoute>
+              <AppShell>
+                <AskPage />
+              </AppShell>
+            </ProtectedRoute>
           }
         />
 

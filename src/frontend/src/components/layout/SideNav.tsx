@@ -28,6 +28,7 @@ import {
   QrCodeScanner,
   Campaign,
   HelpOutline,
+  AutoAwesome,
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -56,6 +57,7 @@ const SideNav: React.FC<SideNavProps> = ({ open, collapsed, onClose, onToggleCol
     { textKey: 'nav.home', icon: <Home />, path: '/', roles: [] as UserRole[] },
     { textKey: 'nav.events', icon: <Event />, path: '/events', roles: [] as UserRole[] },
     { textKey: 'nav.announcements', icon: <Campaign />, path: '/announcements', roles: [] as UserRole[] },
+    { textKey: 'nav.ask', icon: <AutoAwesome />, path: '/ask', roles: [] as UserRole[] },
     { textKey: 'nav.calendar', icon: <CalendarMonth />, path: '/calendar', roles: [] as UserRole[] },
     { textKey: 'nav.timetable', icon: <ScheduleIcon />, path: '/calendar?tab=timetable', roles: [] as UserRole[] },
     { textKey: 'nav.saved', icon: <BookmarkBorder />, path: '/saved', roles: [] as UserRole[] },

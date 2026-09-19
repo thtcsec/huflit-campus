@@ -50,7 +50,8 @@
     "openMenu": "Open menu",
     "viewProfile": "View Profile",
     "adminDashboard": "Dashboard",
-    "userGuide": "User Guide"
+    "userGuide": "User Guide",
+    "ask": "Ask HUFLIT"
   },
   "auth": {
     "brandTitle": "HUFLIT",
@@ -226,6 +227,26 @@
     "noMonthEvents": "No events in {{month}}/{{year}}",
     "moreEvents": "+{{count}} events",
     "registered": "Registered"
+  },
+  "ask": {
+    "title": "Ask HUFLIT",
+    "subtitle": "Official answers from a verified knowledge base — not Facebook-group rumors.",
+    "trustNotice": "Answers include official sources. If evidence is weak, the assistant abstains instead of guessing.",
+    "placeholder": "e.g. How do freshmen register for courses?",
+    "send": "Send question",
+    "thinking": "Searching the knowledge base…",
+    "emptyState": "Ask about regulations, enrollment, course registration, tuition, documents…",
+    "emptyAnswer": "No answer returned.",
+    "errorQuery": "Ask HUFLIT failed. Please try again.",
+    "healthUnavailable": "EnterpriseRAG is down or Ask is disabled. Start enterprise-rag on localhost:8000.",
+    "sources": "{{count}} sources",
+    "unknownSource": "Document",
+    "suggestions": {
+      "registration": "How do freshmen register for courses?",
+      "tuition": "Where and when do I pay tuition?",
+      "campus": "What HUFLIT campuses are there?",
+      "documents": "What do I need for a student confirmation letter?"
+    }
   },
   "userGuide": {
     "title": "User Guide",

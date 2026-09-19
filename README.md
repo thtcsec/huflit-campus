@@ -1,6 +1,15 @@
 # HUFLIT Campus
 
-Campus digital platform for **HUFLIT** (Ho Chi Minh City University of Foreign Languages – Information Technology). The first shipped module is **EMS** (Event Management System): discover, register, check in with dynamic QR, and manage campus events.
+Campus digital platform for **HUFLIT** (Ho Chi Minh City University of Foreign Languages – Information Technology).
+
+This repo is the **campus shell** (ASP.NET + React): shared auth, notifications, and modules. It is not “EMS-only”.
+
+| Module | Role |
+| --- | --- |
+| **EMS** | Events: discover, register, dynamic QR check-in, organizer tools |
+| **Ask HUFLIT** | Official Q&A for freshmen/students — answers grounded in a verified knowledge base via **EnterpriseRAG** (citations, abstain when ungrounded). Replaces unverified Facebook-group advice. |
+
+EnterpriseRAG runs as a sidecar AI service (`enterprise-rag` repo). Campus API is the BFF: Entra JWT, rate limits, ACL scope mapping, then proxy to RAG.
 
 ## Tech stack
 
@@ -74,11 +83,30 @@ JWT access tokens + refresh tokens for API calls. SignalR accepts `access_token`
 | Module | Status | Description |
 | --- | --- | --- |
 | **EMS** | Implemented | Events, registrations, QR attendance, saved events, notifications, calendar, announcements, admin dashboard |
+| **Ask HUFLIT** | In progress | Campus Knowledge Assistant — `POST /api/ask/query` BFF → EnterpriseRAG hybrid retrieval + cited answers |
 | Food Court | Planned | Future bounded context — do not couple to Auth/Users core |
 | Campus Map | Planned | Future bounded context |
-| Student Services | Planned | Future bounded context |
+| Student Services | Planned | Forms, tickets, appointments (Ask escalate can feed here later) |
 
-See [docs/MODULES.md](docs/MODULES.md) for the EMS map and how to add a new module.
+See [docs/MODULES.md](docs/MODULES.md) for the module map and how to add a new bounded context.
+
+### Ask HUFLIT + EnterpriseRAG
+
+```text
+React SPA (/ask) → HuflitCampus.Api (/api/ask/*) → EnterpriseRAG (/api/v1/retrieval/query)
+                         ↑ JWT / ACL scopes              ↑ X-API-Key + hybrid RAG
+```
+
+Configure in `appsettings` / env:
+
+| Key | Purpose | Default |
+| --- | --- | --- |
+| `AskRag:BaseUrl` | EnterpriseRAG base URL | `http://localhost:8000` |
+| `AskRag:ApiKey` | Optional `X-API-Key` for RAG | empty |
+| `AskRag:TimeoutSeconds` | HttpClient timeout | `60` |
+| `AskRag:Enabled` | Feature flag | `true` |
+
+Run EnterpriseRAG separately (`docker compose up` in that repo), seed verified HUFLIT docs, then open **Ask** in the SPA.
 
 ## Quick start
 
@@ -232,6 +260,9 @@ Demo events: AI Prompt Engineering Workshop, HUFLIT Career Fair 2026, Inter-Facu
 | `Cors:Origins` | Allowed SPA origins | `http://localhost:5173` |
 | `Fcm:Enabled` | Push notifications | `false` |
 | `Smtp:*` | Guest OTP email | Host, Port, credentials, FromEmail |
+| `AskRag:BaseUrl` | EnterpriseRAG URL for Ask HUFLIT | `http://localhost:8000` |
+| `AskRag:ApiKey` | Optional RAG `X-API-Key` | empty in local |
+| `AskRag:Enabled` | Toggle Ask BFF | `true` |
 | `Seed:DemoAdminEmail` | Documented demo admin | `admin@huflit.edu.vn` |
 
 Prefer environment variables / Azure App Settings in production (`ConnectionStrings__DefaultConnection`, `Jwt__SecretKey`, etc.).
