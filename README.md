@@ -272,6 +272,8 @@ Local Ask key: copy `src/backend/HuflitCampus.Api/appsettings.Development.local.
 
 **Ask LLM routing:** Students always use `DefaultProvider` / `DefaultModel`. **Administrator** (`admin@huflit.edu.vn` in Dev) sees an Ask panel to pick provider/model/failover for testing — catalog is proxied from EnterpriseRAG (`GET /api/ask/llm/catalog`). LLM vendor keys stay on the RAG server `.env`, never in the campus SPA.
 
+**Admin knowledge CRUD:** Administrators will manage the official Ask corpus (upload / update / delete / reindex) through campus → EnterpriseRAG ingest. Tracked in [docs/MODULES.md](docs/MODULES.md); UI not shipped yet.
+
 Prefer environment variables / Azure App Settings in production (`ConnectionStrings__DefaultConnection`, `Jwt__SecretKey`, etc.).
 
 ## Documentation

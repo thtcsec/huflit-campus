@@ -11,3 +11,4 @@ export { default as ShareButton } from './ShareButton';
 export { default as BootSplash } from './BootSplash';
 export { default as LanguageSwitcher } from './LanguageSwitcher';
 export { default as HuflitLogo } from './HuflitLogo';
+export { default as SnackbarActions } from './SnackbarActions';

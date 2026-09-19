@@ -12,9 +12,9 @@ import {
   Tooltip,
   Alert,
 } from '@mui/material';
-import { Delete, DoneAll } from '@mui/icons-material';
+import { Close, Delete, DoneAll } from '@mui/icons-material';
 import { useTranslation } from 'react-i18next';
-import { PageHeader, EmptyState, ListSkeleton } from '@/components/common';
+import { PageHeader, EmptyState, ListSkeleton, ConfirmDialog } from '@/components/common';
 import { useNotifications } from '@/hooks';
 import { getRelativeTime } from '@/utils';
 
@@ -29,6 +29,8 @@ const NotificationsPage: React.FC = () => {
   } = useNotifications();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const items = Array.isArray(notifications) ? notifications : [];
 
@@ -48,9 +50,17 @@ const NotificationsPage: React.FC = () => {
     };
   }, [fetchNotifications, t]);
 
-  const handleDelete = async (id: string, e: React.MouseEvent) => {
+  const askDelete = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!window.confirm(t('notifications.deleteConfirm'))) return;
+    setPendingDeleteId(id);
+    setConfirmOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!pendingDeleteId) return;
+    const id = pendingDeleteId;
+    setConfirmOpen(false);
+    setPendingDeleteId(null);
     await deleteNotification(id);
   };
 
@@ -65,21 +75,31 @@ const NotificationsPage: React.FC = () => {
         ]}
         action={
           items.length > 0 ? (
-            <Tooltip title={t('common.markAllRead')}>
-              <IconButton
-                onClick={() => void markAllAsRead()}
-                color="primary"
-                aria-label={t('common.markAllRead')}
-              >
-                <DoneAll />
-              </IconButton>
-            </Tooltip>
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <Tooltip title={t('common.markAllRead')}>
+                <IconButton
+                  onClick={() => void markAllAsRead()}
+                  color="primary"
+                  aria-label={t('common.markAllRead')}
+                >
+                  <DoneAll />
+                </IconButton>
+              </Tooltip>
+            </Box>
           ) : undefined
         }
       />
 
       {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
+        <Alert
+          severity="error"
+          sx={{ mb: 2 }}
+          action={
+            <IconButton size="small" color="inherit" onClick={() => setError(null)} aria-label={t('common.close')}>
+              <Close fontSize="small" />
+            </IconButton>
+          }
+        >
           {error}
         </Alert>
       )}
@@ -97,7 +117,7 @@ const NotificationsPage: React.FC = () => {
                   <IconButton
                     edge="end"
                     aria-label={t('common.delete')}
-                    onClick={(e) => void handleDelete(notif.id, e)}
+                    onClick={(e) => askDelete(notif.id, e)}
                   >
                     <Delete />
                   </IconButton>
@@ -140,6 +160,20 @@ const NotificationsPage: React.FC = () => {
           description={t('notifications.emptyDescription')}
         />
       )}
+
+      <ConfirmDialog
+        open={confirmOpen}
+        title={t('notifications.deleteTitle')}
+        message={t('notifications.deleteConfirm')}
+        confirmText={t('common.delete')}
+        cancelText={t('common.cancel')}
+        severity="error"
+        onConfirm={() => void confirmDelete()}
+        onCancel={() => {
+          setConfirmOpen(false);
+          setPendingDeleteId(null);
+        }}
+      />
     </Container>
   );
 };

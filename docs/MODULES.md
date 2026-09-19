@@ -51,8 +51,9 @@ Official Q&A for students/freshmen. Answers come only from a **verified** knowle
 | --- | --- |
 | BFF | `Features/Ask`, `IAskRagClient`, `/api/ask` |
 | AI engine | External **EnterpriseRAG** (FastAPI) — hybrid retrieve, citation verify, hallucination shield |
-| UI | SPA route `/ask` |
+| UI | SPA route `/ask` + admin LLM routing panel |
 | Auth | Reuse campus JWT; map role → RAG `X-ACL-Scope` (`public`, `student`, admin `*`-equivalent via RAG key) |
+| **KB CRUD (Administrator)** | **Planned / required:** Admin uploads, updates, deletes, and reindexes verified campus documents via campus BFF → EnterpriseRAG ingest (`/api/v1/ingestion/*`). Students never write the official corpus. |
 
 ### Ask workflows
 
@@ -62,6 +63,8 @@ Student asks → Campus BFF (auth + rate limit + ACL) → EnterpriseRAG
               answer + sources  OR  abstain (“không đủ căn cứ”)
                     ↓
          (later) escalate ticket → Student Services
+
+Administrator → CRUD knowledge docs (upload / version / retire) → reindex → Ask answers update
 ```
 
 **Do not** index Life@HUFLIT / social UGC as “official” corpus. Keep community content clearly labeled if deep-linked later.

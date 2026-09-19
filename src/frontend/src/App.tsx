@@ -6,6 +6,7 @@ import { AuthProvider, NotificationProvider } from '@/contexts';
 import { ColorModeContext } from '@/theme/ColorModeContext';
 import { createAppTheme } from '@/theme/theme';
 import AppRouter from '@/routes';
+import { SnackbarActions } from '@/components/common/SnackbarActions';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -43,7 +44,11 @@ const App: React.FC = () => {
       <ColorModeContext.Provider value={colorMode}>
         <ThemeProvider theme={theme}>
           <CssBaseline />
-          <SnackbarProvider maxSnack={3} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
+          <SnackbarProvider
+            maxSnack={4}
+            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+            action={(snackbarId) => <SnackbarActions snackbarId={snackbarId} />}
+          >
             <AuthProvider>
               <NotificationProvider>
                 <AppRouter />

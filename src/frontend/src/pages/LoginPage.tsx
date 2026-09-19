@@ -6,6 +6,7 @@ import {
   Divider,
   IconButton,
   InputAdornment,
+  Alert,
   Link as MuiLink,
   Stack,
   TextField,
@@ -255,6 +256,13 @@ const LoginPage: React.FC = () => {
                 <Typography variant="body2" color="text.secondary">
                   {t('auth.microsoftHint')}
                 </Typography>
+                {import.meta.env.DEV && (
+                  <Alert severity="info" sx={{ textAlign: 'left' }}>
+                    {mode === 'lecturer'
+                      ? t('auth.devAdminHint')
+                      : t('auth.devStudentHint')}
+                  </Alert>
+                )}
                 <Button
                   fullWidth
                   size="large"
@@ -273,21 +281,31 @@ const LoginPage: React.FC = () => {
                 >
                   {t('auth.continueMicrosoft')}
                 </Button>
-                <MuiLink
-                  component="button"
-                  type="button"
-                  underline="hover"
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  startIcon={<EmailOutlined />}
                   onClick={() => {
                     setMode('guest');
                     setOtpSent(false);
                   }}
-                  sx={{ alignSelf: 'flex-start', fontSize: 14 }}
+                  sx={{
+                    py: 1.2,
+                    borderRadius: 2.5,
+                    textTransform: 'none',
+                    fontWeight: 700,
+                    borderColor: '#cbd5e1',
+                    color: '#0f172a',
+                  }}
                 >
-                  {t('auth.createGuest')}
-                </MuiLink>
+                  {t('auth.loginWithEmail')}
+                </Button>
               </Stack>
             ) : (
               <Stack spacing={2}>
+                <Alert severity="info" sx={{ textAlign: 'left' }}>
+                  {t('auth.guestEmailHint')}
+                </Alert>
                 {!otpSent ? (
                   <>
                     <TextField
@@ -296,6 +314,8 @@ const LoginPage: React.FC = () => {
                       type="email"
                       value={guestEmail}
                       onChange={(e) => setGuestEmail(e.target.value)}
+                      placeholder="ban@email.com"
+                      autoFocus
                       InputProps={{
                         startAdornment: (
                           <InputAdornment position="start">
