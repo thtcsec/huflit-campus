@@ -69,6 +69,25 @@ if (-not $SkipInstall) {
 }
 
 Write-Host ">> Starting API..." -ForegroundColor Yellow
+
+# Wire Ask HUFLIT → EnterpriseRAG key without committing secrets.
+# Prefer env AskRag__ApiKey; else sibling ../enterprise-rag/.env RAG_API_KEY; else appsettings.*.local.json
+if (-not $env:AskRag__ApiKey) {
+  $ragEnvCandidates = @(
+    (Join-Path (Split-Path $Root -Parent) "enterprise-rag\.env"),
+    "D:\tu_projects\enterprise-rag\.env"
+  )
+  foreach ($ragEnv in $ragEnvCandidates) {
+    if (-not (Test-Path $ragEnv)) { continue }
+    $line = Get-Content $ragEnv | Where-Object { $_ -match '^\s*RAG_API_KEY\s*=' } | Select-Object -First 1
+    if ($line -match '^\s*RAG_API_KEY\s*=\s*(.+)\s*$') {
+      $env:AskRag__ApiKey = $Matches[1].Trim().Trim('"').Trim("'")
+      Write-Host ">> AskRag__ApiKey loaded from $ragEnv" -ForegroundColor DarkGray
+      break
+    }
+  }
+}
+
 $apiArgs = @(
   "run",
   "--project", (Join-Path $ApiDir "HuflitCampus.Api.csproj"),

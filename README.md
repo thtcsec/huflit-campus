@@ -261,9 +261,11 @@ Demo events: AI Prompt Engineering Workshop, HUFLIT Career Fair 2026, Inter-Facu
 | `Fcm:Enabled` | Push notifications | `false` |
 | `Smtp:*` | Guest OTP email | Host, Port, credentials, FromEmail |
 | `AskRag:BaseUrl` | EnterpriseRAG URL for Ask HUFLIT | `http://localhost:8000` |
-| `AskRag:ApiKey` | Optional RAG `X-API-Key` | empty in local |
+| `AskRag:ApiKey` | Must match EnterpriseRAG `RAG_API_KEY` (local: `appsettings.Development.local.json`, not committed) | empty in tracked appsettings |
 | `AskRag:Enabled` | Toggle Ask BFF | `true` |
 | `Seed:DemoAdminEmail` | Documented demo admin | `admin@huflit.edu.vn` |
+
+Local Ask key: copy `src/backend/HuflitCampus.Api/appsettings.Development.local.json.example` → `appsettings.Development.local.json` (gitignored), paste the same value as `RAG_API_KEY` in `enterprise-rag/.env`. `scripts/dev.ps1` also auto-loads that key from a sibling `enterprise-rag/.env` when present.
 
 Prefer environment variables / Azure App Settings in production (`ConnectionStrings__DefaultConnection`, `Jwt__SecretKey`, etc.).
 

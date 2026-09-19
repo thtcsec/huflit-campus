@@ -95,6 +95,13 @@ public sealed class AskRagClient(
             if (!response.IsSuccessStatusCode)
             {
                 logger.LogWarning("Ask RAG query failed: {Status} {Body}", (int)response.StatusCode, Truncate(body));
+                if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    return Result.Failure<AskQueryResponseDto>(
+                        "EnterpriseRAG rejected the request (missing/invalid AskRag:ApiKey). " +
+                        "Copy RAG_API_KEY into appsettings.Development.local.json or set env AskRag__ApiKey.");
+                }
+
                 var detail = TryExtractDetail(body) ?? $"EnterpriseRAG returned {(int)response.StatusCode}.";
                 return Result.Failure<AskQueryResponseDto>(detail);
             }

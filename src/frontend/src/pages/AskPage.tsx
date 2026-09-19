@@ -53,7 +53,7 @@ export const AskPage: React.FC = () => {
   const [ragOk, setRagOk] = useState<boolean | null>(null);
   const [healthMessage, setHealthMessage] = useState('');
   const [expandedSources, setExpandedSources] = useState<Record<string, boolean>>({});
-  const bottomRef = useRef<HTMLDivElement | null>(null);
+  const listRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -74,8 +74,11 @@ export const AskPage: React.FC = () => {
     };
   }, [t]);
 
+  // Scroll only inside the chat panel — never the whole page.
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const el = listRef.current;
+    if (!el) return;
+    el.scrollTop = el.scrollHeight;
   }, [messages, sending]);
 
   const suggestions = useMemo(
@@ -172,6 +175,7 @@ export const AskPage: React.FC = () => {
       )}
 
       <Paper
+        ref={listRef}
         variant="outlined"
         sx={{
           p: 2,
@@ -189,7 +193,7 @@ export const AskPage: React.FC = () => {
           </Box>
         )}
 
-        <Stack spacing={2}>
+        <Stack spacing={2} sx={{ display: 'flex', flexDirection: 'column' }}>
           {messages.map((msg) => (
             <Box
               key={msg.id}
@@ -256,7 +260,6 @@ export const AskPage: React.FC = () => {
               <Typography variant="body2">{t('ask.thinking')}</Typography>
             </Stack>
           )}
-          <div ref={bottomRef} />
         </Stack>
       </Paper>
 

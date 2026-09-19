@@ -10,6 +10,11 @@ using Microsoft.AspNetCore.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.AddJsonFile(
+    $"appsettings.{builder.Environment.EnvironmentName}.local.json",
+    optional: true,
+    reloadOnChange: true);
+
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddHuflitCampusAuth();
