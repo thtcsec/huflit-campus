@@ -241,6 +241,11 @@
     "healthUnavailable": "EnterpriseRAG chưa chạy hoặc Ask đang tắt. Khởi động enterprise-rag (localhost:8000).",
     "sources": "{{count}} nguồn",
     "unknownSource": "Tài liệu",
+    "confidence": {
+      "high": "Tin cậy cao",
+      "medium": "Tin cậy vừa",
+      "low": "Tin cậy thấp"
+    },
     "suggestions": {
       "registration": "Tân sinh viên đăng ký môn học thế nào?",
       "tuition": "Học phí nộp ở đâu và khi nào?",

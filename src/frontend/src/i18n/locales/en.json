@@ -241,6 +241,11 @@
     "healthUnavailable": "EnterpriseRAG is down or Ask is disabled. Start enterprise-rag on localhost:8000.",
     "sources": "{{count}} sources",
     "unknownSource": "Document",
+    "confidence": {
+      "high": "High confidence",
+      "medium": "Medium confidence",
+      "low": "Low confidence"
+    },
     "suggestions": {
       "registration": "How do freshmen register for courses?",
       "tuition": "Where and when do I pay tuition?",

@@ -24,6 +24,9 @@ import { useSnackbar } from 'notistack';
 import { useTranslation } from 'react-i18next';
 import { askApi, type AskSource } from '@/api';
 import { PageHeader } from '@/components/common';
+import { CitedAnswer } from '@/components/ask/CitedAnswer';
+import { SourceCards } from '@/components/ask/SourceCards';
+import { citedIndicesInAnswer } from '@/utils/citations';
 
 type ChatRole = 'user' | 'assistant';
 
@@ -53,7 +56,9 @@ export const AskPage: React.FC = () => {
   const [ragOk, setRagOk] = useState<boolean | null>(null);
   const [healthMessage, setHealthMessage] = useState('');
   const [expandedSources, setExpandedSources] = useState<Record<string, boolean>>({});
+  const [highlightedCite, setHighlightedCite] = useState<Record<string, number | null>>({});
   const listRef = useRef<HTMLDivElement | null>(null);
+  const highlightTimers = useRef<Record<string, number>>({});
 
   useEffect(() => {
     let cancelled = false;
@@ -71,6 +76,7 @@ export const AskPage: React.FC = () => {
     })();
     return () => {
       cancelled = true;
+      Object.values(highlightTimers.current).forEach((id) => window.clearTimeout(id));
     };
   }, [t]);
 
@@ -85,6 +91,27 @@ export const AskPage: React.FC = () => {
     () => SUGGESTION_KEYS.map((key) => t(key)),
     [t]
   );
+
+  const confidenceLabels = useMemo(
+    () => ({
+      high: t('ask.confidence.high'),
+      medium: t('ask.confidence.medium'),
+      low: t('ask.confidence.low'),
+    }),
+    [t]
+  );
+
+  const focusCitation = (messageId: string, index: number) => {
+    setExpandedSources((prev) => ({ ...prev, [messageId]: true }));
+    setHighlightedCite((prev) => ({ ...prev, [messageId]: index }));
+
+    if (highlightTimers.current[messageId]) {
+      window.clearTimeout(highlightTimers.current[messageId]);
+    }
+    highlightTimers.current[messageId] = window.setTimeout(() => {
+      setHighlightedCite((prev) => ({ ...prev, [messageId]: null }));
+    }, 3200);
+  };
 
   const sendQuery = async (raw: string) => {
     const query = raw.trim();
@@ -101,16 +128,23 @@ export const AskPage: React.FC = () => {
 
     try {
       const { data } = await askApi.query({ query, sessionId });
+      const assistantId = crypto.randomUUID();
+      const sources = data.sources ?? [];
       const assistant: ChatMessage = {
-        id: crypto.randomUUID(),
+        id: assistantId,
         role: 'assistant',
         content: data.answer || data.message || t('ask.emptyAnswer'),
-        sources: data.sources ?? [],
+        sources,
         abstained: data.abstained,
         notice: data.message,
       };
       setMessages((prev) => [...prev, assistant]);
       setRagOk(true);
+
+      // Auto-open sources when the answer already cites them.
+      if (sources.length && citedIndicesInAnswer(assistant.content, sources.length).length) {
+        setExpandedSources((prev) => ({ ...prev, [assistantId]: true }));
+      }
     } catch (err: unknown) {
       const detail =
         (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ||
@@ -194,66 +228,91 @@ export const AskPage: React.FC = () => {
         )}
 
         <Stack spacing={2} sx={{ display: 'flex', flexDirection: 'column' }}>
-          {messages.map((msg) => (
-            <Box
-              key={msg.id}
-              sx={{
-                alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
-                maxWidth: '92%',
-              }}
-            >
-              <Paper
-                elevation={0}
+          {messages.map((msg) => {
+            const sources = msg.sources ?? [];
+            const citeActive = highlightedCite[msg.id] ?? null;
+
+            return (
+              <Box
+                key={msg.id}
                 sx={{
-                  px: 2,
-                  py: 1.5,
-                  bgcolor: msg.role === 'user' ? 'primary.main' : 'background.paper',
-                  color: msg.role === 'user' ? 'primary.contrastText' : 'text.primary',
-                  border: msg.role === 'assistant' ? 1 : 0,
-                  borderColor: 'divider',
+                  alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
+                  maxWidth: '92%',
                 }}
               >
-                <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
-                  {msg.content}
-                </Typography>
+                <Paper
+                  elevation={0}
+                  sx={{
+                    px: 2,
+                    py: 1.5,
+                    bgcolor: msg.role === 'user' ? 'primary.main' : 'background.paper',
+                    color: msg.role === 'user' ? 'primary.contrastText' : 'text.primary',
+                    border: msg.role === 'assistant' ? 1 : 0,
+                    borderColor: 'divider',
+                  }}
+                >
+                  {msg.role === 'assistant' ? (
+                    <CitedAnswer
+                      text={msg.content}
+                      sourceCount={sources.length}
+                      activeIndex={citeActive}
+                      onCiteClick={
+                        sources.length
+                          ? (index) => focusCitation(msg.id, index)
+                          : undefined
+                      }
+                    />
+                  ) : (
+                    <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
+                      {msg.content}
+                    </Typography>
+                  )}
 
-                {msg.role === 'assistant' && msg.abstained && msg.notice && (
-                  <Typography variant="caption" color="warning.main" display="block" sx={{ mt: 1 }}>
-                    {msg.notice}
-                  </Typography>
-                )}
+                  {msg.role === 'assistant' && msg.abstained && msg.notice && (
+                    <Typography variant="caption" color="warning.main" display="block" sx={{ mt: 1 }}>
+                      {msg.notice}
+                    </Typography>
+                  )}
 
-                {msg.role === 'assistant' && !!msg.sources?.length && (
-                  <Box sx={{ mt: 1 }}>
-                    <Button
-                      size="small"
-                      color="inherit"
-                      endIcon={expandedSources[msg.id] ? <ExpandLess /> : <ExpandMore />}
-                      onClick={() => toggleSources(msg.id)}
-                      sx={{ px: 0 }}
-                    >
-                      {t('ask.sources', { count: msg.sources.length })}
-                    </Button>
-                    <Collapse in={!!expandedSources[msg.id]}>
-                      <Stack spacing={1} sx={{ mt: 1 }}>
-                        {msg.sources.map((src, idx) => (
-                          <Paper key={`${msg.id}-${idx}`} variant="outlined" sx={{ p: 1.25 }}>
-                            <Typography variant="caption" color="text.secondary">
-                              [{idx + 1}] {src.source || t('ask.unknownSource')} · score{' '}
-                              {src.score.toFixed(3)}
-                            </Typography>
-                            <Typography variant="body2" sx={{ mt: 0.5 }}>
-                              {src.text.length > 280 ? `${src.text.slice(0, 280)}…` : src.text}
-                            </Typography>
-                          </Paper>
+                  {msg.role === 'assistant' && sources.length > 0 && (
+                    <Box sx={{ mt: 1 }}>
+                      <Stack direction="row" flexWrap="wrap" gap={0.75} sx={{ mb: 0.5 }}>
+                        {citedIndicesInAnswer(msg.content, sources.length).map((n) => (
+                          <Chip
+                            key={`${msg.id}-chip-${n}`}
+                            size="small"
+                            label={`[${n}]`}
+                            clickable
+                            color={citeActive === n ? 'primary' : 'default'}
+                            onClick={() => focusCitation(msg.id, n)}
+                            sx={{ height: 24, fontWeight: 700 }}
+                          />
                         ))}
                       </Stack>
-                    </Collapse>
-                  </Box>
-                )}
-              </Paper>
-            </Box>
-          ))}
+                      <Button
+                        size="small"
+                        color="inherit"
+                        endIcon={expandedSources[msg.id] ? <ExpandLess /> : <ExpandMore />}
+                        onClick={() => toggleSources(msg.id)}
+                        sx={{ px: 0 }}
+                      >
+                        {t('ask.sources', { count: sources.length })}
+                      </Button>
+                      <Collapse in={!!expandedSources[msg.id]}>
+                        <SourceCards
+                          messageId={msg.id}
+                          sources={sources}
+                          highlightedIndex={citeActive}
+                          unknownSourceLabel={t('ask.unknownSource')}
+                          confidenceLabels={confidenceLabels}
+                        />
+                      </Collapse>
+                    </Box>
+                  )}
+                </Paper>
+              </Box>
+            );
+          })}
           {sending && (
             <Stack direction="row" spacing={1} alignItems="center" sx={{ color: 'text.secondary' }}>
               <CircularProgress size={16} />
