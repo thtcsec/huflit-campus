@@ -246,6 +246,16 @@
       "medium": "Tin cậy vừa",
       "low": "Tin cậy thấp"
     },
+    "llm": {
+      "title": "Admin · LLM routing (kiểm thử)",
+      "provider": "Provider",
+      "model": "Model",
+      "failover": "Failover",
+      "loading": "Đang tải cấu hình LLM…",
+      "loadError": "Không tải được catalog LLM từ EnterpriseRAG.",
+      "catalogSource": "Catalog: {{source}}",
+      "usedRoute": "Đã dùng {{provider}} / {{model}}"
+    },
     "suggestions": {
       "registration": "Tân sinh viên đăng ký môn học thế nào?",
       "tuition": "Học phí nộp ở đâu và khi nào?",

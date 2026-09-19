@@ -171,9 +171,13 @@ BFF to EnterpriseRAG. Requires authenticated campus JWT. When `AskRag:Enabled` i
 | Method | Path | Auth | Request | Response |
 | --- | --- | --- | --- | --- |
 | `GET` | `/api/ask/health` | Auth | — | `200` `{ enabled, ragReachable, message }` |
-| `POST` | `/api/ask/query` | Auth + rate limit `ask` | `AskQueryRequest`: `query`, optional `sessionId` | `200` `AskQueryResponse` |
+| `GET` | `/api/ask/llm/settings` | Auth | — | `200` `AskLlmSettingsDto` (`canConfigure` true only for Administrator) |
+| `GET` | `/api/ask/llm/catalog` | Admin (`CanManageUsers`) | — | `200` EnterpriseRAG LLM catalog proxy |
+| `POST` | `/api/ask/query` | Auth + rate limit `ask` | `AskQueryRequest`: `query`, optional `sessionId`, optional admin `provider`/`model`/`failover` | `200` `AskQueryResponse` |
 
-`AskQueryResponse`: `query`, `answer`, `cached`, `cacheType`, `sessionId`, `sources[]` (`source`, `score`, `text`), `abstained`, `message`.
+`AskQueryResponse`: `query`, `answer`, `cached`, `cacheType`, `sessionId`, `sources[]` (`source`, `score`, `text`), `abstained`, `message`, optional `provider`, `model`.
+
+Non-admin clients may send provider/model but the API **ignores** overrides and uses `AskRag:DefaultProvider` / `DefaultModel`.
 
 ---
 

@@ -62,10 +62,90 @@ public sealed class AskRagClient(
         }
     }
 
+    public async Task<Result<AskLlmCatalogDto>> GetLlmCatalogAsync(CancellationToken cancellationToken = default)
+    {
+        if (!_options.Enabled)
+            return Result.Failure<AskLlmCatalogDto>("Ask HUFLIT is currently disabled.");
+
+        try
+        {
+            using var request = CreateRequest(HttpMethod.Get, "/api/v1/llm/catalog");
+            using var response = await httpClient.SendAsync(request, cancellationToken);
+            var body = await response.Content.ReadAsStringAsync(cancellationToken);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var detail = TryExtractDetail(body) ?? $"EnterpriseRAG catalog returned {(int)response.StatusCode}.";
+                return Result.Failure<AskLlmCatalogDto>(detail);
+            }
+
+            using var doc = JsonDocument.Parse(body);
+            var root = doc.RootElement;
+            var providers = new List<AskLlmProviderDto>();
+
+            if (root.TryGetProperty("providers", out var providersEl) && providersEl.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var p in providersEl.EnumerateArray())
+                {
+                    var models = new List<AskLlmModelDto>();
+                    if (p.TryGetProperty("models", out var modelsEl) && modelsEl.ValueKind == JsonValueKind.Array)
+                    {
+                        foreach (var m in modelsEl.EnumerateArray())
+                        {
+                            models.Add(new AskLlmModelDto
+                            {
+                                ModelId = m.TryGetProperty("model_id", out var mid) ? mid.GetString() ?? "" : "",
+                                DisplayName = m.TryGetProperty("display_name", out var mdn) ? mdn.GetString() : null,
+                                Enabled = !m.TryGetProperty("enabled", out var en) || en.ValueKind != JsonValueKind.False,
+                                IsDefault = m.TryGetProperty("is_default", out var def) && def.ValueKind == JsonValueKind.True
+                            });
+                        }
+                    }
+
+                    providers.Add(new AskLlmProviderDto
+                    {
+                        Slug = p.TryGetProperty("slug", out var slug) ? slug.GetString() ?? "" : "",
+                        DisplayName = p.TryGetProperty("display_name", out var dn) ? dn.GetString() ?? "" : "",
+                        Enabled = !p.TryGetProperty("enabled", out var pen) || pen.ValueKind != JsonValueKind.False,
+                        Configured = !p.TryGetProperty("configured", out var cfg) || cfg.ValueKind != JsonValueKind.False,
+                        Models = models
+                    });
+                }
+            }
+
+            if (providers.Count == 0)
+            {
+                providers.Add(new AskLlmProviderDto
+                {
+                    Slug = "auto",
+                    DisplayName = "Smart Router (auto)",
+                    Models =
+                    [
+                        new AskLlmModelDto { ModelId = "auto", DisplayName = "Auto", IsDefault = true }
+                    ]
+                });
+            }
+
+            return Result.Success(new AskLlmCatalogDto
+            {
+                Source = root.TryGetProperty("source", out var src) ? src.GetString() ?? "unknown" : "unknown",
+                FetchedAt = root.TryGetProperty("fetched_at", out var at) ? at.GetString() : null,
+                Providers = providers
+            });
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Ask RAG LLM catalog failed");
+            return Result.Failure<AskLlmCatalogDto>(
+                "Cannot load LLM catalog from EnterpriseRAG. Ensure it is running.");
+        }
+    }
+
     public async Task<Result<AskQueryResponseDto>> QueryAsync(
         string query,
         string? sessionId,
         string aclScope,
+        AskQueryRouting routing,
         CancellationToken cancellationToken = default)
     {
         if (!_options.Enabled)
@@ -79,8 +159,10 @@ public sealed class AskRagClient(
                 Stream = false,
                 SessionId = string.IsNullOrWhiteSpace(sessionId) ? null : sessionId,
                 Strategy = "hybrid",
-                Provider = "auto",
-                Model = "auto"
+                Provider = string.IsNullOrWhiteSpace(routing.Provider) ? "auto" : routing.Provider,
+                Model = string.IsNullOrWhiteSpace(routing.Model) ? "auto" : routing.Model,
+                Failover = routing.Failover,
+                AutoRoute = routing.AutoRoute
             };
 
             using var request = CreateRequest(HttpMethod.Post, "/api/v1/retrieval/query");
@@ -115,6 +197,8 @@ public sealed class AskRagClient(
                             || ContainsAbstainSignal(answer)
                             || (rag.Trace.HasValue && TraceIndicatesAbstain(rag.Trace.Value));
 
+            var (traceProvider, traceModel) = ExtractRoutingFromTrace(rag.Trace);
+
             return Result.Success(new AskQueryResponseDto
             {
                 Query = rag.Query ?? query,
@@ -133,7 +217,9 @@ public sealed class AskRagClient(
                 Abstained = abstained,
                 Message = abstained
                     ? "Chưa đủ căn cứ trong knowledge base chính thức. Hãy hỏi phòng ban liên quan hoặc thử câu hỏi cụ thể hơn."
-                    : null
+                    : null,
+                Provider = traceProvider ?? payload.Provider,
+                Model = traceModel ?? payload.Model
             });
         }
         catch (TaskCanceledException) when (!cancellationToken.IsCancellationRequested)
@@ -216,6 +302,35 @@ public sealed class AskRagClient(
         return false;
     }
 
+    private static (string? Provider, string? Model) ExtractRoutingFromTrace(JsonElement? trace)
+    {
+        if (trace is null || trace.Value.ValueKind != JsonValueKind.Object)
+            return (null, null);
+
+        string? provider = null;
+        string? model = null;
+        var t = trace.Value;
+
+        if (t.TryGetProperty("provider", out var p) && p.ValueKind == JsonValueKind.String)
+            provider = p.GetString();
+        if (t.TryGetProperty("model", out var m) && m.ValueKind == JsonValueKind.String)
+            model = m.GetString();
+
+        if ((provider is null || model is null)
+            && t.TryGetProperty("routing", out var routing)
+            && routing.ValueKind == JsonValueKind.Object)
+        {
+            if (provider is null && routing.TryGetProperty("provider", out var rp) && rp.ValueKind == JsonValueKind.String)
+                provider = rp.GetString();
+            if (model is null && routing.TryGetProperty("model", out var rm) && rm.ValueKind == JsonValueKind.String)
+                model = rm.GetString();
+            if (model is null && routing.TryGetProperty("winner_model", out var wm) && wm.ValueKind == JsonValueKind.String)
+                model = wm.GetString();
+        }
+
+        return (provider, model);
+    }
+
     private sealed class RagQueryRequest
     {
         [JsonPropertyName("query")]
@@ -232,6 +347,12 @@ public sealed class AskRagClient(
 
         [JsonPropertyName("stream")]
         public bool Stream { get; set; }
+
+        [JsonPropertyName("failover")]
+        public bool Failover { get; set; } = true;
+
+        [JsonPropertyName("auto_route")]
+        public bool AutoRoute { get; set; } = true;
 
         [JsonPropertyName("session_id")]
         public string? SessionId { get; set; }

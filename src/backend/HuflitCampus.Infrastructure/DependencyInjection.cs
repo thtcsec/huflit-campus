@@ -39,6 +39,7 @@ public static class DependencyInjection
             client.BaseAddress = new Uri(baseUrl + "/");
             client.Timeout = TimeSpan.FromSeconds(askOptions.TimeoutSeconds <= 0 ? 60 : askOptions.TimeoutSeconds);
         });
+        services.AddSingleton<IAskRoutingSettings, AskRoutingSettings>();
 
         var connectionString = configuration.GetConnectionString("DefaultConnection")
             ?? throw new InvalidOperationException("Connection string 'DefaultConnection' is not configured.");

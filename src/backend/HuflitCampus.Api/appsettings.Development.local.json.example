@@ -3,6 +3,9 @@
     "Enabled": true,
     "BaseUrl": "http://localhost:8000",
     "ApiKey": "PASTE_SAME_VALUE_AS_ENTERPRISE_RAG_RAG_API_KEY",
-    "TimeoutSeconds": 90
+    "TimeoutSeconds": 90,
+    "DefaultProvider": "auto",
+    "DefaultModel": "auto",
+    "Failover": true
   }
 }

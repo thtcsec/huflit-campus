@@ -246,6 +246,16 @@
       "medium": "Medium confidence",
       "low": "Low confidence"
     },
+    "llm": {
+      "title": "Admin · LLM routing (test)",
+      "provider": "Provider",
+      "model": "Model",
+      "failover": "Failover",
+      "loading": "Loading LLM settings…",
+      "loadError": "Could not load LLM catalog from EnterpriseRAG.",
+      "catalogSource": "Catalog: {{source}}",
+      "usedRoute": "Used {{provider}} / {{model}}"
+    },
     "suggestions": {
       "registration": "How do freshmen register for courses?",
       "tuition": "Where and when do I pay tuition?",

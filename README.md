@@ -263,9 +263,14 @@ Demo events: AI Prompt Engineering Workshop, HUFLIT Career Fair 2026, Inter-Facu
 | `AskRag:BaseUrl` | EnterpriseRAG URL for Ask HUFLIT | `http://localhost:8000` |
 | `AskRag:ApiKey` | Must match EnterpriseRAG `RAG_API_KEY` (local: `appsettings.Development.local.json`, not committed) | empty in tracked appsettings |
 | `AskRag:Enabled` | Toggle Ask BFF | `true` |
+| `AskRag:DefaultProvider` | Default LLM provider (`auto` = Smart Router) | `auto` |
+| `AskRag:DefaultModel` | Default model id | `auto` |
+| `AskRag:Failover` | EnterpriseRAG provider failover | `true` |
 | `Seed:DemoAdminEmail` | Documented demo admin | `admin@huflit.edu.vn` |
 
 Local Ask key: copy `src/backend/HuflitCampus.Api/appsettings.Development.local.json.example` → `appsettings.Development.local.json` (gitignored), paste the same value as `RAG_API_KEY` in `enterprise-rag/.env`. `scripts/dev.ps1` also auto-loads that key from a sibling `enterprise-rag/.env` when present.
+
+**Ask LLM routing:** Students always use `DefaultProvider` / `DefaultModel`. **Administrator** (`admin@huflit.edu.vn` in Dev) sees an Ask panel to pick provider/model/failover for testing — catalog is proxied from EnterpriseRAG (`GET /api/ask/llm/catalog`). LLM vendor keys stay on the RAG server `.env`, never in the campus SPA.
 
 Prefer environment variables / Azure App Settings in production (`ConnectionStrings__DefaultConnection`, `Jwt__SecretKey`, etc.).
 
@@ -280,6 +285,23 @@ Prefer environment variables / Azure App Settings in production (`ConnectionStri
 | [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Azure, Entra, FCM, CI/CD, Docker |
 | [docs/MODULES.md](docs/MODULES.md) | EMS map + future modules |
 | [scripts/schema.sql](scripts/schema.sql) | Full CREATE TABLE script |
+
+## Learning references (RAG / citation UX)
+
+Patterns studied for Ask HUFLIT + EnterpriseRAG (learn ideas; do not vendor proprietary code):
+
+| Project | License | Why useful |
+| --- | --- | --- |
+| [onyx-dot-app/onyx](https://github.com/onyx-dot-app/onyx) | MIT | ACL-on-retrieve, enterprise RAG product UX |
+| [infiniflow/ragflow](https://github.com/infiniflow/ragflow) | Apache-2.0 | Deep doc understanding, hybrid retrieval mindset |
+| [AviralJ58/ai-search-engine](https://github.com/AviralJ58/ai-search-engine) | — | Perplexity-style citations → PDF viewer |
+| [Akshay-Anand-Code/AI-Search-Chat-With-Citation](https://github.com/Akshay-Anand-Code/AI-Search-Chat-With-Citation) | — | Inline `[n]` + streaming citation UI |
+| [ysocrius/ai-citation-chat](https://github.com/ysocrius/ai-citation-chat) | — | Streaming + citation badges |
+| [explodinggradients/ragas](https://github.com/explodinggradients/ragas) | Apache-2.0 | Faithfulness / retrieval eval metrics |
+| [confident-ai/deepeval](https://github.com/confident-ai/deepeval) | Apache-2.0 | Citation faithfulness metrics |
+| [apoorva-01/rag-eval-harness](https://github.com/apoorva-01/rag-eval-harness) | — | Citation precision/recall harness |
+
+Full third-party attributions for the RAG engine live in the sibling **enterprise-rag** repo README.
 
 ## License
 

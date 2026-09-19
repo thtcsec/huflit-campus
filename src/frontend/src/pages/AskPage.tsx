@@ -26,7 +26,10 @@ import { askApi, type AskSource } from '@/api';
 import { PageHeader } from '@/components/common';
 import { CitedAnswer } from '@/components/ask/CitedAnswer';
 import { SourceCards } from '@/components/ask/SourceCards';
+import { AskLlmAdminPanel, type AskRoutingState } from '@/components/ask/AskLlmAdminPanel';
 import { citedIndicesInAnswer } from '@/utils/citations';
+import { useAuth } from '@/hooks';
+import { UserRole } from '@/types';
 
 type ChatRole = 'user' | 'assistant';
 
@@ -37,6 +40,8 @@ interface ChatMessage {
   sources?: AskSource[];
   abstained?: boolean;
   notice?: string | null;
+  provider?: string | null;
+  model?: string | null;
 }
 
 const SUGGESTION_KEYS = [
@@ -49,6 +54,8 @@ const SUGGESTION_KEYS = [
 export const AskPage: React.FC = () => {
   const { t } = useTranslation();
   const { enqueueSnackbar } = useSnackbar();
+  const { user } = useAuth();
+  const isAdmin = user?.role === UserRole.Administrator;
   const [input, setInput] = useState('');
   const [sessionId] = useState(() => crypto.randomUUID());
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -57,6 +64,11 @@ export const AskPage: React.FC = () => {
   const [healthMessage, setHealthMessage] = useState('');
   const [expandedSources, setExpandedSources] = useState<Record<string, boolean>>({});
   const [highlightedCite, setHighlightedCite] = useState<Record<string, number | null>>({});
+  const [routing, setRouting] = useState<AskRoutingState>({
+    provider: 'auto',
+    model: 'auto',
+    failover: true,
+  });
   const listRef = useRef<HTMLDivElement | null>(null);
   const highlightTimers = useRef<Record<string, number>>({});
 
@@ -127,7 +139,17 @@ export const AskPage: React.FC = () => {
     setSending(true);
 
     try {
-      const { data } = await askApi.query({ query, sessionId });
+      const { data } = await askApi.query({
+        query,
+        sessionId,
+        ...(isAdmin
+          ? {
+              provider: routing.provider,
+              model: routing.model,
+              failover: routing.failover,
+            }
+          : {}),
+      });
       const assistantId = crypto.randomUUID();
       const sources = data.sources ?? [];
       const assistant: ChatMessage = {
@@ -137,6 +159,8 @@ export const AskPage: React.FC = () => {
         sources,
         abstained: data.abstained,
         notice: data.message,
+        provider: data.provider,
+        model: data.model,
       };
       setMessages((prev) => [...prev, assistant]);
       setRagOk(true);
@@ -192,6 +216,8 @@ export const AskPage: React.FC = () => {
       >
         {t('ask.trustNotice')}
       </Alert>
+
+      {isAdmin && <AskLlmAdminPanel value={routing} onChange={setRouting} />}
 
       {messages.length === 0 && (
         <Stack direction="row" flexWrap="wrap" gap={1} sx={{ mb: 2 }}>
@@ -265,6 +291,15 @@ export const AskPage: React.FC = () => {
                   ) : (
                     <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
                       {msg.content}
+                    </Typography>
+                  )}
+
+                  {msg.role === 'assistant' && (msg.provider || msg.model) && (
+                    <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 0.75 }}>
+                      {t('ask.llm.usedRoute', {
+                        provider: msg.provider || '—',
+                        model: msg.model || '—',
+                      })}
                     </Typography>
                   )}
 

@@ -7,9 +7,12 @@ public interface IAskRagClient
 {
     Task<Result<AskHealthDto>> GetHealthAsync(CancellationToken cancellationToken = default);
 
+    Task<Result<AskLlmCatalogDto>> GetLlmCatalogAsync(CancellationToken cancellationToken = default);
+
     Task<Result<AskQueryResponseDto>> QueryAsync(
         string query,
         string? sessionId,
         string aclScope,
+        AskQueryRouting routing,
         CancellationToken cancellationToken = default);
 }
